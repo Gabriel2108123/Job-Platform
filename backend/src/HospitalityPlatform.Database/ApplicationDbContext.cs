@@ -1,6 +1,10 @@
 using HospitalityPlatform.Identity.Entities;
 using HospitalityPlatform.Jobs.Entities;
 using HospitalityPlatform.Jobs.Services;
+using HospitalityPlatform.Billing.Entities;
+using HospitalityPlatform.Billing.Services;
+using HospitalityPlatform.Entitlements.Entities;
+using HospitalityPlatform.Entitlements.Services;
 using HospitalityPlatform.Audit.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -11,7 +15,7 @@ namespace HospitalityPlatform.Database;
 /// <summary>
 /// Application database context with Identity and custom entities
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext, IBillingDbContext, IEntitlementsDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -23,6 +27,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Application> Applications { get; set; }
     public DbSet<PreHireConfirmation> PreHireConfirmations { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    
+    // Billing DbSets
+    public DbSet<Subscription> Subscriptions { get; set; }
+    public DbSet<WebhookEvent> WebhookEvents { get; set; }
+    public DbSet<Plan> Plans { get; set; }
+    
+    // Entitlements DbSets
+    public DbSet<EntitlementLimit> EntitlementLimits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -131,6 +143,58 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => new { e.EntityType, e.EntityId });
+        });
+
+        // Configure Subscription
+        builder.Entity<Subscription>(entity =>
+        {
+            entity.ToTable("Subscriptions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StripeSubscriptionId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.StripeCustomerId).IsRequired().HasMaxLength(100);
+            
+            entity.HasIndex(e => e.OrganizationId).IsUnique();
+            entity.HasIndex(e => e.StripeSubscriptionId);
+            entity.HasIndex(e => e.Status);
+        });
+
+        // Configure WebhookEvent
+        builder.Entity<WebhookEvent>(entity =>
+        {
+            entity.ToTable("WebhookEvents");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StripeEventId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Payload).IsRequired();
+            
+            entity.HasIndex(e => e.StripeEventId).IsUnique();
+            entity.HasIndex(e => e.IsProcessed);
+            entity.HasIndex(e => e.ReceivedAt);
+        });
+
+        // Configure Plan
+        builder.Entity<Plan>(entity =>
+        {
+            entity.ToTable("Plans");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.StripeProductId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.StripePriceId).IsRequired().HasMaxLength(100);
+            
+            entity.HasIndex(e => e.Type);
+            entity.HasIndex(e => e.IsActive);
+        });
+
+        // Configure EntitlementLimit
+        builder.Entity<EntitlementLimit>(entity =>
+        {
+            entity.ToTable("EntitlementLimits");
+            entity.HasKey(e => e.Id);
+            
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => new { e.OrganizationId, e.LimitType }).IsUnique();
+            entity.HasIndex(e => e.PlanType);
         });
 
         // Rename Identity tables

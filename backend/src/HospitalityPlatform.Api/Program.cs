@@ -106,6 +106,14 @@ builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobService, Hospit
 builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IApplicationService, HospitalityPlatform.Jobs.Services.ApplicationService>();
 builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobsDbContext>(provider => provider.GetRequiredService<HospitalityPlatform.Database.ApplicationDbContext>());
 
+// Register Billing services
+builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IBillingService, HospitalityPlatform.Billing.Services.BillingService>();
+builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IBillingDbContext>(provider => provider.GetRequiredService<HospitalityPlatform.Database.ApplicationDbContext>());
+
+// Register Entitlements services
+builder.Services.AddScoped<HospitalityPlatform.Entitlements.Services.IEntitlementsService, HospitalityPlatform.Entitlements.Services.EntitlementsService>();
+builder.Services.AddScoped<HospitalityPlatform.Entitlements.Services.IEntitlementsDbContext>(provider => provider.GetRequiredService<HospitalityPlatform.Database.ApplicationDbContext>());
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {
@@ -123,6 +131,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Apply database migrations and seed data
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Failed to apply database migrations");
+    }
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

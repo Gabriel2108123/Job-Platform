@@ -11,6 +11,8 @@
     <ProjectReference Include="..\HospitalityPlatform.Identity\HospitalityPlatform.Identity.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Jobs\HospitalityPlatform.Jobs.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Audit\HospitalityPlatform.Audit.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Billing\HospitalityPlatform.Billing.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Entitlements\HospitalityPlatform.Entitlements.csproj" />
   </ItemGroup>
 
   <ItemGroup>
