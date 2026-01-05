@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HospitalityPlatform.Core\HospitalityPlatform.Core.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Audit\HospitalityPlatform.Audit.csproj" />
   </ItemGroup>
 
   <ItemGroup>

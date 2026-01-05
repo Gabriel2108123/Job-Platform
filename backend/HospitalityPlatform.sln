@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalityPlatform.Identit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalityPlatform.Audit", "src\HospitalityPlatform.Audit\HospitalityPlatform.Audit.csproj", "{26E0155B-F188-4396-8585-9B6D867A5F04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalityPlatform.Jobs", "src\HospitalityPlatform.Jobs\HospitalityPlatform.Jobs.csproj", "{36F7C3E5-5F45-40F1-86D7-C8A7B8D3F2E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HospitalityPlatform.Database", "src\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj", "{46G7D4F6-6F56-50G2-97E8-D9B8C9E4G3F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,5 +99,7 @@ Global
 		{13897D53-CF23-4500-8E54-BCAFECF91E22} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{AAFB2FE3-6FA5-4ED0-A792-4F18167F4117} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{26E0155B-F188-4396-8585-9B6D867A5F04} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{36F7C3E5-5F45-40F1-86D7-C8A7B8D3F2E1} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{46G7D4F6-6F56-50G2-97E8-D9B8C9E4G3F2} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

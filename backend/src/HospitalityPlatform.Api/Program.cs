@@ -1,7 +1,7 @@
 using HospitalityPlatform.Auth.Handlers;
 using HospitalityPlatform.Auth.Policies;
 using HospitalityPlatform.Auth.Requirements;
-using HospitalityPlatform.Identity.Data;
+using HospitalityPlatform.Database;
 using HospitalityPlatform.Identity.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -79,6 +79,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(PolicyNames.RequireBusinessOwner, policy =>
         policy.Requirements.Add(new RoleRequirement("BusinessOwner")));
     
+    options.AddPolicy(PolicyNames.RequireBusinessRole, policy =>
+        policy.RequireAssertion(context =>
+            context.User.IsInRole("BusinessOwner") || context.User.IsInRole("BusinessStaff")));
+    
     options.AddPolicy(PolicyNames.RequireStaff, policy =>
         policy.Requirements.Add(new RoleRequirement("Staff")));
     
@@ -95,6 +99,12 @@ builder.Services.AddAuthorization(options =>
 // Register authorization handlers
 builder.Services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrganizationRequirementHandler>();
+
+// Register application services
+builder.Services.AddScoped<HospitalityPlatform.Audit.Services.IAuditService, HospitalityPlatform.Audit.Services.AuditService>();
+builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobService, HospitalityPlatform.Jobs.Services.JobService>();
+builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IApplicationService, HospitalityPlatform.Jobs.Services.ApplicationService>();
+builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobsDbContext>(provider => provider.GetRequiredService<HospitalityPlatform.Database.ApplicationDbContext>());
 
 // Configure CORS
 builder.Services.AddCors(options =>
