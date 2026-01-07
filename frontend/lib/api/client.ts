@@ -2,7 +2,7 @@
  * API configuration
  */
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5205',
   timeout: 30000,
 };
 
@@ -83,4 +83,101 @@ export async function apiRequest<T>(
       error: error instanceof Error ? error.message : 'An unknown error occurred',
     };
   }
+}
+
+// ============================================================================
+// Job DTOs (match backend)
+// ============================================================================
+
+export interface JobDto {
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  employmentType: 'FullTime' | 'PartTime' | 'Temporary';
+  shiftPattern?: string;
+  salary?: string;
+  isPublished: boolean;
+  createdAt: string;
+}
+
+export interface JobPagedResult {
+  items: JobDto[];
+  totalCount: number;
+  pageSize: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+export interface ApplicationDto {
+  id: string;
+  jobId: string;
+  userId: string;
+  status: 'Applied' | 'Reviewing' | 'Accepted' | 'Rejected' | 'Withdrawn';
+  appliedAt: string;
+}
+
+export interface GetJobsParams {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  location?: string;
+  employmentType?: string;
+}
+
+// ============================================================================
+// Job API Functions
+// ============================================================================
+
+/**
+ * Fetch jobs list with optional pagination and filters
+ */
+export async function getJobs(
+  params?: GetJobsParams
+): Promise<ApiResponse<JobPagedResult | JobDto[]>> {
+  const queryParams = new URLSearchParams();
+
+  if (params) {
+    if (params.page) queryParams.set('page', params.page.toString());
+    if (params.pageSize) queryParams.set('pageSize', params.pageSize.toString());
+    if (params.search) queryParams.set('search', params.search);
+    if (params.location) queryParams.set('location', params.location);
+    if (params.employmentType) queryParams.set('employmentType', params.employmentType);
+  }
+
+  const path = `/api/Jobs${queryParams.toString() ? `?${queryParams}` : ''}`;
+  return apiRequest<JobPagedResult | JobDto[]>(path);
+}
+
+/**
+ * Fetch single job by ID
+ */
+export async function getJob(id: string): Promise<ApiResponse<JobDto>> {
+  return apiRequest<JobDto>(`/api/Jobs/${id}`);
+}
+
+/**
+ * Apply to a job
+ */
+export async function applyToJob(jobId: string): Promise<ApiResponse<ApplicationDto>> {
+  return apiRequest<ApplicationDto>(
+    `/api/applications/jobs/${jobId}/apply`,
+    {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }
+  );
+}
+
+/**
+ * Send email verification token
+ */
+export async function sendEmailVerification(): Promise<ApiResponse<{ message: string }>> {
+  return apiRequest<{ message: string }>(
+    '/api/auth/send-verification',
+    {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }
+  );
 }
