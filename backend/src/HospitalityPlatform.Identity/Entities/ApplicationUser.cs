@@ -14,6 +14,11 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTime? UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;
     
+    /// <summary>
+    /// Whether user's email has been verified
+    /// </summary>
+    public bool EmailVerified { get; set; } = false;
+    
     // Navigation properties
     public Organization? Organization { get; set; }
 }

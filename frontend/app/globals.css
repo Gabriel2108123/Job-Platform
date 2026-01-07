@@ -1,26 +1,67 @@
 @import "tailwindcss";
 
 :root {
+  /* Brand Colors - Primary */
+  --brand-navy: #1a3a52;
+  --brand-gold: #d4af37;
+  --brand-aqua: #00a8a8;
+  --brand-off-white: #f5f1ed;
+  --brand-charcoal: #2d2d2d;
+
+  /* Background & Foreground */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #2d2d2d;
+
+  /* Secondary Colors */
+  --secondary-light: #f0f0f0;
+  --secondary-dark: #666666;
+
+  /* Status Colors */
+  --success: #10b981;
+  --error: #ef4444;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+
+  /* Neutral Grays */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+  --font-sans-alt: var(--font-poppins);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-montserrat);
+  font-weight: 600;
+}
+
+button, [role="button"] {
+  font-family: var(--font-poppins);
+}
+
+input, textarea, select {
+  font-family: var(--font-poppins);
+}
+
+* {
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 }

@@ -9,7 +9,5 @@ namespace HospitalityPlatform.Jobs.Services;
 public interface IJobsDbContext
 {
     DbSet<Job> Jobs { get; }
-    DbSet<Application> Applications { get; }
-    DbSet<PreHireConfirmation> PreHireConfirmations { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

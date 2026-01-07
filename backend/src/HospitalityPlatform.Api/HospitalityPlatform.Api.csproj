@@ -10,11 +10,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.22" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.301" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +25,13 @@
     <ProjectReference Include="..\HospitalityPlatform.Identity\HospitalityPlatform.Identity.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Audit\HospitalityPlatform.Audit.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Jobs\HospitalityPlatform.Jobs.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Applications\HospitalityPlatform.Applications.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Billing\HospitalityPlatform.Billing.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Entitlements\HospitalityPlatform.Entitlements.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Messaging\HospitalityPlatform.Messaging.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Waitlist\HospitalityPlatform.Waitlist.csproj" />
   </ItemGroup>
 
 </Project>
