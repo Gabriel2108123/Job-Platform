@@ -113,7 +113,7 @@ export interface ApplicationDto {
   id: string;
   jobId: string;
   userId: string;
-  status: 'Applied' | 'Reviewing' | 'Accepted' | 'Rejected' | 'Withdrawn';
+  status: 'Applied' | 'Screening' | 'Interviewed' | 'Offered' | 'PreHireChecks' | 'Hired' | 'Rejected' | 'Withdrawn';
   appliedAt: string;
 }
 

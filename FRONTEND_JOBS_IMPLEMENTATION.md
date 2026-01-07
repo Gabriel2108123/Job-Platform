@@ -91,7 +91,7 @@ interface ApplicationDto {
   id: string;
   jobId: string;
   userId: string;
-  status: 'Applied' | 'Reviewing' | 'Accepted' | 'Rejected' | 'Withdrawn';
+  status: 'Applied' | 'Screening' | 'Interviewed' | 'Offered' | 'PreHireChecks' | 'Hired' | 'Rejected' | 'Withdrawn';
   appliedAt: string;
 }
 ```
@@ -202,7 +202,7 @@ On Success:
 ```
 
 **Error Handling**:
-- 409 (Duplicate): "You already applied to this job"
+- 409 or 400 (if message contains "already"): "You already applied to this job"
 - 403 (Not Verified): "Please verify your email before applying"
 - Other: Show generic error message
 
@@ -366,7 +366,7 @@ npm start
 1. **Create missing pages** for auth flow if not already built:
    - `/login` - Login page
    - `/register` - Registration page
-   - `/verify-email` - Email verification page
+   - ✅ `/verify-email` - Email verification page (NOW CREATED)
    - `/applications` - User's applications list
 
 2. **Implement backend endpoints** if not already done:

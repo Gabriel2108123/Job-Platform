@@ -71,7 +71,9 @@ export default function JobDetailsPage({ params }: PageProps) {
         }, 100);
       } else {
         // Check for specific error messages
-        if (response.error?.status === 409) {
+        // Handle both 409 and 400 as "already applied"
+        if ((response.error?.status === 409 || response.error?.status === 400) && 
+            response.error?.message?.toLowerCase().includes('already')) {
           setApplyError('You already applied to this job');
         } else if (response.error?.status === 403) {
           setApplyError('Please verify your email before applying');
