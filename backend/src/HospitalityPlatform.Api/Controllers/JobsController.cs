@@ -85,7 +85,7 @@ public class JobsController : ControllerBase
             }
 
             var result = await _jobService.GetJobsByOrganizationAsync(organizationId, 1, 1000);
-            return Ok(new { success = true, data = result.Items });
+            return Ok(result);
         }
         catch (Exception ex)
         {

@@ -248,6 +248,25 @@ public class MessagingController : ControllerBase
         }
     }
 
+    /// <summary>Mark all messages in a conversation as read.</summary>
+    [HttpPut("conversations/{conversationId}/mark-read")]
+    public async Task<IActionResult> MarkConversationRead(Guid conversationId)
+    {
+        try
+        {
+            var organizationId = GetOrganizationId();
+            var userId = GetUserId();
+
+            await _messagingService.MarkConversationAsReadAsync(organizationId, conversationId, userId);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error marking conversation as read");
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     /// <summary>Get unread message count for the current user.</summary>
     [HttpGet("unread-count")]
     public async Task<ActionResult<int>> GetUnreadCount()

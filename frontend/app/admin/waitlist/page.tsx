@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui';
 import { Card, CardBody } from '@/components/ui';
+import { apiRequest } from '@/lib/api/client';
 
 interface WaitlistEntry {
   id: string;
@@ -43,26 +44,16 @@ export default function AdminWaitlist() {
         ...(filter !== null && { accountType: filter.toString() }),
       });
 
-      const response = await fetch(`/api/waitlist/admin?${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiRequest<WaitlistPagedResult>(`/api/waitlist/admin?${queryParams}`);
 
-      if (response.status === 401) {
-        setError('Unauthorized. Please log in as an admin.');
+      if (!response.success) {
+        setError(response.error || 'Failed to fetch waitlist entries.');
         return;
       }
 
-      if (!response.ok) {
-        setError('Failed to fetch waitlist entries.');
-        return;
-      }
-
-      const data: WaitlistPagedResult = await response.json();
-      setEntries(data.entries);
-      setTotalCount(data.totalCount);
+      const data = response.data;
+      setEntries(data?.entries || []);
+      setTotalCount(data?.totalCount || 0);
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -81,20 +72,12 @@ export default function AdminWaitlist() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/waitlist/admin/${id}`, {
+      const response = await apiRequest(`/api/waitlist/admin/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
-      if (response.status === 401) {
-        setError('Unauthorized.');
-        return;
-      }
-
-      if (!response.ok) {
-        setError('Failed to delete entry.');
+      if (!response.success) {
+        setError(response.error || 'Failed to delete entry.');
         return;
       }
 
@@ -114,17 +97,10 @@ export default function AdminWaitlist() {
         ...(accountTypeFilter !== null && { accountType: accountTypeFilter.toString() }),
       });
 
-      const response = await fetch(`/api/waitlist/admin/export?${queryParams}`, {
-        method: 'GET',
-      });
+      const response = await apiRequest<Blob>(`/api/waitlist/admin/export?${queryParams}`);
 
-      if (response.status === 401) {
-        setError('Unauthorized.');
-        return;
-      }
-
-      if (!response.ok) {
-        setError('Failed to export CSV.');
+      if (!response.success || !response.data) {
+        setError(response.error || 'Failed to export CSV.');
         return;
       }
 

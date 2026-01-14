@@ -7,6 +7,7 @@ import { RequireAuth } from '@/components/auth/RequireAuth';
 import { RequireRole } from '@/components/auth/RequireRole';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/layout/StatCard';
+import { apiRequest } from '@/lib/api/client';
 
 export default function AdminDashboard() {
   return (
@@ -30,44 +31,34 @@ function AdminDashboardContent() {
   useEffect(() => {
     const fetchAdminStats = async () => {
       setLoading(true);
-      const baseUrl = 'http://localhost:5205';
       try {
         // Fetch users count
-        const usersRes = await fetch(`${baseUrl}/api/admin/users?page=1&pageSize=1`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (usersRes.ok) {
-          const usersData = await usersRes.json();
-          setStats(prev => ({ ...prev, totalUsers: usersData.totalCount || 0 }));
+        const usersResponse = await apiRequest<any>('/api/admin/users?pageNumber=1&pageSize=1');
+        if (usersResponse.success && usersResponse.data) {
+          const totalCount = usersResponse.data.totalCount || usersResponse.data.items?.length || 0;
+          setStats(prev => ({ ...prev, totalUsers: totalCount }));
         }
 
         // Fetch organizations count
-        const orgsRes = await fetch(`${baseUrl}/api/admin/organizations?page=1&pageSize=1`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (orgsRes.ok) {
-          const orgsData = await orgsRes.json();
-          setStats(prev => ({ ...prev, totalOrgs: orgsData.totalCount || 0 }));
+        const orgsResponse = await apiRequest<any>('/api/admin/organizations?pageNumber=1&pageSize=1');
+        if (orgsResponse.success && orgsResponse.data) {
+          const totalCount = orgsResponse.data.totalCount || orgsResponse.data.items?.length || 0;
+          setStats(prev => ({ ...prev, totalOrgs: totalCount }));
         }
 
         // Fetch subscriptions
-        const subsRes = await fetch(`${baseUrl}/api/admin/subscriptions`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (subsRes.ok) {
-          const subsData = await subsRes.json();
-          const subs = subsData.data || [];
+        const subsResponse = await apiRequest<any>('/api/admin/subscriptions');
+        if (subsResponse.success && subsResponse.data) {
+          const subs = subsResponse.data.items || subsResponse.data || [];
           const active = subs.filter((s: any) => s.status === 'Active').length;
           setStats(prev => ({ ...prev, activeSubscriptions: active }));
         }
 
         // Fetch waitlist count
-        const waitlistRes = await fetch(`${baseUrl}/api/waitlist`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (waitlistRes.ok) {
-          const waitlistData = await waitlistRes.json();
-          setStats(prev => ({ ...prev, waitlistCount: (waitlistData.data || []).length }));
+        const waitlistResponse = await apiRequest<any>('/api/waitlist');
+        if (waitlistResponse.success && waitlistResponse.data) {
+          const entries = Array.isArray(waitlistResponse.data) ? waitlistResponse.data : waitlistResponse.data.items || [];
+          setStats(prev => ({ ...prev, waitlistCount: entries.length }));
         }
       } catch (error) {
         console.error('Failed to fetch admin stats:', error);

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { getUser } from '@/lib/auth';
+import { apiRequest } from '@/lib/api/client';
 
 interface Plan {
   id: string;
@@ -57,34 +58,25 @@ function BillingContent() {
   useEffect(() => {
     const fetchBillingData = async () => {
       setLoading(true);
-      const baseUrl = 'http://localhost:5205';
       try {
         // Fetch plans
-        const plansRes = await fetch(`${baseUrl}/api/billing/plans`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (plansRes.ok) {
-          const plansData = await plansRes.json();
-          setPlans(plansData.data || []);
+        const plansResponse = await apiRequest<any>('/api/billing/plans');
+        if (plansResponse.success && plansResponse.data) {
+          const plans = Array.isArray(plansResponse.data) ? plansResponse.data : plansResponse.data.data || [];
+          setPlans(plans);
         }
 
         // Fetch current subscription
         if (organizationId) {
-          const subRes = await fetch(`${baseUrl}/api/billing/subscription/${organizationId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          });
-          if (subRes.ok) {
-            const subData = await subRes.json();
-            setSubscription(subData.data || null);
+          const subResponse = await apiRequest<any>(`/api/billing/subscription/${organizationId}`);
+          if (subResponse.success && subResponse.data) {
+            setSubscription(subResponse.data);
           }
 
           // Fetch entitlements
-          const entRes = await fetch(`${baseUrl}/api/entitlements/${organizationId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          });
-          if (entRes.ok) {
-            const entData = await entRes.json();
-            setEntitlements(entData.data || null);
+          const entResponse = await apiRequest<any>(`/api/entitlements/${organizationId}`);
+          if (entResponse.success && entResponse.data) {
+            setEntitlements(entResponse.data);
           }
         }
       } catch (error) {
@@ -104,24 +96,18 @@ function BillingContent() {
     }
 
     setSubscribing(true);
-    const baseUrl = 'http://localhost:5205';
     try {
-      const res = await fetch(`${baseUrl}/api/billing/subscribe`, {
+      const response = await apiRequest<any>('/api/billing/subscribe', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify({ organizationId, planId })
       });
 
-      if (res.ok) {
+      if (response.success) {
         alert('Successfully subscribed!');
         // Refresh data
         window.location.reload();
       } else {
-        const error = await res.json();
-        alert(`Failed to subscribe: ${error.message || 'Unknown error'}`);
+        alert(`Failed to subscribe: ${response.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Subscription error:', error);

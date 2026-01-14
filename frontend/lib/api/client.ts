@@ -195,7 +195,7 @@ export async function getJobs(
     if (params.employmentType) queryParams.set('employmentType', params.employmentType);
   }
 
-  const path = `/api/Jobs${queryParams.toString() ? `?${queryParams}` : ''}`;
+  const path = `/api/jobs${queryParams.toString() ? `?${queryParams}` : ''}`;
   return apiRequest<JobPagedResult | JobDto[]>(path);
 }
 
@@ -203,7 +203,7 @@ export async function getJobs(
  * Fetch single job by ID
  */
 export async function getJob(id: string): Promise<ApiResponse<JobDto>> {
-  return apiRequest<JobDto>(`/api/Jobs/${id}`);
+  return apiRequest<JobDto>(`/api/jobs/${id}`);
 }
 
 /**
@@ -316,7 +316,7 @@ export interface JobDetailDto extends JobDto {
 export async function getOrganizationJobs(
   organizationId: string
 ): Promise<ApiResponse<JobDto[]>> {
-  return apiRequest<JobDto[]>(`/api/Jobs/organization/${organizationId}`);
+  return apiRequest<JobDto[]>(`/api/jobs/organization/${organizationId}`);
 }
 
 /**
@@ -326,7 +326,7 @@ export async function createJob(
   job: CreateJobDto
 ): Promise<ApiResponse<JobDto>> {
   return apiRequest<JobDto>(
-    '/api/Jobs',
+    '/api/jobs',
     {
       method: 'POST',
       body: JSON.stringify(job),
@@ -342,7 +342,7 @@ export async function updateJob(
   updates: Partial<JobDto>
 ): Promise<ApiResponse<JobDto>> {
   return apiRequest<JobDto>(
-    `/api/Jobs/${jobId}`,
+    `/api/jobs/${jobId}`,
     {
       method: 'PUT',
       body: JSON.stringify(updates),

@@ -52,14 +52,10 @@ function PipelineContent() {
   useEffect(() => {
     const fetchJobs = async () => {
       setLoading(true);
-      const baseUrl = 'http://localhost:5205';
       try {
-        const res = await fetch(`${baseUrl}/api/jobs/organization`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const jobsList = data.data || [];
+        const response = await apiRequest<any>('/api/jobs/organization');
+        if (response.success && response.data) {
+          const jobsList = response.data.items || response.data;
           setJobs(jobsList);
           if (jobsList.length > 0 && !selectedJobId) {
             setSelectedJobId(jobsList[0].id);
@@ -129,15 +125,13 @@ function PipelineContent() {
         })
       });
 
-      if (res.ok) {
+      if (response.success) {
         // Refresh applications
         if (selectedJobId) {
-          const refreshRes = await fetch(`${baseUrl}/api/pipeline/jobs/${selectedJobId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          });
-          if (refreshRes.ok) {
-            const data = await refreshRes.json();
-            setApplications(data.data || []);
+          const refreshResponse = await apiRequest<any>(`/api/pipeline/jobs/${selectedJobId}`);
+          if (refreshResponse.success && refreshResponse.data) {
+            const appsList = refreshResponse.data.applications || refreshResponse.data.items || refreshResponse.data;
+            setApplications(Array.isArray(appsList) ? appsList : []);
           }
         }
       } else {

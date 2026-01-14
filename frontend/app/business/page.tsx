@@ -32,16 +32,12 @@ function BusinessDashboardContent() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
-      const baseUrl = 'http://localhost:5205';
       try {
         // Get jobs for organization
-        const jobsRes = await fetch(`${baseUrl}/api/jobs/organization`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        const jobsResponse = await apiRequest<any>('/api/jobs/organization');
         
-        if (jobsRes.ok) {
-          const jobsData = await jobsRes.json();
-          const jobs = jobsData.data || [];
+        if (jobsResponse.success && jobsResponse.data) {
+          const jobs = jobsResponse.data.items || jobsResponse.data;
           setStats(prev => ({
             ...prev,
             totalJobs: jobs.length,
@@ -51,24 +47,19 @@ function BusinessDashboardContent() {
           // Count applications across all jobs
           let totalApps = 0;
           for (const job of jobs) {
-            const appRes = await fetch(`${baseUrl}/api/applications/job/${job.id}`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-            });
-            if (appRes.ok) {
-              const appData = await appRes.json();
-              totalApps += (appData.data || []).length;
+            const appResponse = await apiRequest<any>(`/api/applications/job/${job.id}`);
+            if (appResponse.success && appResponse.data) {
+              const appsList = Array.isArray(appResponse.data) ? appResponse.data : appResponse.data.items || [];
+              totalApps += appsList.length;
             }
           }
           setStats(prev => ({ ...prev, totalApplications: totalApps }));
         }
 
         // Get unread message count
-        const msgsRes = await fetch(`${baseUrl}/api/messaging/conversations`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (msgsRes.ok) {
-          const msgsData = await msgsRes.json();
-          const conversations = msgsData.data || [];
+        const msgsResponse = await apiRequest<any>('/api/messaging/conversations');
+        if (msgsResponse.success && msgsResponse.data) {
+          const conversations = msgsResponse.data.items || msgsResponse.data;
           const unread = conversations.reduce((sum: number, c: any) => sum + (c.unreadCount || 0), 0);
           setStats(prev => ({ ...prev, unreadMessages: unread }));
         }
