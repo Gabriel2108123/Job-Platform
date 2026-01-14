@@ -257,7 +257,7 @@ public class MessagingController : ControllerBase
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
 
-            await _messagingService.MarkConversationAsReadAsync(organizationId, conversationId, userId);
+            await _messagingService.MarkAsReadAsync(organizationId, conversationId, userId);
             return NoContent();
         }
         catch (Exception ex)
