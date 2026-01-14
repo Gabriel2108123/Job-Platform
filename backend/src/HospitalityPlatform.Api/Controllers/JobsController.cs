@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace HospitalityPlatform.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/jobs")]
 public class JobsController : ControllerBase
 {
     private readonly IJobService _jobService;
@@ -66,6 +66,31 @@ public class JobsController : ControllerBase
         {
             _logger.LogError(ex, "Error getting job {JobId}", id);
             return StatusCode(500, new { error = "An error occurred while retrieving the job" });
+        }
+    }
+
+    /// <summary>
+    /// Get jobs for current user's organization
+    /// </summary>
+    [HttpGet("organization")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<IEnumerable<JobDto>>> GetMyOrganizationJobs()
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var result = await _jobService.GetJobsByOrganizationAsync(organizationId, 1, 1000);
+            return Ok(new { success = true, data = result.Items });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting organization jobs");
+            return StatusCode(500, new { error = "An error occurred while retrieving jobs" });
         }
     }
 

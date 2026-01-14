@@ -14,3 +14,12 @@ public class MoveApplicationDto
     public bool? PreHireCheckConfirmation { get; set; }
     public string? PreHireCheckConfirmationText { get; set; }
 }
+
+/// <summary>
+/// DTO for move-application endpoint (includes ApplicationId in body)
+/// </summary>
+public class MoveApplicationRequestDto : MoveApplicationDto
+{
+    [Required]
+    public Guid ApplicationId { get; set; }
+}

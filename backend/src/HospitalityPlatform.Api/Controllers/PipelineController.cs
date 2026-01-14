@@ -55,6 +55,16 @@ public class PipelineController : ControllerBase
     }
 
     /// <summary>
+    /// Move application to a new status (accepts applicationId in body)
+    /// </summary>
+    [HttpPost("move-application")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<ApplicationDto>> MoveApplicationWithBody([FromBody] MoveApplicationRequestDto request)
+    {
+        return await MoveApplication(request.ApplicationId, request);
+    }
+
+    /// <summary>
     /// Move application to a new status in the pipeline
     /// </summary>
     [HttpPost("applications/{applicationId}/move")]

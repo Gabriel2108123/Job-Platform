@@ -173,38 +173,116 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
     try
     {
         dbContext.Database.Migrate();
+        
+        // Seed roles if they don't exist
+        string[] roles = { "Candidate", "BusinessOwner", "Staff", "Admin", "Support" };
+        foreach (var roleName in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(roleName))
+            {
+                await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+                logger.LogInformation("Created role: {Role}", roleName);
+            }
+        }
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Failed to apply database migrations");
+        logger.LogError(ex, "Failed to apply database migrations or seed roles");
     }
 }
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    try
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+    catch (Exception ex)
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Failed to configure Swagger - this is non-critical");
+    }
 }
 
-app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
-app.UseAuthentication();
-app.UseAuthorization();
+// Add global exception handling middleware
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Unhandled exception during request");
+        
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
+        }
+    }
+});
+
+try
+{
+    app.UseCors("AllowFrontend");
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "CORS configuration encountered an issue");
+}
+
+try
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "Authentication/Authorization middleware failed");
+}
 
 app.MapControllers();
 
-// Map SignalR hub for real-time messaging
-app.MapHub<HospitalityPlatform.Messaging.Hubs.MessagingHub>("/hubs/messaging")
-    .RequireAuthorization();
+// Map SignalR hub for real-time messaging (gracefully handle failures)
+try
+{
+    app.MapHub<HospitalityPlatform.Messaging.Hubs.MessagingHub>("/hubs/messaging")
+        .RequireAuthorization();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "Failed to map SignalR messaging hub");
+}
 
 // Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }))
     .WithName("HealthCheck")
     .WithOpenApi();
 
-app.Run();
+try
+{
+    await app.RunAsync();
+}
+catch (OperationCanceledException)
+{
+    // Normal shutdown
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Application runtime error - app is shutting down");
+}

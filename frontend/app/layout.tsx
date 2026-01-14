@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Poppins, Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
+import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 
 // Import brand fonts
@@ -24,8 +24,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "UK Hospitality Platform - Connect Talent with Opportunity",
-  description: "The premier hiring platform for the UK hospitality industry",
+  title: "YokeConnect - Hospitality hiring that actually moves",
+  description: "Connect hospitality talent with opportunity. Faster hiring, safer process, clear value for employers and candidates.",
 };
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${poppins.variable} ${inter.variable}`}
     >
       <body className="antialiased flex flex-col min-h-screen">
-        <Header />
+        <Navigation />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

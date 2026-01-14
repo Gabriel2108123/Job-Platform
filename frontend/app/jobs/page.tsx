@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
-import { getJobs, JobDto, JobPagedResult } from '@/lib/api/client';
+import { getJobs, JobDto, JobPagedResult, EmploymentType } from '@/lib/api/client';
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<JobDto[]>([]);
@@ -70,14 +70,20 @@ export default function JobsPage() {
     setCurrentPage(1);
   };
 
-  const getEmploymentTypeBadgeColor = (type: string) => {
+  const getEmploymentTypeBadgeColor = (type: EmploymentType) => {
     switch (type) {
-      case 'FullTime':
+      case EmploymentType.FullTime:
         return 'bg-blue-100 text-blue-800';
-      case 'PartTime':
+      case EmploymentType.PartTime:
         return 'bg-green-100 text-green-800';
-      case 'Temporary':
+      case EmploymentType.Casual:
+        return 'bg-purple-100 text-purple-800';
+      case EmploymentType.Temporary:
         return 'bg-yellow-100 text-yellow-800';
+      case EmploymentType.Contract:
+        return 'bg-indigo-100 text-indigo-800';
+      case EmploymentType.ZeroHours:
+        return 'bg-pink-100 text-pink-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -169,7 +175,7 @@ export default function JobsPage() {
                 setLocationFilter('');
                 setEmploymentTypeFilter('');
               }}
-              variant="default"
+              variant="primary"
             >
               Clear Filters
             </Button>
@@ -196,27 +202,23 @@ export default function JobsPage() {
                       <p className="text-gray-600 mb-3 text-sm">{job.location}</p>
 
                       {/* Salary */}
-                      {job.salary && (
+                      {(job.salaryMin || job.salaryMax) && (
                         <p className="text-[var(--brand-primary)] font-semibold mb-3">
-                          {job.salary}
+                          {job.salaryMin && job.salaryMax ? `${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}` : job.salaryMin?.toLocaleString() || job.salaryMax?.toLocaleString()} {job.salaryCurrency || 'GBP'}
                         </p>
                       )}
 
                       {/* Badges */}
                       <div className="flex flex-wrap gap-2 mb-4">
                         <Badge className={getEmploymentTypeBadgeColor(job.employmentType)}>
-                          {job.employmentType === 'FullTime'
-                            ? 'Full Time'
-                            : job.employmentType === 'PartTime'
-                            ? 'Part Time'
-                            : 'Temporary'}
+                          {job.employmentTypeName}
                         </Badge>
-                        {job.shiftPattern && (
+                        {job.shiftPatternName && (
                           <Badge className="bg-purple-100 text-purple-800">
-                            {job.shiftPattern}
+                            {job.shiftPatternName}
                           </Badge>
                         )}
-                        {job.isPublished && (
+                        {job.status === 1 && (
                           <Badge className="bg-green-100 text-green-800">Published</Badge>
                         )}
                       </div>
@@ -228,7 +230,7 @@ export default function JobsPage() {
 
                       {/* View Button */}
                       <Button
-                        variant="default"
+                        variant="primary"
                         className="w-full"
                         onClick={(e) => {
                           e.preventDefault();
@@ -246,7 +248,7 @@ export default function JobsPage() {
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 mb-8">
                 <Button
-                  variant="default"
+                  variant="outline"
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(currentPage - 1)}
                 >
@@ -256,7 +258,7 @@ export default function JobsPage() {
                   Page {currentPage} of {totalPages}
                 </div>
                 <Button
-                  variant="default"
+                  variant="outline"
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(currentPage + 1)}
                 >

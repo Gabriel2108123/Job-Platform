@@ -12,7 +12,7 @@ namespace HospitalityPlatform.Api.Controllers;
 /// All operations use soft suspension (no hard deletes).
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/admin")]
 [Authorize(Policy = "RequireAdmin")]
 public class AdminController : ControllerBase
 {

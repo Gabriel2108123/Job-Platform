@@ -18,6 +18,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   organizationId?: string;
+  role?: string;
   isActive: boolean;
   createdAt: string;
 }

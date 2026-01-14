@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { getJob, applyToJob, sendEmailVerification, JobDto } from '@/lib/api/client';
+import { getJob, applyToJob, sendEmailVerification, JobDto, EmploymentType } from '@/lib/api/client';
 import { isLoggedIn, isEmailVerified, getUser } from '@/lib/auth';
 
 interface PageProps {
@@ -70,16 +70,8 @@ export default function JobDetailsPage({ params }: PageProps) {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
       } else {
-        // Check for specific error messages
-        // Handle both 409 and 400 as "already applied"
-        if ((response.error?.status === 409 || response.error?.status === 400) && 
-            response.error?.message?.toLowerCase().includes('already')) {
-          setApplyError('You already applied to this job');
-        } else if (response.error?.status === 403) {
-          setApplyError('Please verify your email before applying');
-        } else {
-          setApplyError(response.error?.message || 'Failed to apply to job');
-        }
+        // Simple error message
+        setApplyError(response.error || 'Failed to apply to job');
       }
     } catch (err) {
       setApplyError(err instanceof Error ? err.message : 'An error occurred');
@@ -95,7 +87,7 @@ export default function JobDetailsPage({ params }: PageProps) {
       if (response.success) {
         setVerificationSent(true);
       } else {
-        setApplyError(response.error?.message || 'Failed to send verification email');
+        setApplyError(response.error || 'Failed to send verification email');
       }
     } catch (err) {
       setApplyError(err instanceof Error ? err.message : 'An error occurred');
@@ -128,7 +120,7 @@ export default function JobDetailsPage({ params }: PageProps) {
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-800 mb-4">{error || 'Job not found'}</p>
             <Link href="/jobs">
-              <Button variant="default">Back to Jobs</Button>
+              <Button variant="primary">Back to Jobs</Button>
             </Link>
           </div>
         </div>
@@ -149,10 +141,10 @@ export default function JobDetailsPage({ params }: PageProps) {
             </p>
             <div className="flex gap-3">
               <Link href="/jobs">
-                <Button variant="default">Browse More Jobs</Button>
+                <Button variant="primary">Browse More Jobs</Button>
               </Link>
               <Link href="/applications">
-                <Button variant="default">View My Applications</Button>
+                <Button variant="primary">View My Applications</Button>
               </Link>
             </div>
           </div>
@@ -168,14 +160,14 @@ export default function JobDetailsPage({ params }: PageProps) {
             </p>
             <div className="flex gap-3">
               <Button
-                variant="default"
+                variant="primary"
                 onClick={handleSendVerification}
                 disabled={verificationLoading || verificationSent}
               >
                 {verificationSent ? 'Verification Email Sent' : 'Resend Verification Email'}
               </Button>
               <Link href="/verify-email">
-                <Button variant="default">Verify Now</Button>
+                <Button variant="primary">Verify Now</Button>
               </Link>
             </div>
           </div>
@@ -201,7 +193,7 @@ export default function JobDetailsPage({ params }: PageProps) {
                 <h1 className="text-4xl font-bold text-[var(--brand-navy)] mb-2">{job.title}</h1>
                 <p className="text-xl text-gray-600">{job.location}</p>
               </div>
-              {job.isPublished && (
+              {job.status === 1 && (
                 <Badge className="bg-green-100 text-green-800">Published</Badge>
               )}
             </div>
@@ -210,24 +202,20 @@ export default function JobDetailsPage({ params }: PageProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 py-4 border-t border-b">
               <div>
                 <p className="text-sm text-gray-600 mb-1">Employment Type</p>
-                <p className="font-semibold text-gray-900">
-                  {job.employmentType === 'FullTime'
-                    ? 'Full Time'
-                    : job.employmentType === 'PartTime'
-                    ? 'Part Time'
-                    : 'Temporary'}
-                </p>
+                <p className="font-semibold text-gray-900">{job.employmentTypeName}</p>
               </div>
-              {job.shiftPattern && (
+              {job.shiftPatternName && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Shift Pattern</p>
-                  <p className="font-semibold text-gray-900">{job.shiftPattern}</p>
+                  <p className="font-semibold text-gray-900">{job.shiftPatternName}</p>
                 </div>
               )}
-              {job.salary && (
+              {(job.salaryMin || job.salaryMax) && (
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Salary</p>
-                  <p className="font-semibold text-[var(--brand-primary)]">{job.salary}</p>
+                  <p className="font-semibold text-[var(--brand-primary)]">
+                    {job.salaryMin && job.salaryMax ? `${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}` : job.salaryMin?.toLocaleString() || job.salaryMax?.toLocaleString()} {job.salaryCurrency || 'GBP'}
+                  </p>
                 </div>
               )}
               <div>
@@ -264,7 +252,7 @@ export default function JobDetailsPage({ params }: PageProps) {
                     <div className="text-4xl mb-2">✓</div>
                     <p className="font-semibold text-green-700 mb-4">Application Submitted!</p>
                     <Link href="/jobs">
-                      <Button variant="default" className="w-full">
+                      <Button variant="primary" className="w-full">
                         Browse More Jobs
                       </Button>
                     </Link>
@@ -273,7 +261,7 @@ export default function JobDetailsPage({ params }: PageProps) {
                   <div className="text-center">
                     <p className="text-gray-700 mb-4">Sign in to apply for this job</p>
                     <Link href="/login">
-                      <Button variant="default" className="w-full mb-2">
+                      <Button variant="primary" className="w-full mb-2">
                         Login to Apply
                       </Button>
                     </Link>
@@ -294,7 +282,7 @@ export default function JobDetailsPage({ params }: PageProps) {
                       onClick={handleSendVerification}
                       disabled={verificationLoading || verificationSent}
                       className="w-full mb-2"
-                      variant="default"
+                      variant="primary"
                     >
                       {verificationSent ? 'Email Sent' : 'Send Verification'}
                     </Button>
@@ -313,7 +301,7 @@ export default function JobDetailsPage({ params }: PageProps) {
                       onClick={handleApply}
                       disabled={applyLoading}
                       className="w-full"
-                      variant="default"
+                      variant="primary"
                     >
                       {applyLoading ? 'Submitting...' : 'Apply Now'}
                     </Button>

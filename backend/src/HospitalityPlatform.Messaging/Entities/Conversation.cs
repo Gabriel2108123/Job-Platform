@@ -8,9 +8,6 @@ namespace HospitalityPlatform.Messaging.Entities;
 /// </summary>
 public class Conversation : TenantEntity
 {
-    /// <summary>Unique identifier for the conversation.</summary>
-    public Guid Id { get; set; }
-
     /// <summary>Conversation subject/title.</summary>
     public string Subject { get; set; } = null!;
 
@@ -23,14 +20,8 @@ public class Conversation : TenantEntity
     /// <summary>Whether the conversation is active (archived conversations are read-only).</summary>
     public bool IsActive { get; set; } = true;
 
-    /// <summary>Timestamp when the conversation was created.</summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
     /// <summary>User who created the conversation.</summary>
     public required string CreatedByUserId { get; set; }
-
-    /// <summary>Timestamp when the conversation was last updated.</summary>
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>Timestamp when the conversation was archived (if any).</summary>
     public DateTime? ArchivedAt { get; set; }

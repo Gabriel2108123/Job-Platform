@@ -388,13 +388,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(e => e.Comment).HasMaxLength(1000);
             entity.Property(e => e.CreatedAt).IsRequired();
             
-            entity.HasOne<Conversation>()
+            entity.HasOne(e => e.Conversation)
                 .WithMany()
                 .HasForeignKey(e => e.ConversationId)
                 .OnDelete(DeleteBehavior.Cascade);
             
-            // One rating per user per conversation (prevents duplicates)
-            entity.HasIndex(e => new { e.ConversationId, e.UserId }).IsUnique();
             entity.HasIndex(e => e.CreatedAt);
         });
 

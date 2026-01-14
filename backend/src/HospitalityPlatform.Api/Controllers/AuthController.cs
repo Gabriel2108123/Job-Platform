@@ -1,0 +1,387 @@
+using HospitalityPlatform.Identity.Entities;
+using HospitalityPlatform.Identity.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace HospitalityPlatform.Api.Controllers;
+
+[ApiController]
+[Route("api/auth")]
+public class AuthController : ControllerBase
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<AuthController> _logger;
+    private readonly IEmailVerificationService? _emailVerificationService;
+
+    public AuthController(
+        UserManager<ApplicationUser> userManager,
+        IConfiguration configuration,
+        ILogger<AuthController> logger,
+        IEmailVerificationService? emailVerificationService = null)
+    {
+        _userManager = userManager;
+        _configuration = configuration;
+        _logger = logger;
+        _emailVerificationService = emailVerificationService;
+    }
+
+    /// <summary>
+    /// Login user with email and password
+    /// </summary>
+    [HttpPost("login")]
+    [AllowAnonymous]
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { error = "Email and password are required" });
+        }
+
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                _logger.LogWarning("Login attempt with non-existent email: {Email}", request.Email);
+                return Unauthorized(new { error = "Invalid email or password" });
+            }
+
+            var passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+            if (!passwordValid)
+            {
+                _logger.LogWarning("Login attempt with wrong password for user: {Email}", request.Email);
+                return Unauthorized(new { error = "Invalid email or password" });
+            }
+
+            // Check if user is locked out
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                _logger.LogWarning("Login attempt for locked out user: {Email}", request.Email);
+                return Unauthorized(new { error = "Account is locked. Try again later." });
+            }
+
+            // Generate JWT token
+            var token = GenerateJwtToken(user);
+
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                User = new User
+                {
+                    Id = user.Id.ToString(),
+                    Email = user.Email ?? "",
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    OrganizationId = user.OrganizationId?.ToString(),
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt.ToString("O"),
+                    Role = roles.FirstOrDefault() ?? "Candidate"
+                },
+                ExpiresAt = DateTime.UtcNow.AddHours(24).ToString("O")
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error logging in user");
+            return StatusCode(500, new { error = "An error occurred while processing your request" });
+        }
+    }
+
+    /// <summary>
+    /// Register a new user
+    /// </summary>
+    [HttpPost("register")]
+    [AllowAnonymous]
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+        {
+            return BadRequest(new { error = "Email and password are required" });
+        }
+
+        try
+        {
+            // Check if user already exists
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { error = "User with this email already exists" });
+            }
+
+            // Create new user
+            var user = new ApplicationUser
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                FirstName = request.FullName ?? request.Email,
+                EmailConfirmed = false
+            };
+
+            var result = await _userManager.CreateAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogWarning("User registration failed: {Errors}", errors);
+                return BadRequest(new { error = "Registration failed: " + errors });
+            }
+
+            // Assign default Candidate role
+            await _userManager.AddToRoleAsync(user, "Candidate");
+
+            // Generate JWT token
+            var token = GenerateJwtToken(user);
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                User = new User
+                {
+                    Id = user.Id.ToString(),
+                    Email = user.Email ?? "",
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    OrganizationId = user.OrganizationId?.ToString(),
+                    IsActive = user.IsActive,
+                    CreatedAt = user.CreatedAt.ToString("O"),
+                    Role = "Candidate"
+                },
+                ExpiresAt = DateTime.UtcNow.AddHours(24).ToString("O")
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error registering user");
+            return StatusCode(500, new { error = "An error occurred while processing your request" });
+        }
+    }
+
+    /// <summary>
+    /// Send email verification link to current user
+    /// </summary>
+    [HttpPost("send-verification")]
+    [Authorize]
+    public async Task<ActionResult> SendVerificationEmail()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
+            {
+                return Unauthorized(new { error = "User not found in token" });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { error = "User not found" });
+            }
+
+            if (user.EmailVerified)
+            {
+                return Ok(new { message = "Email already verified" });
+            }
+
+            // Generate verification token
+            if (_emailVerificationService == null)
+            {
+                _logger.LogWarning("EmailVerificationService not available");
+                return StatusCode(500, new { error = "Email verification service not configured" });
+            }
+
+            var token = await _emailVerificationService.GenerateVerificationTokenAsync(userGuid);
+            
+            // In development, output verification URL to console
+            var isDevelopment = _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Development";
+            if (isDevelopment)
+            {
+                var verificationUrl = $"http://localhost:3000/verify-email?token={Uri.EscapeDataString(token)}&userId={userGuid}";
+                _logger.LogInformation("Email verification URL (DEV MODE): {Url}", verificationUrl);
+                Console.WriteLine($"\n========== EMAIL VERIFICATION ==========");
+                Console.WriteLine($"Verification URL: {verificationUrl}");
+                Console.WriteLine($"=========================================\n");
+            }
+
+            // TODO: In production, send actual email via SMTP/SendGrid
+            // await _emailService.SendVerificationEmailAsync(user.Email, verificationUrl);
+
+            return Ok(new { message = "Verification email sent" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending verification email");
+            return StatusCode(500, new { error = "An error occurred while sending verification email" });
+        }
+    }
+
+    /// <summary>
+    /// Verify email with token
+    /// </summary>
+    [HttpPost("verify-email")]
+    [AllowAnonymous]
+    public async Task<ActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.UserId))
+        {
+            return BadRequest(new { error = "Token and UserId are required" });
+        }
+
+        if (!Guid.TryParse(request.UserId, out var userGuid))
+        {
+            return BadRequest(new { error = "Invalid UserId format" });
+        }
+
+        try
+        {
+            if (_emailVerificationService == null)
+            {
+                return StatusCode(500, new { error = "Email verification service not configured" });
+            }
+
+            var (success, message) = await _emailVerificationService.VerifyEmailAsync(userGuid, request.Token);
+            if (!success)
+            {
+                return BadRequest(new { error = message });
+            }
+
+            return Ok(new { message = "Email verified successfully" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error verifying email");
+            return StatusCode(500, new { error = "An error occurred while verifying email" });
+        }
+    }
+
+    /// <summary>
+    /// Get current user info
+    /// </summary>
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<ActionResult<User>> GetCurrentUser()
+    {
+        try
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized(new { error = "User not found in token" });
+            }
+
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            if (user == null)
+            {
+                return NotFound(new { error = "User not found" });
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            
+            return Ok(new User
+            {
+                Id = user.Id.ToString(),
+                Email = user.Email ?? "",
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                OrganizationId = user.OrganizationId?.ToString(),
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt.ToString("O"),
+                Role = roles.FirstOrDefault() ?? "Candidate"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting current user");
+            return StatusCode(500, new { error = "An error occurred while processing your request" });
+        }
+    }
+
+    private string GenerateJwtToken(ApplicationUser user)
+    {
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+        var secretKey = jwtSettings["SecretKey"] ?? "DefaultSecretKeyForDevelopment1234567890";
+        var key = Encoding.UTF8.GetBytes(secretKey);
+
+        var fullName = string.IsNullOrWhiteSpace(user.FirstName)
+            ? user.Email ?? ""
+            : $"{user.FirstName} {user.LastName}".Trim();
+
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email ?? ""),
+            new(ClaimTypes.Name, fullName),
+        };
+
+        var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"] ?? "HospitalityPlatform",
+            audience: jwtSettings["Audience"] ?? "HospitalityPlatformUsers",
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(24),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+}
+
+/// <summary>
+/// Login request DTO
+/// </summary>
+public class LoginRequest
+{
+    public string Email { get; set; } = "";
+    public string Password { get; set; } = "";
+}
+
+/// <summary>
+/// Register request DTO
+/// </summary>
+public class RegisterRequest
+{
+    public string Email { get; set; } = "";
+    public string Password { get; set; } = "";
+    public string? FullName { get; set; }
+}
+/// <summary>
+/// Verify email request DTO
+/// </summary>
+public class VerifyEmailRequest
+{
+    public string Token { get; set; } = "";
+    public string UserId { get; set; } = "";
+}
+/// <summary>
+/// Authentication response DTO
+/// </summary>
+public class AuthResponse
+{
+    public string Token { get; set; } = "";
+    public string? RefreshToken { get; set; }
+    public User User { get; set; } = new();
+    public string ExpiresAt { get; set; } = "";
+}
+
+/// <summary>
+/// User data DTO (matches frontend User interface)
+/// </summary>
+public class User
+{
+    public string Id { get; set; } = "";
+    public string Email { get; set; } = "";
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? OrganizationId { get; set; }
+    public bool IsActive { get; set; }
+    public string CreatedAt { get; set; } = "";
+    public string? Role { get; set; }
+}

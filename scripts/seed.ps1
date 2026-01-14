@@ -40,7 +40,7 @@ if (!(Test-Path "$backendPath\src\HospitalityPlatform.Api")) {
 Write-Host "Checking PostgreSQL connection..."
 try {
     $env:PGPASSWORD = "postgres"
-    $result = & psql -h localhost -U postgres -c "SELECT version();" 2>&1
+    & psql -h localhost -U postgres -c "SELECT version();" 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ PostgreSQL is running" -ForegroundColor Green
     } else {

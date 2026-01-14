@@ -26,15 +26,6 @@ export const authApi = {
   },
 
   /**
-   * Logout user
-   */
-  logout: async () => {
-    return apiRequest('/api/auth/logout', {
-      method: 'POST',
-    });
-  },
-
-  /**
    * Get current user
    */
   getCurrentUser: async () => {
@@ -44,12 +35,23 @@ export const authApi = {
   },
 
   /**
-   * Refresh token
+   * Send email verification (requires authentication)
    */
-  refreshToken: async (refreshToken: string) => {
-    return apiRequest<AuthResponse>('/api/auth/refresh', {
+  sendVerification: async () => {
+    return apiRequest<{ message: string }>('/api/auth/send-verification', {
       method: 'POST',
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({}),
     });
+  },
+
+  /**
+   * Client-side logout (clears token from storage)
+   * Note: Backend doesn't have logout endpoint - JWT is stateless
+   */
+  logout: () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   },
 };

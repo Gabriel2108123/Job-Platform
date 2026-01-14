@@ -384,6 +384,72 @@ public class IntegrationTests : IAsyncLifetime
         // Assert.Equal("Failure", auditLogs.Status);
     }
 
+    /// <summary>
+    /// Test: Jobs endpoint with pagination
+    /// Scenario: Public user requests jobs with pageNumber and pageSize
+    /// Expected: Returns 200 with PagedResult containing items, totalCount, pagination info
+    /// </summary>
+    [Fact]
+    public async Task GetJobs_WithPagination_ReturnsPagedResult()
+    {
+        // Arrange
+        // Jobs endpoint is public (AllowAnonymous)
+        
+        // Act
+        var response = await _client.GetAsync("/api/Jobs?pageNumber=1&pageSize=10");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
+        var root = jsonDoc.RootElement;
+        
+        // Verify response structure
+        Assert.True(root.TryGetProperty("items", out var itemsElement));
+        Assert.True(root.TryGetProperty("totalCount", out var totalCountElement));
+        Assert.True(root.TryGetProperty("pageNumber", out var pageNumberElement));
+        Assert.True(root.TryGetProperty("pageSize", out var pageSizeElement));
+        
+        // Verify pagination values
+        Assert.Equal(1, pageNumberElement.GetInt32());
+        Assert.Equal(10, pageSizeElement.GetInt32());
+        
+        // Verify items is array (even if empty)
+        Assert.Equal(System.Text.Json.JsonValueKind.Array, itemsElement.ValueKind);
+    }
+
+    /// <summary>
+    /// Test: Jobs endpoint with default pagination
+    /// Scenario: Public user requests jobs without explicit pagination params
+    /// Expected: Returns 200 with default PageNumber=1, PageSize=20
+    /// </summary>
+    [Fact]
+    public async Task GetJobs_NoParams_ReturnsDefaultPagination()
+    {
+        // Arrange
+        // No parameters - should use defaults
+        
+        // Act
+        var response = await _client.GetAsync("/api/Jobs");
+
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
+        var root = jsonDoc.RootElement;
+        
+        // Verify response has pagination fields
+        Assert.True(root.TryGetProperty("items", out var itemsElement));
+        Assert.True(root.TryGetProperty("pageNumber", out var pageNumberElement));
+        Assert.True(root.TryGetProperty("pageSize", out var pageSizeElement));
+        
+        // Verify default values
+        Assert.Equal(1, pageNumberElement.GetInt32());
+        Assert.Equal(20, pageSizeElement.GetInt32());
+    }
+
     // Helper Methods
 
     /// <summary>

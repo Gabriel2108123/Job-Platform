@@ -8,9 +8,6 @@ namespace HospitalityPlatform.Messaging.Entities;
 /// </summary>
 public class Rating : TenantEntity
 {
-    /// <summary>Unique identifier for the rating.</summary>
-    public Guid Id { get; set; }
-
     /// <summary>The conversation being rated.</summary>
     public Guid ConversationId { get; set; }
 
@@ -23,9 +20,6 @@ public class Rating : TenantEntity
     /// <summary>Optional comment/review text.</summary>
     public string? Comment { get; set; }
 
-    /// <summary>Timestamp when the rating was created.</summary>
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
     /// <summary>Navigation property for the conversation.</summary>
-    public Conversation Conversation { get; set; } = null!;
+    public Conversation? Conversation { get; set; }
 }

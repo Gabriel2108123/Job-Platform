@@ -7,6 +7,8 @@ export interface AuthUser {
   email: string;
   emailVerified: boolean;
   name?: string;
+  role?: string;
+  organizationId?: string;
 }
 
 /**

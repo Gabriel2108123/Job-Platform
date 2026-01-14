@@ -45,7 +45,7 @@ public class ConversationDto
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedByUserId { get; set; } = null!;
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }
 
 /// <summary>DTO for the message response.</summary>

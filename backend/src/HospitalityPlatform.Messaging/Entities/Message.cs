@@ -8,9 +8,6 @@ namespace HospitalityPlatform.Messaging.Entities;
 /// </summary>
 public class Message : TenantEntity
 {
-    /// <summary>Unique identifier for the message.</summary>
-    public Guid Id { get; set; }
-
     /// <summary>The conversation this message belongs to.</summary>
     public Guid ConversationId { get; set; }
 
