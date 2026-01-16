@@ -58,7 +58,7 @@ export default function RegisterPage() {
       const response = await authApi.register({
         email: formData.email,
         password: formData.password,
-        firstName: formData.fullName || undefined,
+        FullName: formData.fullName || undefined,
       });
 
       if (response.success && response.data) {
