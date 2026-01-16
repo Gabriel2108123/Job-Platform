@@ -55,10 +55,10 @@ function AdminDashboardContent() {
         }
 
         // Fetch waitlist count
-        const waitlistResponse = await apiRequest<any>('/api/waitlist');
+        const waitlistResponse = await apiRequest<any>('/api/waitlist/admin?pageNumber=1&pageSize=1');
         if (waitlistResponse.success && waitlistResponse.data) {
-          const entries = Array.isArray(waitlistResponse.data) ? waitlistResponse.data : waitlistResponse.data.items || [];
-          setStats(prev => ({ ...prev, waitlistCount: entries.length }));
+          const totalCount = waitlistResponse.data.totalCount || 0;
+          setStats(prev => ({ ...prev, waitlistCount: totalCount }));
         }
       } catch (error) {
         console.error('Failed to fetch admin stats:', error);

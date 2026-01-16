@@ -30,7 +30,7 @@ function VerifyEmailContent() {
       setError(null);
       try {
         const response = await apiRequest<{ success: boolean }>(
-          '/auth/verify-email',
+          '/api/auth/verify-email',
           { 
             method: 'POST',
             body: JSON.stringify({ token, userId })
@@ -56,7 +56,7 @@ function VerifyEmailContent() {
     setResendLoading(true);
     setResendSuccess(false);
     try {
-      const response = await apiRequest('/auth/send-verification', {
+      const response = await apiRequest('/api/auth/send-verification', {
         method: 'POST',
         body: JSON.stringify({}),
       });
