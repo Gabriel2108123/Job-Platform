@@ -395,13 +395,21 @@ export async function getJobPipeline(
  */
 export async function moveApplicationInPipeline(
   applicationId: string,
-  newStatus: string
+  newStatus: string,
+  notes?: string,
+  preHireCheckConfirmation?: boolean,
+  preHireCheckConfirmationText?: string
 ): Promise<ApiResponse<{ message: string }>> {
+  const payload: Record<string, unknown> = { ToStatus: newStatus };
+  if (notes) payload.Notes = notes;
+  if (preHireCheckConfirmation !== undefined) payload.PreHireCheckConfirmation = preHireCheckConfirmation;
+  if (preHireCheckConfirmationText) payload.PreHireCheckConfirmationText = preHireCheckConfirmationText;
+  
   return apiRequest<{ message: string }>(
     `/api/pipeline/applications/${applicationId}/move`,
     {
       method: 'POST',
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify(payload),
     }
   );
 }
