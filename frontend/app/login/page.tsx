@@ -57,7 +57,7 @@ export default function LoginPage() {
           emailVerified: user.isActive,
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
           organizationId: user.organizationId,
-          role: 'Candidate', // Default to Candidate - will be updated from backend
+          role: user.role || 'Candidate', // Use backend role if available, default to Candidate
         };
         
         setCurrentUser(currentUser, token);
