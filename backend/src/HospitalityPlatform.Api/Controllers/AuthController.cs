@@ -66,11 +66,9 @@ public class AuthController : ControllerBase
                 return Unauthorized(new { error = "Account is locked. Try again later." });
             }
 
-            // Generate JWT token
-            var token = GenerateJwtToken(user);
-
-            // Get user roles
+            // Get user roles and generate JWT token with roles
             var roles = await _userManager.GetRolesAsync(user);
+            var token = GenerateJwtToken(user, roles);
 
             return Ok(new AuthResponse
             {
@@ -137,8 +135,9 @@ public class AuthController : ControllerBase
             // Assign default Candidate role
             await _userManager.AddToRoleAsync(user, "Candidate");
 
-            // Generate JWT token
-            var token = GenerateJwtToken(user);
+            // Generate JWT token with roles
+            var roles = await _userManager.GetRolesAsync(user);
+            var token = GenerateJwtToken(user, roles);
 
             return Ok(new AuthResponse
             {
@@ -303,7 +302,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    private string GenerateJwtToken(ApplicationUser user)
+    private string GenerateJwtToken(ApplicationUser user, IEnumerable<string>? roles = null)
     {
         var jwtSettings = _configuration.GetSection("JwtSettings");
         var secretKey = jwtSettings["SecretKey"] ?? "DefaultSecretKeyForDevelopment1234567890";
@@ -319,6 +318,21 @@ public class AuthController : ControllerBase
             new(ClaimTypes.Email, user.Email ?? ""),
             new(ClaimTypes.Name, fullName),
         };
+
+        // Add OrganizationId claim if user belongs to an organization
+        if (user.OrganizationId.HasValue)
+        {
+            claims.Add(new Claim("OrganizationId", user.OrganizationId.Value.ToString()));
+        }
+
+        // Add role claims
+        if (roles != null)
+        {
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+        }
 
         var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
