@@ -1,5 +1,6 @@
 using HospitalityPlatform.Identity.Entities;
 using HospitalityPlatform.Identity.Services;
+using HospitalityPlatform.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,19 +16,25 @@ namespace HospitalityPlatform.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthController> _logger;
     private readonly IEmailVerificationService? _emailVerificationService;
+    private readonly ApplicationDbContext _context;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager,
         IConfiguration configuration,
         ILogger<AuthController> logger,
+        ApplicationDbContext context,
         IEmailVerificationService? emailVerificationService = null)
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _configuration = configuration;
         _logger = logger;
+        _context = context;
         _emailVerificationService = emailVerificationService;
     }
 
@@ -116,6 +123,15 @@ public class AuthController : ControllerBase
                 return BadRequest(new { error = "User with this email already exists" });
             }
 
+            // Determine role
+            var roleToAssign = request.Role ?? "Candidate";
+            
+            // Validate BusinessOwner requirements
+            if (roleToAssign == "BusinessOwner" && string.IsNullOrWhiteSpace(request.OrganizationName))
+            {
+                return BadRequest(new { error = "Organization name is required for BusinessOwner registration" });
+            }
+
             // Create new user
             var user = new ApplicationUser
             {
@@ -133,8 +149,34 @@ public class AuthController : ControllerBase
                 return BadRequest(new { error = "Registration failed: " + errors });
             }
 
-            // Assign default Candidate role
-            await _userManager.AddToRoleAsync(user, "Candidate");
+            // Handle organization creation for BusinessOwner
+            if (roleToAssign == "BusinessOwner" && !string.IsNullOrWhiteSpace(request.OrganizationName))
+            {
+                try
+                {
+                    var organization = new Organization
+                    {
+                        Name = request.OrganizationName.Trim(),
+                        IsActive = true
+                    };
+                    
+                    _context.Organizations.Add(organization);
+                    await _context.SaveChangesAsync();
+
+                    user.OrganizationId = organization.Id;
+                    await _userManager.UpdateAsync(user);
+                    
+                    _logger.LogInformation("Organization created for user {Email}: {OrgName}", request.Email, request.OrganizationName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating organization during registration");
+                    return StatusCode(500, new { error = "Failed to create organization" });
+                }
+            }
+
+            // Assign role
+            await _userManager.AddToRoleAsync(user, roleToAssign);
 
             // Generate JWT token with roles
             var roles = await _userManager.GetRolesAsync(user);
@@ -153,7 +195,7 @@ public class AuthController : ControllerBase
                     IsActive = user.IsActive,
                     EmailVerified = user.EmailVerified,
                     CreatedAt = user.CreatedAt.ToString("O"),
-                    Role = "Candidate"
+                    Role = roleToAssign
                 },
                 ExpiresAt = DateTime.UtcNow.AddHours(24).ToString("O")
             });
@@ -368,6 +410,8 @@ public class RegisterRequest
     public string Email { get; set; } = "";
     public string Password { get; set; } = "";
     public string? FullName { get; set; }
+    public string? Role { get; set; }  // Optional: "Candidate" (default) or "BusinessOwner"
+    public string? OrganizationName { get; set; }  // Required if Role is "BusinessOwner"
 }
 /// <summary>
 /// Verify email request DTO

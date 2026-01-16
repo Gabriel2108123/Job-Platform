@@ -20,6 +20,7 @@ export interface User {
   organizationId?: string;
   role?: string;
   isActive: boolean;
+  emailVerified: boolean;
   createdAt: string;
 }
 
@@ -59,5 +60,6 @@ export interface RegisterData {
   email: string;
   password: string;
   FullName?: string;
-  organizationId?: string;
+  Role?: string;  // 'Candidate' or 'BusinessOwner'
+  OrganizationName?: string;
 }

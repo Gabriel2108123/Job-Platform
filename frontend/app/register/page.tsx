@@ -19,9 +19,11 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
     fullName: '',
+    accountType: 'candidate', // 'candidate' or 'business'
+    organizationName: '',
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -54,11 +56,20 @@ export default function RegisterPage() {
         return;
       }
 
+      // Validate business owner requirements
+      if (formData.accountType === 'business' && !formData.organizationName.trim()) {
+        setError('Company name is required for business accounts');
+        setLoading(false);
+        return;
+      }
+
       // Call register endpoint
       const response = await authApi.register({
         email: formData.email,
         password: formData.password,
         FullName: formData.fullName || undefined,
+        Role: formData.accountType === 'business' ? 'BusinessOwner' : 'Candidate',
+        OrganizationName: formData.accountType === 'business' ? formData.organizationName : undefined,
       });
 
       if (response.success && response.data) {
@@ -72,13 +83,17 @@ export default function RegisterPage() {
           emailVerified: user.emailVerified,
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
           organizationId: user.organizationId,
-          role: user.role || 'Candidate', // Use backend role if available, default to Candidate
+          role: user.role || 'Candidate',
         };
         
         setCurrentUser(currentUser, token);
 
-        // Redirect to jobs page
-        router.push('/jobs');
+        // Role-based routing
+        if (user.role === 'BusinessOwner') {
+          router.push('/business');
+        } else {
+          router.push('/jobs');
+        }
       } else {
         setError(response.error || 'Registration failed. Please try again.');
       }
@@ -109,6 +124,43 @@ export default function RegisterPage() {
         <Card className="bg-white shadow-md">
           <CardBody>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Account Type Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Account Type
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="accountType"
+                      value="candidate"
+                      checked={formData.accountType === 'candidate'}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      className="h-4 w-4 text-[var(--brand-primary)]"
+                    />
+                    <span className="ml-3 text-sm text-gray-700">
+                      Candidate (Job Seeker)
+                    </span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="accountType"
+                      value="business"
+                      checked={formData.accountType === 'business'}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                      className="h-4 w-4 text-[var(--brand-primary)]"
+                    />
+                    <span className="ml-3 text-sm text-gray-700">
+                      Business Owner (Post Jobs)
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               {/* Full Name Field */}
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
@@ -125,6 +177,26 @@ export default function RegisterPage() {
                   className="w-full"
                 />
               </div>
+
+              {/* Organization Name Field (Conditional) */}
+              {formData.accountType === 'business' && (
+                <div>
+                  <label htmlFor="organizationName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Company Name
+                  </label>
+                  <Input
+                    id="organizationName"
+                    name="organizationName"
+                    type="text"
+                    placeholder="Your company name"
+                    value={formData.organizationName}
+                    onChange={handleInputChange}
+                    disabled={loading}
+                    required={formData.accountType === 'business'}
+                    className="w-full"
+                  />
+                </div>
+              )}
 
               {/* Email Field */}
               <div>
