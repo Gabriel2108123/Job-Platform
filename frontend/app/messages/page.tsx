@@ -62,9 +62,9 @@ function MessagesContent() {
   const fetchConversations = async () => {
     setLoading(true);
     try {
-      const response = await apiRequest<Conversation[]>('/api/messaging/conversations');
+      const response = await apiRequest<{ items: Conversation[]; pageNumber: number; totalCount: number }>('/api/messaging/conversations');
       if (response.success && response.data) {
-        setConversations(response.data);
+        setConversations(response.data.items);
       }
     } catch (error) {
       console.error('Failed to fetch conversations:', error);
@@ -76,12 +76,12 @@ function MessagesContent() {
   const fetchMessages = async (conversationId: string) => {
     setMessagesLoading(true);
     try {
-      const response = await apiRequest<Message[]>(`/api/messaging/conversations/${conversationId}/messages`);
+      const response = await apiRequest<{ items: Message[]; pageNumber: number; totalCount: number }>(`/api/messaging/conversations/${conversationId}/messages`);
       if (response.success && response.data) {
-        setMessages(response.data);
+        setMessages(response.data.items);
         // Mark as read
         await apiRequest(`/api/messaging/conversations/${conversationId}/mark-read`, {
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify({}),
         });
         // Refresh conversations to update unread count
