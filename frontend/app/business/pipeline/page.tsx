@@ -75,14 +75,17 @@ function PipelineContent() {
     if (!selectedJobId) return;
 
     const fetchApplications = async () => {
-      const baseUrl = 'http://localhost:5205';
       try {
-        const res = await fetch(`${baseUrl}/api/pipeline/jobs/${selectedJobId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setApplications(data.data || []);
+        const res = await apiRequest<{ stages: { [key: string]: PipelineApplication[] } }>(`/api/pipeline/jobs/${selectedJobId}`);
+        if (res.success && res.data) {
+          // Convert stages dictionary to flat array of applications
+          const allApps: PipelineApplication[] = [];
+          if (res.data.stages) {
+            Object.values(res.data.stages).forEach(stageApps => {
+              allApps.push(...stageApps);
+            });
+          }
+          setApplications(allApps);
         }
       } catch (error) {
         console.error('Failed to fetch applications:', error);
@@ -109,28 +112,22 @@ function PipelineContent() {
 
   const moveApplication = async (appId: string, newStatus: ApplicationStatus, notes?: string, preHireCheckConfirmation?: boolean) => {
     setMovingAppId(appId);
-    const baseUrl = 'http://localhost:5205';
     try {
-      const res = await fetch(`${baseUrl}/api/pipeline/move-application`, {
+      const res = await apiRequest(`/api/pipeline/applications/${appId}/move`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify({
-          applicationId: appId,
-          toStatus: newStatus,
-          notes,
-          preHireCheckConfirmation
+          ToStatus: newStatus,
+          Notes: notes,
+          PreHireCheckConfirmation: preHireCheckConfirmation
         })
       });
 
-      if (response.success) {
+      if (res.success) {
         // Refresh applications
         if (selectedJobId) {
-          const refreshResponse = await apiRequest<any>(`/api/pipeline/jobs/${selectedJobId}`);
+          const refreshResponse = await apiRequest<{ items: PipelineApplication[] }>(`/api/pipeline/jobs/${selectedJobId}`);
           if (refreshResponse.success && refreshResponse.data) {
-            const appsList = refreshResponse.data.applications || refreshResponse.data.items || refreshResponse.data;
+            const appsList = refreshResponse.data.items || [];
             setApplications(Array.isArray(appsList) ? appsList : []);
           }
         }

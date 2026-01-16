@@ -69,7 +69,7 @@ export default function RegisterPage() {
         const currentUser: CurrentUser = {
           id: user.id,
           email: user.email,
-          emailVerified: user.isActive,
+          emailVerified: user.emailVerified,
           name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
           organizationId: user.organizationId,
           role: user.role || 'Candidate', // Use backend role if available, default to Candidate

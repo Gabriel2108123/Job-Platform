@@ -81,6 +81,7 @@ public class AuthController : ControllerBase
                     LastName = user.LastName,
                     OrganizationId = user.OrganizationId?.ToString(),
                     IsActive = user.IsActive,
+                    EmailVerified = user.EmailVerified,
                     CreatedAt = user.CreatedAt.ToString("O"),
                     Role = roles.FirstOrDefault() ?? "Candidate"
                 },
@@ -150,6 +151,7 @@ public class AuthController : ControllerBase
                     LastName = user.LastName,
                     OrganizationId = user.OrganizationId?.ToString(),
                     IsActive = user.IsActive,
+                    EmailVerified = user.EmailVerified,
                     CreatedAt = user.CreatedAt.ToString("O"),
                     Role = "Candidate"
                 },
@@ -291,6 +293,7 @@ public class AuthController : ControllerBase
                 LastName = user.LastName,
                 OrganizationId = user.OrganizationId?.ToString(),
                 IsActive = user.IsActive,
+                EmailVerified = user.EmailVerified,
                 CreatedAt = user.CreatedAt.ToString("O"),
                 Role = roles.FirstOrDefault() ?? "Candidate"
             });
@@ -396,6 +399,7 @@ public class User
     public string? LastName { get; set; }
     public string? OrganizationId { get; set; }
     public bool IsActive { get; set; }
+    public bool EmailVerified { get; set; }
     public string CreatedAt { get; set; } = "";
     public string? Role { get; set; }
 }

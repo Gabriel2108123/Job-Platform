@@ -81,7 +81,7 @@ builder.Services.AddAuthorization(options =>
     
     options.AddPolicy(PolicyNames.RequireBusinessRole, policy =>
         policy.RequireAssertion(context =>
-            context.User.IsInRole("BusinessOwner") || context.User.IsInRole("BusinessStaff")));
+            context.User.IsInRole("BusinessOwner") || context.User.IsInRole("Staff") || context.User.IsInRole("Admin")));
     
     options.AddPolicy(PolicyNames.RequireStaff, policy =>
         policy.Requirements.Add(new RoleRequirement("Staff")));
