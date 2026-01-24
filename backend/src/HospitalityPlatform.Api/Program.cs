@@ -146,6 +146,9 @@ builder.Services.AddScoped<HospitalityPlatform.Waitlist.Services.IWaitlistDbCont
 builder.Services.AddScoped<HospitalityPlatform.Ratings.Services.IUserRatingsService, HospitalityPlatform.Ratings.Services.UserRatingsService>();
 builder.Services.AddScoped<HospitalityPlatform.Ratings.Services.IRatingsDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
+// Register Data Seeding Service
+builder.Services.AddScoped<HospitalityPlatform.Api.Services.DataSeedingService>();
+
 // Register AWS S3 client (configure with your AWS credentials in appsettings.json)
 // Credentials should be set via environment variables: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 var s3Config = new Amazon.S3.AmazonS3Config { RegionEndpoint = Amazon.RegionEndpoint.USEast1 };
@@ -193,6 +196,18 @@ using (var scope = app.Services.CreateScope())
                 await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
                 logger.LogInformation("Created role: {Role}", roleName);
             }
+        }
+
+        // Run Data Seeder
+        try 
+        {
+            var dataSeeder = scope.ServiceProvider.GetRequiredService<HospitalityPlatform.Api.Services.DataSeedingService>();
+            await dataSeeder.SeedAsync();
+            logger.LogInformation("Data seeding completed successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Data seeding failed");
         }
     }
     catch (Exception ex)
