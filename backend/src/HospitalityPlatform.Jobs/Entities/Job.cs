@@ -33,4 +33,6 @@ public class Job : BaseEntity
     public JobStatus Status { get; set; } = JobStatus.Draft;
     public DateTime? PublishedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
+    
+    public JobVisibility Visibility { get; set; } = JobVisibility.Public;
 }

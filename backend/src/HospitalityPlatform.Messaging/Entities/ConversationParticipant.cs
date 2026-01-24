@@ -21,6 +21,9 @@ public class ConversationParticipant
     /// <summary>Timestamp when the participant last read messages in this conversation.</summary>
     public DateTime? LastReadAt { get; set; }
 
+    /// <summary>Timestamp when the participant was last active in the conversation context.</summary>
+    public DateTime? LastSeenAt { get; set; }
+
     /// <summary>Whether the participant has left the conversation (soft delete).</summary>
     public bool HasLeft { get; set; } = false;
 

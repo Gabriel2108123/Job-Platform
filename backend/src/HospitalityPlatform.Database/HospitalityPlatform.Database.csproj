@@ -17,6 +17,7 @@
     <ProjectReference Include="..\HospitalityPlatform.Messaging\HospitalityPlatform.Messaging.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Waitlist\HospitalityPlatform.Waitlist.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Ratings\HospitalityPlatform.Ratings.csproj" />
   </ItemGroup>
 
   <ItemGroup>

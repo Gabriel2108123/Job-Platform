@@ -27,7 +27,9 @@ export default function BusinessJobsPage() {
       try {
         const response = await getOrganizationJobs(organizationId);
         if (response.success && response.data) {
-          setJobs(Array.isArray(response.data) ? response.data : []);
+          // Handle both array and PagedResult
+          const items = Array.isArray(response.data) ? response.data : (response.data as any).items || [];
+          setJobs(items);
         } else {
           setError(response.error || 'Failed to load jobs');
         }
@@ -173,6 +175,38 @@ export default function BusinessJobsPage() {
                         Edit
                       </Button>
                     </Link>
+                    {job.status === JobStatus.Draft && (
+                      <Button
+                        variant="secondary"
+                        className="flex-1 w-full text-sm bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (!confirm('Are you sure you want to publish this job?')) return;
+
+                          // Inline publish logic since we need to refresh or update state
+                          try {
+                            const { apiRequest } = await import('@/lib/api/client');
+                            const res = await apiRequest(`/api/jobs/${job.id}/publish`, { method: 'POST' });
+                            if (res.success) {
+                              // Refresh jobs
+                              const response = await getOrganizationJobs(organizationId);
+                              if (response.success && response.data) {
+                                // Handle both array and PagedResult
+                                const items = Array.isArray(response.data) ? response.data : (response.data as any).items || [];
+                                setJobs(items);
+                              }
+                            } else {
+                              alert('Failed to publish: ' + (res.error || 'Unknown error'));
+                            }
+                          } catch (err) {
+                            console.error(err);
+                            alert('An error occurred');
+                          }
+                        }}
+                      >
+                        Publish
+                      </Button>
+                    )}
                     <Link href={`/jobs/${job.id}`} className="flex-1">
                       <Button variant="outline" className="w-full text-sm">
                         Preview

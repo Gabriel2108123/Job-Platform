@@ -13,7 +13,16 @@ public enum DocumentType
     /// <summary>Professional Certification (e.g., GCSE, A-Level, Degree, Trade Certifications)</summary>
     Certification = 2,
 
-    /// <summary>Other approved document (future extensibility)</summary>
+    /// <summary>Passport or Travel Document</summary>
+    Passport = 3,
+
+    /// <summary>National Identity Card or Driver's License</summary>
+    IdentityDocument = 4,
+
+    /// <summary>Visa or Right to Work Document</summary>
+    Visa = 5,
+
+    /// <summary>Other approved document</summary>
     Other = 99
 }
 
@@ -25,32 +34,12 @@ public static class BlockedDocumentTypes
 {
     public static readonly string[] BlockedNames = new[]
     {
-        "Passport",
-        "National ID",
-        "Visa",
-        "Proof of Address",
-        "Right to Work",
-        "Right-to-Work",
-        "RTW",
-        "BRP",
-        "Biometric Residence Permit",
-        "Driving License",
         "Bank Statement",
         "Utility Bill"
     };
 
     public static readonly string[] BlockedKeywords = new[]
     {
-        "passport",
-        "national id",
-        "visa",
-        "proof of address",
-        "right to work",
-        "right-to-work",
-        "rtw",
-        "brp",
-        "biometric",
-        "driving license",
         "bank statement",
         "utility bill"
     };

@@ -46,6 +46,7 @@ public class JobService : IJobService
             Benefits = dto.Benefits,
             ExpiresAt = dto.ExpiresAt,
             Status = JobStatus.Draft,
+            Visibility = dto.Visibility,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -207,7 +208,7 @@ public class JobService : IJobService
     public async Task<PagedResult<JobDto>> SearchJobsAsync(SearchJobsDto searchDto)
     {
         var query = _context.Jobs
-            .Where(j => j.Status == JobStatus.Published);
+            .Where(j => j.Status == JobStatus.Published && j.Visibility != JobVisibility.InviteOnly);
 
         // Apply filters
         if (!string.IsNullOrWhiteSpace(searchDto.Keyword))
@@ -281,10 +282,13 @@ public class JobService : IJobService
 
     private static JobDto MapToDto(Job job)
     {
+        // Anonymize if Private
+        var isPrivate = job.Visibility == JobVisibility.Private;
+
         return new JobDto
         {
             Id = job.Id,
-            OrganizationId = job.OrganizationId,
+            OrganizationId = isPrivate ? Guid.Empty : job.OrganizationId,
             CreatedByUserId = job.CreatedByUserId,
             Title = job.Title,
             Description = job.Description,
@@ -309,7 +313,8 @@ public class JobService : IJobService
             PublishedAt = job.PublishedAt,
             ExpiresAt = job.ExpiresAt,
             CreatedAt = job.CreatedAt,
-            UpdatedAt = job.UpdatedAt
+            UpdatedAt = job.UpdatedAt,
+            Visibility = job.Visibility
         };
     }
 }

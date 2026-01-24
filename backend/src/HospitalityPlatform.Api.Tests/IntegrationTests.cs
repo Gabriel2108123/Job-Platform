@@ -16,10 +16,10 @@ namespace HospitalityPlatform.Api.Tests;
 /// </summary>
 public class IntegrationTests : IAsyncLifetime
 {
-    private WebApplicationFactory<Program> _factory;
-    private HttpClient _client;
-    private IServiceScope _scope;
-    private ApplicationDbContext _context;
+    private WebApplicationFactory<Program> _factory = default!;
+    private HttpClient _client = default!;
+    private IServiceScope _scope = default!;
+    private ApplicationDbContext _context = default!;
 
     public async Task InitializeAsync()
     {
@@ -68,7 +68,7 @@ public class IntegrationTests : IAsyncLifetime
         // Seed test users
         var adminUser = new ApplicationUser
         {
-            Id = "admin-001",
+            Id = Guid.NewGuid(),
             UserName = "admin@test.com",
             Email = "admin@test.com",
             EmailConfirmed = true,
@@ -78,7 +78,7 @@ public class IntegrationTests : IAsyncLifetime
 
         var candidateUser = new ApplicationUser
         {
-            Id = "candidate-001",
+            Id = Guid.NewGuid(),
             UserName = "candidate@test.com",
             Email = "candidate@test.com",
             EmailConfirmed = true,
@@ -88,7 +88,7 @@ public class IntegrationTests : IAsyncLifetime
 
         var unverifiedUser = new ApplicationUser
         {
-            Id = "unverified-001",
+            Id = Guid.NewGuid(),
             UserName = "unverified@test.com",
             Email = "unverified@test.com",
             EmailConfirmed = false,
@@ -234,7 +234,7 @@ public class IntegrationTests : IAsyncLifetime
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        var payload = new { recipientId = "user-001", message = "Hello, are you interested?" };
+        var payload = new { recipientId = Guid.NewGuid().ToString(), message = "Hello, are you interested?" };
         var content = new StringContent(
             System.Text.Json.JsonSerializer.Serialize(payload),
             System.Text.Encoding.UTF8,
@@ -263,7 +263,7 @@ public class IntegrationTests : IAsyncLifetime
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
         // Note: candidate@test.com has no subscription in seed data
-        var payload = new { recipientId = "user-001", message = "Hello!" };
+        var payload = new { recipientId = Guid.NewGuid().ToString(), message = "Hello!" };
         var content = new StringContent(
             System.Text.Json.JsonSerializer.Serialize(payload),
             System.Text.Encoding.UTF8,
@@ -486,8 +486,8 @@ public class IntegrationTests : IAsyncLifetime
 /// </summary>
 public class RateLimitingTests : IAsyncLifetime
 {
-    private WebApplicationFactory<Program> _factory;
-    private HttpClient _client;
+    private WebApplicationFactory<Program> _factory = default!;
+    private HttpClient _client = default!;
 
     public async Task InitializeAsync()
     {

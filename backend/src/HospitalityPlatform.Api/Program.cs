@@ -142,6 +142,10 @@ builder.Services.AddScoped<HospitalityPlatform.Documents.Services.IDocumentShare
 builder.Services.AddScoped<HospitalityPlatform.Waitlist.Services.IWaitlistService, HospitalityPlatform.Waitlist.Services.WaitlistService>();
 builder.Services.AddScoped<HospitalityPlatform.Waitlist.Services.IWaitlistDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
+// Register Ratings services
+builder.Services.AddScoped<HospitalityPlatform.Ratings.Services.IUserRatingsService, HospitalityPlatform.Ratings.Services.UserRatingsService>();
+builder.Services.AddScoped<HospitalityPlatform.Ratings.Services.IRatingsDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+
 // Register AWS S3 client (configure with your AWS credentials in appsettings.json)
 // Credentials should be set via environment variables: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
 var s3Config = new Amazon.S3.AmazonS3Config { RegionEndpoint = Amazon.RegionEndpoint.USEast1 };
@@ -286,3 +290,5 @@ catch (Exception ex)
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "Application runtime error - app is shutting down");
 }
+
+public partial class Program { }

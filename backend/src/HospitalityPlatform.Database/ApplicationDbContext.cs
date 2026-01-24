@@ -1,4 +1,6 @@
 using HospitalityPlatform.Identity.Entities;
+using HospitalityPlatform.Core.Entities;
+using HospitalityPlatform.Ratings.Entities;
 using HospitalityPlatform.Identity.Entities.Verification;
 using HospitalityPlatform.Jobs.Entities;
 using HospitalityPlatform.Jobs.Services;
@@ -24,7 +26,7 @@ namespace HospitalityPlatform.Database;
 /// <summary>
 /// Application database context with Identity and custom entities
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext, IApplicationsDbContext, IBillingDbContext, IEntitlementsDbContext, IMessagingDbContext, IDocumentsDbContext, IWaitlistDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext, IApplicationsDbContext, IBillingDbContext, IEntitlementsDbContext, IMessagingDbContext, IDocumentsDbContext, IWaitlistDbContext, HospitalityPlatform.Ratings.Services.IRatingsDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -49,7 +51,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<ConversationParticipant> ConversationParticipants { get; set; }
     public DbSet<Message> Messages { get; set; }
-    public DbSet<Rating> Ratings { get; set; }
+    public DbSet<HospitalityPlatform.Messaging.Entities.Rating> Ratings { get; set; }
+    public DbSet<UserRating> UserRatings { get; set; }
     
     // Documents DbSets
     public DbSet<Document> Documents { get; set; }
@@ -396,6 +399,31 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.CreatedAt);
         });
 
+        // Configure UserRating
+        builder.Entity<UserRating>(entity =>
+        {
+            entity.ToTable("UserRatings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RaterUserId).IsRequired();
+            entity.Property(e => e.RatedEntityId).IsRequired();
+            entity.Property(e => e.Score).IsRequired();
+            entity.Property(e => e.Comment).HasMaxLength(1000);
+            
+            entity.HasIndex(e => e.RaterUserId);
+            entity.HasIndex(e => e.RatedEntityId);
+            entity.HasIndex(e => new { e.RatedEntityId, e.RaterUserId }).IsUnique();
+        });
+
+        // Apply Global Query Filter for Soft Deletes
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+            {
+               var method = SetGlobalQueryFilterMethod.MakeGenericMethod(entityType.ClrType);
+               method.Invoke(this, new object[] { builder });
+            }
+        }
+
         // Configure CandidateProfile
         builder.Entity<CandidateProfile>(entity =>
         {
@@ -447,6 +475,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     {
         AuditLogs.Add(auditLog);
         await SaveChangesAsync();
+    }
+
+    static readonly System.Reflection.MethodInfo SetGlobalQueryFilterMethod = typeof(ApplicationDbContext)
+        .GetMethods(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+        .Single(t => t.IsGenericMethod && t.Name == nameof(SetGlobalQueryFilter));
+
+    void SetGlobalQueryFilter<T>(ModelBuilder builder) where T : BaseEntity
+    {
+        builder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
     }
 }
 

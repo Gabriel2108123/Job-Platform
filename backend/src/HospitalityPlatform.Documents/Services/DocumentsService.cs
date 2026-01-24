@@ -237,7 +237,7 @@ public class DocumentsService : IDocumentsService
         return accessRules;
     }
 
-    public async Task<DownloadUrlDto> GetDownloadUrlAsync(Guid organizationId, Guid documentId, Guid? applicationId, string userId)
+    public async Task<DownloadUrlDto> GetDownloadUrlAsync(Guid organizationId, Guid documentId, Guid? applicationId, string userId, bool inline = false)
     {
         // Verify user has access
         var hasAccess = await UserHasAccessToDocumentAsync(organizationId, documentId, applicationId, userId);
@@ -260,13 +260,20 @@ public class DocumentsService : IDocumentsService
         await _dbContext.SaveChangesAsync();
 
         // Generate presigned download URL
-        var presignedUrl = _s3Client.GetPreSignedURL(new GetPreSignedUrlRequest
+        var request = new GetPreSignedUrlRequest
         {
             BucketName = BucketName,
             Key = document.S3Key,
             Expires = DateTime.UtcNow.AddSeconds(PresignedUrlExpirationSeconds),
             Verb = HttpVerb.GET
-        });
+        };
+
+        if (inline)
+        {
+            request.ResponseHeaderOverrides.ContentDisposition = "inline";
+        }
+
+        var presignedUrl = _s3Client.GetPreSignedURL(request);
 
         _logger.LogInformation("Download URL generated for document {DocumentId} by user {UserId}", documentId, userId);
 

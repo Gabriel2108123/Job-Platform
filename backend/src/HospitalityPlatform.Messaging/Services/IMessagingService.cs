@@ -58,4 +58,7 @@ public interface IMessagingService
 
     /// <summary>Get unread message count for a user in organization.</summary>
     Task<int> GetUnreadCountAsync(Guid organizationId, string userId);
+
+    /// <summary>Update participant's LastSeenAt timestamp.</summary>
+    Task UpdateParticipantLastSeenAsync(Guid conversationId, string userId);
 }

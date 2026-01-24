@@ -126,15 +126,67 @@ public class BillingService : IBillingService
         // Process specific event types
         try
         {
+            var json = System.Text.Json.JsonDocument.Parse(payload);
+            var dataObject = json.RootElement.GetProperty("data").GetProperty("object");
+            var stripeSubscriptionId = dataObject.GetProperty("id").GetString();
+            
+            if (string.IsNullOrEmpty(stripeSubscriptionId)) 
+                throw new Exception("Stripe Subscription ID missing from payload");
+
+            var subscription = await _dbContext.Subscriptions
+                .FirstOrDefaultAsync(s => s.StripeSubscriptionId == stripeSubscriptionId);
+
             switch (eventType)
             {
                 case "customer.subscription.created":
                 case "customer.subscription.updated":
-                    // Parse and update subscription in payload
-                    _logger.LogInformation("Processing subscription event {EventId}", stripeEventId);
+                    // Status mapping
+                    var statusStr = dataObject.GetProperty("status").GetString();
+                    var currentPeriodEnd = DateTimeOffset.FromUnixTimeSeconds(dataObject.GetProperty("current_period_end").GetInt64()).UtcDateTime;
+                    
+                    if (subscription == null)
+                    {
+                        // Identify Organization by metadata if available, or Stripe Customer ID mapping
+                        // For MVP, we might assume subscription calls CreateSubscriptionAsync first usually.
+                        // But if created via Portal, we need to map customer.
+                        // Assuming payload has metadata with organizationId
+                        if (dataObject.TryGetProperty("metadata", out var metadata) && 
+                            metadata.TryGetProperty("organizationId", out var orgIdElem) &&
+                            Guid.TryParse(orgIdElem.GetString(), out var orgId))
+                        {
+                            subscription = new Subscription
+                            {
+                                OrganizationId = orgId,
+                                StripeSubscriptionId = stripeSubscriptionId,
+                                StripeCustomerId = dataObject.GetProperty("customer").GetString() ?? "",
+                                CreatedAt = DateTime.UtcNow
+                            };
+                            _dbContext.Subscriptions.Add(subscription);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Could not link new subscription {SubId} to organization", stripeSubscriptionId);
+                            break;
+                        }
+                    }
+
+                    subscription.Status = ParseStripeStatus(statusStr);
+                    subscription.NextBillingDate = currentPeriodEnd;
+                    subscription.UpdatedAt = DateTime.UtcNow;
                     break;
+
                 case "customer.subscription.deleted":
-                    _logger.LogInformation("Processing subscription deletion {EventId}", stripeEventId);
+                    if (subscription != null)
+                    {
+                        subscription.Status = SubscriptionStatus.Cancelled;
+                        subscription.CancelledAt = DateTime.UtcNow;
+                        subscription.UpdatedAt = DateTime.UtcNow;
+                        _logger.LogInformation("Subscription {SubId} cancelled via webhook", stripeSubscriptionId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Subscription {SubId} not found for deletion", stripeSubscriptionId);
+                    }
                     break;
             }
 
@@ -166,4 +218,17 @@ public class BillingService : IBillingService
         PriceInCents = subscription.PriceInCents,
         TrialEndsAt = subscription.TrialEndsAt
     };
+
+    private static SubscriptionStatus ParseStripeStatus(string? status)
+    {
+        return status switch
+        {
+            "active" => SubscriptionStatus.Active,
+            "trialing" => SubscriptionStatus.Trialing,
+            "past_due" => SubscriptionStatus.PastDue,
+            "canceled" => SubscriptionStatus.Cancelled,
+            "incomplete" => SubscriptionStatus.Incomplete,
+            _ => SubscriptionStatus.Incomplete
+        };
+    }
 }

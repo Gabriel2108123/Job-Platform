@@ -99,11 +99,11 @@ export enum EmploymentType {
 }
 
 export enum JobStatus {
-  Draft = 0,
-  Published = 1,
-  Closed = 2,
-  Filled = 3,
-  Cancelled = 4
+  Draft = 1,
+  Published = 2,
+  Closed = 3,
+  Filled = 4,
+  Cancelled = 5
 }
 
 export interface JobDto {
@@ -404,7 +404,7 @@ export async function moveApplicationInPipeline(
   if (notes) payload.Notes = notes;
   if (preHireCheckConfirmation !== undefined) payload.PreHireCheckConfirmation = preHireCheckConfirmation;
   if (preHireCheckConfirmationText) payload.PreHireCheckConfirmationText = preHireCheckConfirmationText;
-  
+
   return apiRequest<{ message: string }>(
     `/api/pipeline/applications/${applicationId}/move`,
     {

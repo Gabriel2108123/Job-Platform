@@ -28,6 +28,9 @@ public class MessagingHub : Hub
 
         // Mark user as read
         await _messagingService.MarkAsReadAsync(organizationId, conversationId, userId);
+        
+        // Update Last Seen
+        await _messagingService.UpdateParticipantLastSeenAsync(conversationId, userId);
 
         // Notify others in conversation
         await Clients.Group(groupName).SendAsync("UserJoined", new { UserId = userId, Timestamp = DateTime.UtcNow });
@@ -40,6 +43,9 @@ public class MessagingHub : Hub
     {
         var groupName = GetConversationGroupName(organizationId, conversationId);
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+        
+        // Update Last Seen
+        await _messagingService.UpdateParticipantLastSeenAsync(conversationId, userId);
 
         await Clients.Group(groupName).SendAsync("UserLeft", new { UserId = userId, Timestamp = DateTime.UtcNow });
 

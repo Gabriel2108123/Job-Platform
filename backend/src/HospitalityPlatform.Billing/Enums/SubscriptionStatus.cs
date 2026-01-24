@@ -6,5 +6,7 @@ public enum SubscriptionStatus
     Cancelled,
     PastDue,
     Paused,
-    TrialEnded
+    TrialEnded,
+    Trialing,
+    Incomplete
 }

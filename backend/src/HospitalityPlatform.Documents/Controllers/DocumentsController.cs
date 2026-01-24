@@ -193,7 +193,10 @@ public class DocumentsController : ControllerBase
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
 
-            var result = await _documentsService.GetDownloadUrlAsync(organizationId, documentId, applicationId, userId);
+            // Check if user is Support
+            var isSupport = User.IsInRole("Support");
+
+            var result = await _documentsService.GetDownloadUrlAsync(organizationId, documentId, applicationId, userId, inline: isSupport);
             return Ok(result);
         }
         catch (InvalidOperationException ex)
@@ -214,6 +217,12 @@ public class DocumentsController : ControllerBase
     {
         try
         {
+            // Block Support form deleting
+            if (User.IsInRole("Support"))
+            {
+                return Forbid();
+            }
+
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
 

@@ -50,4 +50,6 @@ public class CreateJobDto
     public string? Benefits { get; set; }
     
     public DateTime? ExpiresAt { get; set; }
+    
+    public JobVisibility Visibility { get; set; } = JobVisibility.Public;
 }

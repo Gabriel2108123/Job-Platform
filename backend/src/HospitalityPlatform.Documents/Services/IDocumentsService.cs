@@ -30,8 +30,8 @@ public interface IDocumentsService
     /// <summary>Get access rules for a document.</summary>
     Task<List<DocumentAccessDto>> GetAccessRulesAsync(Guid organizationId, Guid documentId);
 
-    /// <summary>Generate presigned URL for downloading a document (with access check).</summary>
-    Task<DownloadUrlDto> GetDownloadUrlAsync(Guid organizationId, Guid documentId, Guid? applicationId, string userId);
+    /// <summary>Generate presigned URL for downloading a document (with access check). Optionally force inline.</summary>
+    Task<DownloadUrlDto> GetDownloadUrlAsync(Guid organizationId, Guid documentId, Guid? applicationId, string userId, bool inline = false);
 
     /// <summary>Delete a document (soft delete).</summary>
     Task DeleteDocumentAsync(Guid organizationId, Guid documentId, string userId);

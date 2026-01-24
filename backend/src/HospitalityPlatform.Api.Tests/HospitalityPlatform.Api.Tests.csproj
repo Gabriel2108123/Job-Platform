@@ -17,11 +17,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Billing\HospitalityPlatform.Billing.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Ratings\HospitalityPlatform.Ratings.csproj" />
   </ItemGroup>
 
 </Project>

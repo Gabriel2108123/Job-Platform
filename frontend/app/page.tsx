@@ -1,237 +1,214 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { isLoggedIn, getUser } from '@/lib/auth';
+import { isLoggedIn } from '@/lib/auth';
+import HeroSection from '@/components/landing/HeroSection';
+import WaitlistForm from '@/components/landing/WaitlistForm';
 import { useUserRole } from '@/lib/hooks/useUserRole';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const { role, displayName, loading } = useUserRole();
+  const router = useRouter();
 
   useEffect(() => {
     setLoggedIn(isLoggedIn());
   }, []);
 
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[var(--brand-navy)] via-[var(--brand-primary)] to-[var(--brand-accent)] text-white py-20 md:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 animate-fade-in">
-              YokeConnect
-            </h1>
-            <p className="text-2xl md:text-3xl mb-4 font-light">
-              Hospitality hiring that actually moves.
-            </p>
-            <p className="text-xl mb-8 text-white/90">
-              Connect talent with opportunity. Faster hiring, safer process, clear value for everyone.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/jobs">
-                <Button variant="primary" size="lg" className="bg-white text-[var(--brand-primary)] hover:bg-gray-100 w-full sm:w-auto">
-                  Browse Jobs
-                </Button>
-              </Link>
-              <Link href="/waitlist">
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 w-full sm:w-auto">
-                  Join Waitlist
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+  const scrollToWaitlist = () => {
+    const element = document.getElementById('waitlist-form-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-      {/* Personalized Section for Logged-In Users */}
-      {loggedIn && !loading && role && (
-        <section className="py-8 bg-blue-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card variant="default">
-              <CardBody>
-                <div className="flex flex-col md:flex-row items-center justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-2">
-                      Welcome back, {displayName}!
-                    </h2>
-                    <p className="text-gray-600">
-                      {role === 'Candidate' && '🎯 Continue building your career and finding great opportunities'}
-                      {role === 'BusinessOwner' && '📊 Manage your hiring pipeline and team'}
-                      {role === 'Staff' && '📋 Review and manage job applications'}
-                      {role === 'Support' && '🆘 Help our users and resolve their issues'}
-                      {role === 'Admin' && '⚙️ Manage the platform and users'}
-                    </p>
-                  </div>
-                  <div className="mt-4 md:mt-0">
-                    {role === 'Candidate' && (
-                      <Link href="/applications">
-                        <Button variant="primary">View Applications →</Button>
-                      </Link>
-                    )}
-                    {(role === 'BusinessOwner' || role === 'Staff') && (
-                      <Link href="/business/pipeline">
-                        <Button variant="primary">View Pipeline →</Button>
-                      </Link>
-                    )}
-                    {role === 'Support' && (
-                      <Link href="/support/tickets">
-                        <Button variant="primary">View Support Tickets →</Button>
-                      </Link>
-                    )}
-                    {role === 'Admin' && (
-                      <Link href="/admin">
-                        <Button variant="primary">Open Admin Dashboard →</Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          </div>
-        </section>
+  // If user is already logged in, show the personalized dashboard view instead of the landing page
+  // OR keep the landing page public but show a "Go to Dashboard" banner? 
+  // For this request (Landing Page Implementation), we prioritize the landing page copy.
+  // But we retain the logged-in check for UX.
+
+  return (
+    <div className="min-h-screen bg-white font-poppins selection:bg-[var(--brand-primary)] selection:text-white">
+
+      {/* Navigation Override (if needed) or just standard Layout */}
+
+      {/* Logged In Dashboard Redirect/Banner */}
+      {loggedIn && !loading && (
+        <div className="bg-[var(--brand-navy)] text-white p-4 text-center">
+          <span className="mr-4">Welcome back, {displayName}!</span>
+          <Link href={role === 'BusinessOwner' ? '/business' : role === 'Candidate' ? '/jobs' : '/admin'} className="underline font-bold text-[var(--brand-accent)]">
+            Go to Dashboard
+          </Link>
+        </div>
       )}
 
-      {/* How It Works */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[var(--brand-navy)] mb-4">
-              How it works
-            </h2>
-            <p className="text-xl text-gray-600">
-              Simple steps to connect employers with the right candidates
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-[var(--brand-primary)]/10 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+      {/* HERO SECTION */}
+      <HeroSection onScrollToForm={scrollToWaitlist} />
+
+      {/* PROBLEM STATEMENT */}
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl text-center">
+          <h2 className="text-sm font-bold tracking-widest text-[var(--brand-primary)] uppercase mb-4">The Problem</h2>
+          <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--brand-navy)] mb-8 leading-tight">
+            Hospitality hiring is fragmented, expensive, and broken.
+          </h3>
+          <div className="grid md:grid-cols-2 gap-12 text-left mt-16">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-6 text-2xl">
+                🏢
               </div>
-              <h3 className="text-2xl font-bold text-[var(--brand-navy)] mb-3">
-                1. Post or Apply
-              </h3>
-              <p className="text-gray-600">
-                Employers post jobs with detailed requirements. Candidates browse and apply with verified profiles.
+              <h4 className="text-xl font-bold text-[var(--brand-navy)] mb-4">For Employers</h4>
+              <p className="text-gray-600 leading-relaxed">
+                Forced to rely on expensive recruiters, pay repeated commissions, and gamble on short-term placements with no guarantees.
               </p>
             </div>
-
-            {/* Step 2 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-[var(--brand-accent)]/10 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-[var(--brand-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-6 text-2xl">
+                👨‍🍳
               </div>
-              <h3 className="text-2xl font-bold text-[var(--brand-navy)] mb-3">
-                2. Move Through Pipeline
-              </h3>
-              <p className="text-gray-600">
-                Track candidates through screening, interviews, and pre-hire checks in one clear pipeline.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-[var(--brand-navy)] mb-3">
-                3. Message & Share Docs
-              </h3>
-              <p className="text-gray-600">
-                Communicate securely and share documents safely. No passport storage, just verified sharing.
+              <h4 className="text-xl font-bold text-[var(--brand-navy)] mb-4">For Professionals</h4>
+              <p className="text-gray-600 leading-relaxed">
+                Jumping between platforms, struggling to verify real employers, and rarely getting direct access to the actual decision-makers.
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Trust & Safety */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[var(--brand-navy)] mb-4">
-              Built on trust and safety
-            </h2>
-            <p className="text-xl text-gray-600">
-              We take compliance and security seriously
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--brand-navy)] mb-2">
-                Email Verification
-              </h3>
-              <p className="text-gray-600">
-                All users verify their email before taking action. Real people only.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--brand-navy)] mb-2">
-                No Passport Storage
-              </h3>
-              <p className="text-gray-600">
-                We don't store sensitive documents. Secure sharing only when needed.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-[var(--brand-navy)] mb-2">
-                Pre-Hire Confirmation
-              </h3>
-              <p className="text-gray-600">
-                Mandatory pre-hire checks before anyone is marked as hired. Compliance built-in.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Waitlist CTA */}
-      <section id="waitlist" className="py-20 bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-accent)] text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Ready to transform your hiring?
-          </h2>
-          <p className="text-xl mb-8 text-white/90">
-            Join the waitlist and be among the first to experience YokeConnect
+          <p className="text-2xl font-medium text-[var(--brand-navy)] mt-12">
+            YokeConnect exists to remove friction on both sides.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/waitlist">
-              <Button variant="primary" size="lg" className="bg-white text-[var(--brand-primary)] hover:bg-gray-100 w-full sm:w-auto">
-                Join Waitlist Now
-              </Button>
-            </Link>
-            <Link href="/jobs">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 w-full sm:w-auto">
-                Browse Jobs First
-              </Button>
-            </Link>
+        </div>
+      </section>
+
+      {/* SOLUTION SECTION */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <h2 className="text-sm font-bold tracking-widest text-[var(--brand-primary)] uppercase mb-4">The Solution</h2>
+              <h3 className="text-4xl md:text-5xl font-bold text-[var(--brand-navy)] mb-6 leading-tight">
+                Premium in execution. <br /> Challenger in mindset.
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                YokeConnect is a hospitality-only recruitment ecosystem designed to work globally.
+              </p>
+              <ul className="space-y-6">
+                {[
+                  "Employers post real jobs with real salaries.",
+                  "Hospitality professionals control their profiles and data.",
+                  "Both sides communicate directly, without gatekeepers.",
+                  "One platform. One subscription. Unlimited connections."
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start">
+                    <span className="flex-shrink-0 w-6 h-6 bg-[var(--brand-success)] rounded-full flex items-center justify-center mr-4 mt-1">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                    </span>
+                    <span className="text-lg text-[var(--brand-navy)] font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative">
+              {/* Abstract UI Representation */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-accent)] rounded-2xl opacity-20 blur-xl"></div>
+              <div className="relative bg-[var(--brand-navy)] text-white p-8 rounded-2xl shadow-2xl">
+                <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                    <div>
+                      <div className="h-2 w-24 bg-white/20 rounded mb-2"></div>
+                      <div className="h-2 w-16 bg-white/10 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="px-3 py-1 bg-[var(--brand-success)] text-xs font-bold rounded-full">CONNECTED</div>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-lg border-l-4 border-[var(--brand-accent)]">
+                    <p className="text-sm text-gray-300">"Looking for a Head Chef. Salary £45k+"</p>
+                  </div>
+                  <div className="flex justify-end">
+                    <div className="bg-[var(--brand-primary)] p-4 rounded-lg max-w-xs">
+                      <p className="text-sm">"I have 10 years experience and I'm verified. Let's talk."</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-[var(--brand-gold)] font-mono uppercase tracking-widest">Direct Connection Established</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* BENEFITS SECTION (Grid) */}
+      <section className="py-24 bg-[var(--brand-navy)] text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Why YokeConnect?</h2>
+            <p className="text-xl text-gray-400">Built for the industry, by the industry.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Benefit 1 */}
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+              <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">No Commissions</h3>
+              <p className="text-gray-400">Hire without recruiters or percentage fees. Keep your budget for salaries.</p>
+            </div>
+            {/* Benefit 2 */}
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+              <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Unlimited Jobs</h3>
+              <p className="text-gray-400">Post as many roles as you need under a single, simple subscription.</p>
+            </div>
+            {/* Benefit 3 */}
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+              <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Direct Comms</h3>
+              <p className="text-gray-400">Message candidates directly. No middlemen slowing down your process.</p>
+            </div>
+            {/* Benefit 4 */}
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+              <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Verified Talent</h3>
+              <p className="text-gray-400">Access verified hospitality professionals with transparency enforced.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WAITLIST FORM SECTION */}
+      <section id="waitlist-form-section" className="py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] bg-center"></div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-[var(--brand-navy)] mb-4">Join the Movement</h2>
+              <p className="text-xl text-gray-600">
+                First <span className="font-bold text-[var(--brand-primary)]">1,000 employers</span> and <span className="font-bold text-[var(--brand-primary)]">5,000 employees</span> get <span className="underline decoration-[var(--brand-gold)] decoration-4 underline-offset-4">12 months free</span>.
+              </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <WaitlistForm />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-[var(--brand-navy)] border-t border-white/10 py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex justify-center items-center gap-8 mb-8">
+            <span className="text-2xl font-bold text-white">YokeConnect</span>
+          </div>
+          <p className="text-gray-500 text-sm">
+            © {new Date().getFullYear()} YokeConnect. All rights reserved. <br />
+            Hospitality hiring that actually moves.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

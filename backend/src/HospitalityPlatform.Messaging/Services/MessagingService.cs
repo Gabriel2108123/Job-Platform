@@ -804,4 +804,20 @@ public class MessagingService : IMessagingService
 
         await _dbContext.SaveAuditLogAsync(auditLog);
     }
+
+    /// <summary>
+    /// Update participant's LastSeenAt timestamp.
+    /// </summary>
+    public async Task UpdateParticipantLastSeenAsync(Guid conversationId, string userId)
+    {
+        var participant = await _dbContext.ConversationParticipants
+            .Where(p => p.ConversationId == conversationId && p.UserId == userId && !p.HasLeft)
+            .FirstOrDefaultAsync();
+
+        if (participant != null)
+        {
+            participant.LastSeenAt = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
+    }
 }
