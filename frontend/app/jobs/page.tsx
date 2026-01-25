@@ -2,11 +2,18 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { getJobs, JobDto, JobPagedResult, EmploymentType } from '@/lib/api/client';
+
+// Dynamically import JobMap to avoid SSR issues with Leaflet
+const JobMap = dynamic(() => import('@/components/jobs/JobMap'), {
+  ssr: false,
+  loading: () => <div className="h-[600px] bg-gray-100 rounded-lg flex items-center justify-center">Loading map...</div>,
+});
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<JobDto[]>([]);
@@ -17,6 +24,7 @@ export default function JobsPage() {
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -148,6 +156,30 @@ export default function JobsPage() {
           </div>
         </div>
 
+        {/* View Toggle */}
+        <div className="flex justify-end mb-6">
+          <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'list'
+                ? 'bg-[var(--brand-primary)] text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+            >
+              📋 List View
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${viewMode === 'map'
+                ? 'bg-[var(--brand-primary)] text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+            >
+              🗺️ Map View
+            </button>
+          </div>
+        </div>
+
         {/* Loading State */}
         {loading && (
           <div className="text-center py-12">
@@ -182,8 +214,16 @@ export default function JobsPage() {
           </div>
         )}
 
+
+        {/* Map View */}
+        {viewMode === 'map' && !loading && jobs.length > 0 && (
+          <div className="mb-8">
+            <JobMap jobs={jobs} />
+          </div>
+        )}
+
         {/* Jobs Grid */}
-        {!loading && jobs.length > 0 && (
+        {viewMode === 'list' && !loading && jobs.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {jobs.map((job) => (

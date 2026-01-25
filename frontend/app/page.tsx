@@ -38,9 +38,9 @@ export default function HomePage() {
 
       {/* Logged In Dashboard Redirect/Banner */}
       {loggedIn && !loading && (
-        <div className="bg-[var(--brand-navy)] text-white p-4 text-center">
+        <div className="bg-[var(--brand-navy)] text-white p-4 text-center animate-fade-in">
           <span className="mr-4">Welcome back, {displayName}!</span>
-          <Link href={role === 'BusinessOwner' ? '/business' : role === 'Candidate' ? '/jobs' : '/admin'} className="underline font-bold text-[var(--brand-accent)]">
+          <Link href={role === 'BusinessOwner' ? '/business' : role === 'Candidate' ? '/jobs' : '/admin'} className="underline font-bold text-[var(--brand-accent)] hover:text-[var(--brand-gold)] transition-colors">
             Go to Dashboard
           </Link>
         </div>
@@ -57,7 +57,7 @@ export default function HomePage() {
             Hospitality hiring is fragmented, expensive, and broken.
           </h3>
           <div className="grid md:grid-cols-2 gap-12 text-left mt-16">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-6 text-2xl">
                 🏢
               </div>
@@ -66,7 +66,7 @@ export default function HomePage() {
                 Forced to rely on expensive recruiters, pay repeated commissions, and gamble on short-term placements with no guarantees.
               </p>
             </div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
               <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-6 text-2xl">
                 👨‍🍳
               </div>
@@ -153,22 +153,22 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Benefit 1 */}
-            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300 border border-white/10 hover:scale-105 hover:shadow-xl">
               <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">No Commissions</h3>
               <p className="text-gray-400">Hire without recruiters or percentage fees. Keep your budget for salaries.</p>
             </div>
             {/* Benefit 2 */}
-            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300 border border-white/10 hover:scale-105 hover:shadow-xl">
               <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Unlimited Jobs</h3>
               <p className="text-gray-400">Post as many roles as you need under a single, simple subscription.</p>
             </div>
             {/* Benefit 3 */}
-            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300 border border-white/10 hover:scale-105 hover:shadow-xl">
               <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Direct Comms</h3>
               <p className="text-gray-400">Message candidates directly. No middlemen slowing down your process.</p>
             </div>
             {/* Benefit 4 */}
-            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-colors border border-white/10">
+            <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300 border border-white/10 hover:scale-105 hover:shadow-xl">
               <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Verified Talent</h3>
               <p className="text-gray-400">Access verified hospitality professionals with transparency enforced.</p>
             </div>
