@@ -62,8 +62,14 @@ export default function LoginPage() {
         
         setCurrentUser(currentUser, token);
 
-        // Redirect to jobs page
-        router.push('/jobs');
+        // Redirect based on role
+        if (currentUser.role === 'BusinessOwner') {
+          router.push('/business');
+        } else if (currentUser.role === 'Admin' || currentUser.role === 'Staff') {
+          router.push('/admin');
+        } else {
+          router.push('/jobs');
+        }
       } else {
         setError(response.error || 'Login failed. Please try again.');
       }
