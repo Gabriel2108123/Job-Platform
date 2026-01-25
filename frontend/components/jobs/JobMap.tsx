@@ -32,6 +32,10 @@ const getCoordinatesForLocation = (location: string): [number, number] | null =>
         'Bristol': [51.4545, -2.5879],
         'Cardiff': [51.4816, -3.1791],
         'Belfast': [54.5973, -5.9301],
+        'Brighton': [50.8225, -0.1372],
+        'Newcastle': [54.9783, -1.6178],
+        'Sheffield': [53.3811, -1.4701],
+        'Nottingham': [52.9548, -1.1581],
     };
 
     // Try exact match first

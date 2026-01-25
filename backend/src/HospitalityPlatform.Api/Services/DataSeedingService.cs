@@ -132,9 +132,9 @@ public class DataSeedingService
 
     private async Task SeedJobsAsync()
     {
-        if (await _context.Jobs.AnyAsync())
+        if (await _context.Jobs.CountAsync() >= 5)
         {
-            return; // Already seeded
+            return; // Already has enough data
         }
 
         var businessUser = await _userManager.FindByEmailAsync("business@test.com");
@@ -143,31 +143,117 @@ public class DataSeedingService
             return;
         }
 
-        var job = new Job
+        var jobs = new List<Job>
         {
-            Title = "Head Chef",
-            Description = "We are looking for an experienced Head Chef to lead our kitchen team. Must have 5+ years experience in fine dining.",
-            OrganizationId = businessUser.OrganizationId.Value,
-            CreatedByUserId = businessUser.Id.ToString(),
-            RoleType = RoleType.Chef,
-            EmploymentType = EmploymentType.FullTime,
-            ShiftPattern = ShiftPattern.Rotating,
-            SalaryMin = 45000,
-            SalaryMax = 55000,
-            SalaryCurrency = "GBP",
-            SalaryPeriod = SalaryPeriod.Year,
-            Location = "London",
-            RequiredExperienceYears = 5,
-            Status = JobStatus.Published,
-            PublishedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddDays(30),
-            Visibility = JobVisibility.Public,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            new Job
+            {
+                Title = "Head Barista",
+                Description = "Experienced barista needed for busy cafe in central London. Must know latte art.",
+                OrganizationId = businessUser.OrganizationId.Value,
+                CreatedByUserId = businessUser.Id.ToString(),
+                RoleType = RoleType.Barista,
+                EmploymentType = EmploymentType.FullTime,
+                ShiftPattern = ShiftPattern.Days,
+                SalaryMin = 28000,
+                SalaryMax = 32000,
+                SalaryCurrency = "GBP",
+                SalaryPeriod = SalaryPeriod.Year,
+                Location = "London",
+                RequiredExperienceYears = 2,
+                Status = JobStatus.Published,
+                PublishedAt = DateTime.UtcNow,
+                Visibility = JobVisibility.Public,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new Job
+            {
+                Title = "Sous Chef",
+                Description = "Join our award-winning kitchen team. Passion for local produce required.",
+                OrganizationId = businessUser.OrganizationId.Value,
+                CreatedByUserId = businessUser.Id.ToString(),
+                RoleType = RoleType.SousChef,
+                EmploymentType = EmploymentType.FullTime,
+                ShiftPattern = ShiftPattern.Rotating,
+                SalaryMin = 35000,
+                SalaryMax = 40000,
+                SalaryCurrency = "GBP",
+                SalaryPeriod = SalaryPeriod.Year,
+                Location = "Manchester",
+                RequiredExperienceYears = 4,
+                Status = JobStatus.Published,
+                PublishedAt = DateTime.UtcNow,
+                Visibility = JobVisibility.Public,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new Job
+            {
+                Title = "Hotel Receptionist",
+                Description = "Luxury hotel requires front desk staff. Night shifts included.",
+                OrganizationId = businessUser.OrganizationId.Value,
+                CreatedByUserId = businessUser.Id.ToString(),
+                RoleType = RoleType.HotelReceptionist,
+                EmploymentType = EmploymentType.FullTime,
+                ShiftPattern = ShiftPattern.Rotating,
+                SalaryMin = 24000,
+                SalaryMax = 26000,
+                SalaryCurrency = "GBP",
+                SalaryPeriod = SalaryPeriod.Year,
+                Location = "Edinburgh",
+                RequiredExperienceYears = 1,
+                Status = JobStatus.Published,
+                PublishedAt = DateTime.UtcNow,
+                Visibility = JobVisibility.Public,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new Job
+            {
+                Title = "Bartender",
+                Description = "Cocktail experience preferred for our speakeasy bar.",
+                OrganizationId = businessUser.OrganizationId.Value,
+                CreatedByUserId = businessUser.Id.ToString(),
+                RoleType = RoleType.Bartender,
+                EmploymentType = EmploymentType.PartTime,
+                ShiftPattern = ShiftPattern.Nights,
+                SalaryMin = 12.50m,
+                SalaryMax = 15.00m,
+                SalaryCurrency = "GBP",
+                SalaryPeriod = SalaryPeriod.Hour,
+                Location = "Bristol",
+                RequiredExperienceYears = 1,
+                Status = JobStatus.Published,
+                PublishedAt = DateTime.UtcNow,
+                Visibility = JobVisibility.Public,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new Job
+            {
+                Title = "Waiter / Waitress",
+                Description = "Seasonal staff for seafront restaurant. Immediate start.",
+                OrganizationId = businessUser.OrganizationId.Value,
+                CreatedByUserId = businessUser.Id.ToString(),
+                RoleType = RoleType.Waiter,
+                EmploymentType = EmploymentType.Temporary,
+                ShiftPattern = ShiftPattern.Flexible,
+                SalaryMin = 11.50m,
+                SalaryMax = 13.00m,
+                SalaryCurrency = "GBP",
+                SalaryPeriod = SalaryPeriod.Hour,
+                Location = "Brighton",
+                RequiredExperienceYears = 0,
+                Status = JobStatus.Published,
+                PublishedAt = DateTime.UtcNow,
+                Visibility = JobVisibility.Public,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }
         };
 
-        _context.Jobs.Add(job);
+        _context.Jobs.AddRange(jobs);
         await _context.SaveChangesAsync();
-        _logger.LogInformation("Created sample job: {Title}", job.Title);
+        _logger.LogInformation("Seeded {Count} new jobs.", jobs.Count);
     }
 }
