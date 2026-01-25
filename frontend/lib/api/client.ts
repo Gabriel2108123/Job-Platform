@@ -1,8 +1,5 @@
-/**
- * API configuration
- */
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5205',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: 30000,
 };
 
