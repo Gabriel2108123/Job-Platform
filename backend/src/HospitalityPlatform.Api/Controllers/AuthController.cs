@@ -11,6 +11,10 @@ using System.Text;
 
 namespace HospitalityPlatform.Api.Controllers;
 
+/// <summary>
+/// Handles authentication, user registration, and identity-related operations.
+/// Manages JWT token generation and role assignments for multi-tenant organizations.
+/// </summary>
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
@@ -22,6 +26,9 @@ public class AuthController : ControllerBase
     private readonly IEmailVerificationService? _emailVerificationService;
     private readonly ApplicationDbContext _context;
 
+    /// <summary>
+    /// Initializes a new instance of the AuthController with required identity and database services.
+    /// </summary>
     public AuthController(
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,

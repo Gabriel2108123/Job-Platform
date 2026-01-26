@@ -20,6 +20,12 @@ export interface CurrentUser {
  * Get current user info from localStorage
  * Note: organizationId and role are stored as separate entries
  */
+/**
+ * Retrieves the current authenticated user info from localStorage.
+ * Combines basic user data with extended organization and role information stored separately.
+ * 
+ * @returns The CurrentUser object if authenticated, otherwise null.
+ */
 export function getCurrentUser(): CurrentUser | null {
   const user = getUser();
   if (!user) return null;

@@ -6,6 +6,10 @@ using System.Security.Claims;
 
 namespace HospitalityPlatform.Api.Controllers;
 
+/// <summary>
+/// Controller for managing job postings, search, and recruitment analytics.
+/// Provides endpoints for both public job search and authenticated business operations.
+/// </summary>
 [ApiController]
 [Route("api/jobs")]
 public class JobsController : ControllerBase
@@ -13,6 +17,11 @@ public class JobsController : ControllerBase
     private readonly IJobService _jobService;
     private readonly ILogger<JobsController> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the JobsController.
+    /// </summary>
+    /// <param name="jobService">The service handling job business logic.</param>
+    /// <param name="logger">The logger for capturing diagnostic information.</param>
     public JobsController(IJobService jobService, ILogger<JobsController> logger)
     {
         _jobService = jobService;

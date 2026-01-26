@@ -18,6 +18,13 @@ import {
   getRoleColor,
 } from '@/lib/roles';
 
+/**
+ * Custom hook for role-based operations.
+ * Provides easy access to the current authenticated user's role status and navigation permissions.
+ * 
+ * @returns An object containing the role, loading status, role-based checks (isCandidate, isBusinessOwner, etc.),
+ * and authorized navigation links for the current user.
+ */
 export function useUserRole() {
   const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
