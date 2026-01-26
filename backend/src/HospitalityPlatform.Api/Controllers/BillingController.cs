@@ -7,7 +7,7 @@ namespace HospitalityPlatform.Api.Controllers;
 
 [ApiController]
 [Route("api/billing")]
-[Authorize]
+[Authorize(Roles = "BusinessOwner,Admin")]
 public class BillingController : ControllerBase
 {
     private readonly IBillingService _billingService;

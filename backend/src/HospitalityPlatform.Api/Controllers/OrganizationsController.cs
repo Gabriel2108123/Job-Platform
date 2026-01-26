@@ -137,6 +137,187 @@ public class OrganizationsController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while retrieving the organization" });
         }
     }
+
+    /// <summary>
+    /// Get all members of the current organization
+    /// </summary>
+    [HttpGet("members")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<IEnumerable<TeamMemberDto>>> GetMembers()
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var members = await _userManager.Users
+                .Where(u => u.OrganizationId == organizationId)
+                .OrderBy(u => u.CreatedAt)
+                .ToListAsync();
+
+            var result = new List<TeamMemberDto>();
+            foreach (var member in members)
+            {
+                var roles = await _userManager.GetRolesAsync(member);
+                result.Add(new TeamMemberDto
+                {
+                    Id = member.Id.ToString(),
+                    FirstName = member.FirstName ?? "",
+                    LastName = member.LastName ?? "",
+                    Email = member.Email ?? "",
+                    Position = member.Position,
+                    Role = roles.FirstOrDefault() ?? "Staff",
+                    Status = member.IsActive ? "active" : "inactive",
+                    CreatedAt = member.CreatedAt
+                });
+            }
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving organization members");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Create a new team member directly
+    /// </summary>
+    [HttpPost("members")]
+    [Authorize(Roles = "BusinessOwner")]
+    public async Task<ActionResult<TeamMemberDto>> AddMember([FromBody] CreateTeamMemberDto request)
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                return BadRequest(new { error = "User with this email already exists" });
+            }
+
+            var newUser = new ApplicationUser
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Position = request.Position,
+                OrganizationId = organizationId,
+                EmailVerified = true, // Directly created by owner
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            var result = await _userManager.CreateAsync(newUser, request.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { error = string.Join(", ", result.Errors.Select(e => e.Description)) });
+            }
+
+            await _userManager.AddToRoleAsync(newUser, "Staff");
+
+            return Ok(new TeamMemberDto
+            {
+                Id = newUser.Id.ToString(),
+                FirstName = newUser.FirstName ?? "",
+                LastName = newUser.LastName ?? "",
+                Email = newUser.Email ?? "",
+                Position = newUser.Position,
+                Role = "Staff",
+                Status = "active",
+                CreatedAt = newUser.CreatedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding team member");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Update a team member's position
+    /// </summary>
+    [HttpPatch("members/{userId}")]
+    [Authorize(Roles = "BusinessOwner")]
+    public async Task<IActionResult> UpdateMemberPosition(string userId, [FromBody] UpdateTeamMemberDto request)
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var member = await _userManager.FindByIdAsync(userId);
+            if (member == null || member.OrganizationId != organizationId)
+            {
+                return NotFound(new { error = "Member not found in your organization" });
+            }
+
+            member.Position = request.Position;
+            member.UpdatedAt = DateTime.UtcNow;
+
+            await _userManager.UpdateAsync(member);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating team member position");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Remove a team member
+    /// </summary>
+    [HttpDelete("members/{userId}")]
+    [Authorize(Roles = "BusinessOwner")]
+    public async Task<IActionResult> RemoveMember(string userId)
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == currentUserId)
+            {
+                return BadRequest(new { error = "You cannot remove yourself" });
+            }
+
+            var member = await _userManager.FindByIdAsync(userId);
+            if (member == null || member.OrganizationId != organizationId)
+            {
+                return NotFound(new { error = "Member not found in your organization" });
+            }
+
+            member.OrganizationId = null;
+            member.IsActive = false;
+
+            await _userManager.UpdateAsync(member);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error removing team member");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
 }
 
 public class CreateOrganizationDto

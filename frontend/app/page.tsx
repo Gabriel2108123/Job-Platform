@@ -40,7 +40,7 @@ export default function HomePage() {
       {loggedIn && !loading && (
         <div className="bg-[var(--brand-navy)] text-white p-4 text-center animate-fade-in">
           <span className="mr-4">Welcome back, {displayName}!</span>
-          <Link href={role === 'BusinessOwner' ? '/business' : role === 'Candidate' ? '/jobs' : '/admin'} className="underline font-bold text-[var(--brand-accent)] hover:text-[var(--brand-gold)] transition-colors">
+          <Link href={role === 'BusinessOwner' ? '/business' : role === 'Candidate' ? '/dashboard' : '/admin'} className="underline font-bold text-[var(--brand-accent)] hover:text-[var(--brand-gold)] transition-colors">
             Go to Dashboard
           </Link>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
-import { RequireRole } from '@/components/auth/RequireRole';
+import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';

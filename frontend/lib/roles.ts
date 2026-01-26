@@ -29,6 +29,7 @@ export const ROLE_HIERARCHY: Record<Role, number> = {
  */
 export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
   [ROLES.Candidate]: [
+    { href: '/dashboard', label: 'Dashboard', icon: 'grid' },
     { href: '/jobs', label: 'Browse Jobs', icon: 'briefcase' },
     { href: '/applications', label: 'My Applications', icon: 'file-text' },
     { href: '/messages', label: 'Messages', icon: 'message-square' },
@@ -42,6 +43,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
     { href: '/business/team', label: 'Team Members', icon: 'users' },
     { href: '/business/billing', label: 'Billing', icon: 'credit-card' },
     { href: '/messages', label: 'Messages', icon: 'message-square' },
+    { href: '/profile', label: 'Profile', icon: 'user' },
   ],
   [ROLES.Staff]: [
     { href: '/business', label: 'Dashboard', icon: 'grid' },
@@ -49,6 +51,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
     { href: '/business/pipeline', label: 'Hiring Pipeline', icon: 'shuffle' },
     { href: '/business/team', label: 'Team', icon: 'users' },
     { href: '/messages', label: 'Messages', icon: 'message-square' },
+    { href: '/profile', label: 'Profile', icon: 'user' },
   ],
   [ROLES.Support]: [
     { href: '/support', label: 'Dashboard', icon: 'grid' },
@@ -56,6 +59,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
     { href: '/support/users', label: 'Users', icon: 'users' },
     { href: '/support/reports', label: 'Reports', icon: 'bar-chart-2' },
     { href: '/messages', label: 'Messages', icon: 'message-square' },
+    { href: '/profile', label: 'Profile', icon: 'user' },
   ],
   [ROLES.Admin]: [
     { href: '/admin', label: 'Dashboard', icon: 'grid' },
@@ -65,6 +69,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
     { href: '/admin/audit-logs', label: 'Audit Logs', icon: 'log' },
     { href: '/admin/waitlist', label: 'Waitlist', icon: 'inbox' },
     { href: '/admin/support', label: 'Support', icon: 'life-buoy' },
+    { href: '/profile', label: 'Profile', icon: 'user' },
   ],
 };
 
@@ -74,6 +79,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
 export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
   [ROLES.Candidate]: [
     '/',
+    '/dashboard',
     '/jobs',
     '/applications',
     '/messages',
@@ -90,6 +96,7 @@ export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
     '/business/team',
     '/business/billing',
     '/messages',
+    '/profile',
     '/logout',
   ],
   [ROLES.Staff]: [
@@ -99,6 +106,7 @@ export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
     '/business/pipeline',
     '/business/team',
     '/messages',
+    '/profile',
     '/logout',
   ],
   [ROLES.Support]: [
@@ -108,6 +116,7 @@ export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
     '/support/users',
     '/support/reports',
     '/messages',
+    '/profile',
     '/logout',
   ],
   [ROLES.Admin]: [
@@ -119,6 +128,7 @@ export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
     '/admin/audit-logs',
     '/admin/waitlist',
     '/admin/support',
+    '/profile',
     '/logout',
   ],
 };

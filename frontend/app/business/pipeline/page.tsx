@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
-import { RequireRole } from '@/components/auth/RequireRole';
+import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { Card, CardBody } from '@/components/ui/Card';
+import { apiRequest } from '@/lib/api/client';
+import { Badge } from '@/components/ui/Badge';
 
 type ApplicationStatus = 'Applied' | 'Screening' | 'Interview' | 'PreHireChecks' | 'Hired' | 'Rejected';
 

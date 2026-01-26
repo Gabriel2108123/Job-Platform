@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { RequireAuth } from '@/components/auth/RequireAuth';
-import { RequireRole } from '@/components/auth/RequireRole';
+import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { StatCard } from '@/components/layout/StatCard';
 import { apiRequest } from '@/lib/api/client';

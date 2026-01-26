@@ -18,6 +18,16 @@ public class CandidateProfile : BaseEntity
     /// </summary>
     public required DateTime DateOfBirth { get; set; }
 
+    /// <summary>
+    /// Short professional bio
+    /// </summary>
+    public string? Bio { get; set; }
+
+    /// <summary>
+    /// Structured resume data stored as JSON
+    /// </summary>
+    public string? ResumeJson { get; set; }
+
     // Navigation properties
     public ApplicationUser? User { get; set; }
 }

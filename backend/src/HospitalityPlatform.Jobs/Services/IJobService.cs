@@ -11,4 +11,6 @@ public interface IJobService
     Task<JobDto?> GetJobByIdAsync(Guid jobId);
     Task<PagedResult<JobDto>> GetJobsByOrganizationAsync(Guid organizationId, int pageNumber = 1, int pageSize = 20);
     Task<PagedResult<JobDto>> SearchJobsAsync(SearchJobsDto searchDto);
+    Task IncrementJobViewAsync(Guid jobId);
+    Task<OrganizationAnalyticsDto> GetOrganizationAnalyticsAsync(Guid organizationId);
 }

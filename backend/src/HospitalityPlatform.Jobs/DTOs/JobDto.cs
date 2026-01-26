@@ -43,4 +43,5 @@ public class JobDto
     public DateTime? UpdatedAt { get; set; }
     
     public JobVisibility Visibility { get; set; }
+    public int ViewsCount { get; set; }
 }

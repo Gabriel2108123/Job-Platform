@@ -35,4 +35,6 @@ public class Job : BaseEntity
     public DateTime? ExpiresAt { get; set; }
     
     public JobVisibility Visibility { get; set; } = JobVisibility.Public;
+
+    public int ViewsCount { get; set; } = 0;
 }

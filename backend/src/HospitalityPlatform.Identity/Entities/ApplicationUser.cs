@@ -18,6 +18,16 @@ public class ApplicationUser : IdentityUser<Guid>
     /// Whether user's email has been verified
     /// </summary>
     public bool EmailVerified { get; set; } = false;
+
+    /// <summary>
+    /// URL to the user's profile picture in S3
+    /// </summary>
+    public string? ProfilePictureUrl { get; set; }
+    
+    /// <summary>
+    /// Professional position/title within the company
+    /// </summary>
+    public string? Position { get; set; }
     
     // Navigation properties
     public Organization? Organization { get; set; }

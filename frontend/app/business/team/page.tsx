@@ -4,223 +4,283 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { Button } from '@/components/ui/Button';
+import { apiRequest } from '@/lib/api/client';
+import { getUser, isLoggedIn } from '@/lib/auth';
+import { useUserRole } from '@/lib/hooks/useUserRole';
 
 interface TeamMember {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: 'BusinessOwner' | 'Staff';
-  status: 'active' | 'inactive' | 'invited';
-  joinedAt?: string;
+  role: string;
+  position?: string;
+  status: string;
+  createdAt: string;
 }
-
-const MOCK_TEAM: TeamMember[] = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Owner',
-    email: 'john@example.com',
-    role: 'BusinessOwner',
-    status: 'active',
-    joinedAt: '2025-01-01',
-  },
-  {
-    id: '2',
-    firstName: 'Sarah',
-    lastName: 'Manager',
-    email: 'sarah@example.com',
-    role: 'Staff',
-    status: 'active',
-    joinedAt: '2025-06-15',
-  },
-  {
-    id: '3',
-    firstName: 'Mike',
-    lastName: 'Recruiter',
-    email: 'mike@example.com',
-    role: 'Staff',
-    status: 'active',
-    joinedAt: '2025-08-20',
-  },
-];
 
 export default function BusinessTeamPage() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    position: ''
+  });
+  const [actionLoading, setActionLoading] = useState(false);
+  const { role, isBusinessOwner: isOwner } = useUserRole();
+  const currUser = getUser();
+
+  const fetchTeam = async () => {
+    setLoading(true);
+    try {
+      const res = await apiRequest<TeamMember[]>('/api/organizations/members');
+      if (res.success && res.data) {
+        setTeam(res.data);
+      }
+    } catch (err) {
+      console.error('Fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // TODO: Fetch team members from backend
-    setTeam(MOCK_TEAM);
-    setLoading(false);
+    fetchTeam();
   }, []);
 
-  const handleInvite = async () => {
-    if (!inviteEmail) return;
-    // TODO: Send invite to backend
-    setInviteEmail('');
-    setShowInviteModal(false);
+  const handleAddMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const res = await apiRequest<TeamMember>('/api/organizations/members', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
+      if (res.success) {
+        setShowAddModal(false);
+        setFormData({ firstName: '', lastName: '', email: '', password: '', position: '' });
+        fetchTeam();
+      } else {
+        alert(res.error || 'Failed to add member');
+      }
+    } catch (err) {
+      alert('Internal error adding member');
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    if (confirm('Are you sure you want to remove this team member?')) {
-      // TODO: Call backend to remove member
-      setTeam(team.filter((m) => m.id !== memberId));
+    if (!confirm('Are you sure you want to remove this team member? they will lose access to the company account.')) return;
+
+    setActionLoading(true);
+    try {
+      const res = await apiRequest(`/api/organizations/members/${memberId}`, {
+        method: 'DELETE'
+      });
+      if (res.success) {
+        fetchTeam();
+      } else {
+        alert(res.error || 'Failed to remove member');
+      }
+    } catch (err) {
+      alert('Internal error removing member');
+    } finally {
+      setActionLoading(false);
     }
   };
 
   return (
     <RequireRole allowedRoles={['BusinessOwner', 'Staff', 'Admin']}>
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[#fcfcfd] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
-              <p className="text-gray-600 mt-1">Manage your hiring team</p>
+              <h1 className="text-4xl font-black text-[var(--brand-navy)] tracking-tight">Your Recruitment Team</h1>
+              <p className="text-gray-500 mt-2 text-lg italic">Built for {currUser?.organizationId ? 'Your Organization' : 'The Riverside'}</p>
             </div>
-            <Button variant="primary" onClick={() => setShowInviteModal(true)}>
-              + Invite Team Member
-            </Button>
+            {isOwner && (
+              <Button
+                variant="primary"
+                onClick={() => setShowAddModal(true)}
+                className="bg-indigo-600 rounded-2xl px-8 shadow-xl shadow-indigo-100 font-bold"
+              >
+                + Add New Member
+              </Button>
+            )}
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Total Members</div>
-              <div className="text-3xl font-bold text-[var(--brand-primary)]">{team.length}</div>
+          {/* Stats Bar */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Active Seat</p>
+              <p className="text-3xl font-black text-indigo-600">{team.length}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Active</div>
-              <div className="text-3xl font-bold text-green-600">
-                {team.filter((m) => m.status === 'active').length}
-              </div>
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Access Level</p>
+              <p className="text-3xl font-black text-teal-600 capitalize">{currUser?.role === 'BusinessOwner' ? 'Admin' : 'Recruitment'}</p>
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Pending Invites</div>
-              <div className="text-3xl font-bold text-yellow-600">
-                {team.filter((m) => m.status === 'invited').length}
-              </div>
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Isolation</p>
+              <p className="text-xl font-black text-amber-600">Company Restricted ✓</p>
             </div>
           </div>
 
-          {/* Team List */}
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--brand-primary)]"></div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                        Role
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
-                        Joined
-                      </th>
-                      <th className="px-6 py-3 text-right text-sm font-semibold text-gray-900">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {team.map((member) => (
-                      <tr key={member.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4">
-                          <div className="font-medium text-gray-900">
-                            {member.firstName} {member.lastName}
+          {/* Member Table */}
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-gray-50/50">
+                  <tr>
+                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Team Member</th>
+                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Position</th>
+                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Access</th>
+                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Joined</th>
+                    <th className="px-8 py-5 text-right font-bold text-gray-400 uppercase tracking-widest"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {loading ? (
+                    <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Loading your crew...</td></tr>
+                  ) : team.length === 0 ? (
+                    <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No team members yet. Add your first recruiter!</td></tr>
+                  ) : team.map((member) => (
+                    <tr key={member.id} className="hover:bg-gray-50/30 transition-colors">
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
+                            {member.firstName[0]}{member.lastName[0]}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">{member.email}</td>
-                        <td className="px-6 py-4">
-                          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            {member.role === 'BusinessOwner' ? 'Owner' : 'Staff'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${
-                              member.status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : member.status === 'invited'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}
+                          <div>
+                            <p className="font-bold text-gray-900">{member.firstName} {member.lastName}</p>
+                            <p className="text-xs text-gray-400">{member.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className="font-bold text-gray-600 italic">{member.position || 'N/A'}</span>
+                      </td>
+                      <td className="px-8 py-6">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${member.role === 'BusinessOwner' ? 'bg-indigo-100 text-indigo-700' : 'bg-teal-100 text-teal-700'
+                          }`}>
+                          {member.role === 'BusinessOwner' ? 'Owner' : 'Recruitment'}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-sm text-gray-500 font-medium">
+                        {new Date(member.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        {isOwner && member.id !== currUser?.id && (
+                          <button
+                            onClick={() => handleRemoveMember(member.id)}
+                            className="text-red-400 hover:text-red-600 font-bold text-xs transition-colors"
                           >
-                            {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-600">
-                          {member.joinedAt || 'Pending'}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          {member.role !== 'BusinessOwner' && (
-                            <button
-                              onClick={() => handleRemoveMember(member.id)}
-                              className="text-red-600 hover:text-red-800 font-medium text-sm"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            Terminate Access
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Invite Modal */}
-          {showInviteModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Invite Team Member</h2>
-                <p className="text-gray-600 mb-4">
-                  Send an invite to add someone to your team
-                </p>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="name@company.com"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent mb-4"
-                />
-                <div className="flex gap-3">
-                  <Button
-                    variant="primary"
-                    onClick={handleInvite}
-                    className="flex-1"
-                  >
-                    Send Invite
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowInviteModal(false)}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
+        {/* Add Member Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <form onSubmit={handleAddMember} className="bg-white rounded-[2rem] shadow-2xl max-w-lg w-full p-10 space-y-6">
+              <div>
+                <h2 className="text-3xl font-black text-gray-900">Add Recruiter</h2>
+                <p className="text-gray-500 font-medium italic mt-1">Grant team access to your company account</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">First Name</label>
+                  <input
+                    required
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Last Name</label>
+                  <input
+                    required
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
+                  />
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Position / Job Title</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. HR Manager, Senior Recruiter"
+                  value={formData.position}
+                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold italic"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Company Email Address</label>
+                <input
+                  required
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Initial Password</label>
+                <input
+                  required
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="flex-1 bg-indigo-600 rounded-2xl font-black py-4 shadow-lg shadow-indigo-100"
+                  disabled={actionLoading}
+                >
+                  {actionLoading ? 'Creating User...' : 'Establish Team Seat'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 rounded-2xl font-bold py-4"
+                >
+                  Discard
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </RequireRole>
   );
 }
+

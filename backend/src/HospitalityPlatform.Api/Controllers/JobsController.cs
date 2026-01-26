@@ -166,8 +166,8 @@ public class JobsController : ControllerBase
             }
 
             // TODO: Verify user has access to this job's organization
-            var job = await _jobService.UpdateJobAsync(id, dto, userId);
-            return Ok(job);
+            var result = await _jobService.UpdateJobAsync(id, dto, userId);
+            return Ok(result);
         }
         catch (KeyNotFoundException ex)
         {
@@ -181,6 +181,50 @@ public class JobsController : ControllerBase
         {
             _logger.LogError(ex, "Error updating job {JobId}", id);
             return StatusCode(500, new { error = "An error occurred while updating the job" });
+        }
+    }
+
+    /// <summary>
+    /// Increment job view count (anonymous)
+    /// </summary>
+    [HttpPost("{id}/view")]
+    [AllowAnonymous]
+    public async Task<IActionResult> IncrementView(Guid id)
+    {
+        try
+        {
+            await _jobService.IncrementJobViewAsync(id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error incrementing view for job {JobId}", id);
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Get analytics for current organization
+    /// </summary>
+    [HttpGet("analytics")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<OrganizationAnalyticsDto>> GetAnalytics()
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var analytics = await _jobService.GetOrganizationAnalyticsAsync(organizationId);
+            return Ok(analytics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting analytics");
+            return StatusCode(500, new { error = "Internal server error" });
         }
     }
 

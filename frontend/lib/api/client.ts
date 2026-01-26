@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5205',
   timeout: 30000,
 };
 
@@ -410,3 +410,85 @@ export async function moveApplicationInPipeline(
     }
   );
 }
+
+// ============================================================================
+// Profile DTOs & API Functions
+// ============================================================================
+
+export interface ProfileDto {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  profilePictureUrl?: string;
+  bio?: string;
+  resumeJson?: string;
+  role?: string;
+}
+
+export interface UpdateProfileDto {
+  firstName?: string;
+  lastName?: string;
+  profilePictureUrl?: string;
+  bio?: string;
+  resumeJson?: string;
+}
+
+/**
+ * Get current user profile
+ */
+export async function getMyProfile(): Promise<ApiResponse<ProfileDto>> {
+  return apiRequest<ProfileDto>('/api/profiles/me');
+}
+
+/**
+ * Update current user profile
+ */
+export async function updateMyProfile(
+  profile: UpdateProfileDto
+): Promise<ApiResponse<ProfileDto>> {
+  return apiRequest<ProfileDto>(
+    '/api/profiles/me',
+    {
+      method: 'PUT',
+      body: JSON.stringify(profile),
+    }
+  );
+}
+
+// ============================================================================
+// Analytics & Reporting Functions
+// ============================================================================
+
+export interface OrganizationAnalyticsDto {
+  totalJobs: number;
+  activeJobs: number;
+  draftJobs: number;
+  totalViews: number;
+  totalApplications: number;
+  avgConversionRate: number;
+  topPerformingJobs: JobPerformanceDto[];
+}
+
+export interface JobPerformanceDto {
+  jobId: string;
+  title: string;
+  views: number;
+  applications: number;
+  conversionRate: number;
+}
+
+/**
+ * Get analytics for current organization
+ */
+export async function getOrganizationAnalytics(): Promise<ApiResponse<OrganizationAnalyticsDto>> {
+  return apiRequest<OrganizationAnalyticsDto>('/api/jobs/analytics');
+}
+
+/**
+ * Increment job view count
+ */
+export async function incrementJobView(jobId: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/jobs/${jobId}/view`, { method: 'POST' });
+}
+

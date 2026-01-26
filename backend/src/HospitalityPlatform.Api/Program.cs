@@ -106,6 +106,7 @@ builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<Ap
 // Register Identity services
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IAgeVerificationService, HospitalityPlatform.Identity.Services.AgeVerificationService>();
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IEmailVerificationService, HospitalityPlatform.Identity.Services.EmailVerificationService>();
+builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IProfileService, HospitalityPlatform.Identity.Services.ProfileService>();
 
 // Register application services
 builder.Services.AddScoped<HospitalityPlatform.Audit.Services.IAuditService, HospitalityPlatform.Audit.Services.AuditService>();

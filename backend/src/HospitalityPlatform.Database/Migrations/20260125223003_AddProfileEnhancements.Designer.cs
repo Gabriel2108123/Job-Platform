@@ -3,6 +3,7 @@ using System;
 using HospitalityPlatform.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HospitalityPlatform.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260125223003_AddProfileEnhancements")]
+    partial class AddProfileEnhancements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -867,9 +870,6 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Position")
-                        .HasColumnType("text");
-
                     b.Property<string>("ProfilePictureUrl")
                         .HasColumnType("text");
 
@@ -1150,9 +1150,6 @@ namespace HospitalityPlatform.Database.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
-
-                    b.Property<int>("ViewsCount")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Visibility")
                         .HasColumnType("integer");

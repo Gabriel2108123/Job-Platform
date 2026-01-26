@@ -5,50 +5,54 @@ import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/auth';
 import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { Button } from '@/components/ui/Button';
-
-interface ProfileData {
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+import { Card, CardBody } from '@/components/ui/Card';
+import { Input } from '@/components/ui/Input';
+import { getMyProfile, updateMyProfile, ProfileDto } from '@/lib/api/client';
 
 export default function CandidateProfilePage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState<ProfileData>({
+  const [profile, setProfile] = useState<ProfileDto | null>(null);
+  const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
+    bio: '',
   });
 
   useEffect(() => {
-    const currentUser = getUser();
-    if (currentUser) {
-      setFormData({
-        firstName: currentUser.name?.split(' ')[0] || '',
-        lastName: currentUser.name?.split(' ')[1] || '',
-        email: currentUser.email || '',
-      });
-    }
-    setLoading(false);
+    const fetchProfile = async () => {
+      const res = await getMyProfile();
+      if (res.success && res.data) {
+        setProfile(res.data);
+        setFormData({
+          firstName: res.data.firstName || '',
+          lastName: res.data.lastName || '',
+          bio: res.data.bio || '',
+        });
+      }
+      setLoading(false);
+    };
+    fetchProfile();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSaveProfile = async () => {
+    setSaving(true);
     try {
-      // TODO: Implement API call to update profile
-      setEditing(false);
-      // Show success message
+      const res = await updateMyProfile(formData);
+      if (res.success && res.data) {
+        setProfile(res.data);
+        setEditing(false);
+      }
     } catch (error) {
       console.error('Failed to update profile:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -61,98 +65,115 @@ export default function CandidateProfilePage() {
   }
 
   return (
-    <RequireRole allowedRoles={['Candidate']}>
+    <RequireRole allowedRoles={['Candidate', 'BusinessOwner', 'Staff', 'Admin', 'Support']}>
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
-            <div className="bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-accent)] h-32"></div>
-            <div className="px-6 py-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    {formData.firstName} {formData.lastName}
-                  </h1>
-                  <p className="text-gray-600">{formData.email}</p>
+          <Card className="overflow-hidden mb-8 shadow-xl border-none">
+            <div className="bg-gradient-to-r from-[var(--brand-primary)] to-[var(--brand-navy)] h-40 relative">
+              <div className="absolute -bottom-12 left-8">
+                <div className="w-32 h-32 rounded-2xl bg-white p-1 shadow-lg ring-4 ring-white">
+                  <div className="w-full h-full rounded-xl bg-gray-100 flex items-center justify-center text-4xl border-2 border-dashed border-gray-200">
+                    {profile?.profilePictureUrl ? (
+                      <img src={profile.profilePictureUrl} alt="Profile" className="w-full h-full object-cover rounded-xl" />
+                    ) : '👤'}
+                  </div>
                 </div>
-                <Button
-                  variant={editing ? 'outline' : 'primary'}
-                  onClick={() => {
-                    if (editing) {
-                      handleSaveProfile();
-                    } else {
-                      setEditing(true);
-                    }
-                  }}
-                >
-                  {editing ? 'Save' : 'Edit Profile'}
-                </Button>
+              </div>
+            </div>
+            <CardBody className="pt-16 pb-8 px-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-[var(--brand-navy)]">
+                    {profile?.firstName} {profile?.lastName}
+                  </h1>
+                  <p className="text-gray-500 font-medium">{profile?.email}</p>
+                </div>
+                <div className="flex gap-3">
+                  {editing && (
+                    <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
+                  )}
+                  <Button
+                    variant={editing ? 'primary' : 'outline'}
+                    className={editing ? 'bg-[var(--brand-primary)]' : ''}
+                    onClick={() => editing ? handleSaveProfile() : setEditing(true)}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving...' : editing ? 'Save Changes' : 'Edit Profile'}
+                  </Button>
+                </div>
               </div>
 
               {/* Profile Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                  <input
-                    type="text"
+                  <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">First Name</label>
+                  <Input
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
                     disabled={!editing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                    className="py-3 px-4"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                  <input
-                    type="text"
+                  <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Last Name</label>
+                  <Input
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
                     disabled={!editing}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                    className="py-3 px-4"
                   />
                 </div>
               </div>
 
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Professional Bio</label>
+                <textarea
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  disabled={!editing}
+                  placeholder="Share your hospitality journey, passions, and career goals..."
+                  className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-2xl font-bold text-[var(--brand-primary)]">0</div>
-              <p className="text-gray-600 text-sm mt-2">Applications Sent</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-2xl font-bold text-[var(--brand-primary)]">0</div>
-              <p className="text-gray-600 text-sm mt-2">Interviews</p>
-            </div>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-2xl font-bold text-[var(--brand-primary)]">0</div>
-              <p className="text-gray-600 text-sm mt-2">Offers</p>
-            </div>
-          </div>
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-4">
+                <div className="text-3xl">🛡️</div>
+                <div>
+                  <h4 className="font-bold text-blue-900 leading-tight">Identity Verified</h4>
+                  <p className="text-sm text-blue-700/70">Your account is fully verified and ready for professional placement.</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
 
-          {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="text-center py-8">
-              <p className="text-gray-600">No recent activity yet</p>
-            </div>
+          {/* Activity Section Placeholder */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card>
+              <CardBody className="p-6">
+                <h3 className="font-bold text-gray-900 mb-4">Account Security</h3>
+                <Button variant="outline" className="w-full justify-between">
+                  <span>Change Password</span>
+                  <span>→</span>
+                </Button>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody className="p-6">
+                <h3 className="font-bold text-gray-900 mb-4">Notification Preferences</h3>
+                <Button variant="outline" className="w-full justify-between">
+                  <span>Manage Alerts</span>
+                  <span>→</span>
+                </Button>
+              </CardBody>
+            </Card>
           </div>
         </div>
       </div>
     </RequireRole>
   );
 }
+

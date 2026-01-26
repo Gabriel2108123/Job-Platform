@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { getJob, applyToJob, sendEmailVerification, JobDto, EmploymentType } from '@/lib/api/client';
+import { getJob, applyToJob, sendEmailVerification, JobDto, EmploymentType, incrementJobView } from '@/lib/api/client';
 import { isLoggedIn, isEmailVerified, getUser } from '@/lib/auth';
 
 interface PageProps {
@@ -43,6 +43,8 @@ export default function JobDetailsPage({ params }: PageProps) {
         const response = await getJob(jobId);
         if (response.success && response.data) {
           setJob(response.data);
+          // Increment view count anonymously
+          incrementJobView(jobId);
         } else {
           setError(response.error || 'Failed to load job');
         }
