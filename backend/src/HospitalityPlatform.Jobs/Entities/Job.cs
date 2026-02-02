@@ -26,6 +26,15 @@ public class Job : BaseEntity
     public string Location { get; set; } = string.Empty;
     public string? PostalCode { get; set; }
     
+    // Location Privacy & Coordinates (Phase 1)
+    public LocationVisibility LocationVisibility { get; set; } = LocationVisibility.PrivateApprox;
+    public decimal? LatExact { get; set; }
+    public decimal? LngExact { get; set; }
+    public decimal? LatApprox { get; set; }
+    public decimal? LngApprox { get; set; }
+    public int? ApproxRadiusMeters { get; set; } = 1200;
+    public string? AddressVisibility { get; set; } // "public" | "applicants_only" | "shortlisted_only"
+    
     public int? RequiredExperienceYears { get; set; }
     public string? RequiredQualifications { get; set; }
     public string? Benefits { get; set; }

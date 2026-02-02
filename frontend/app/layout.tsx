@@ -3,6 +3,7 @@ import { Montserrat, Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
+import { ReactQueryProvider } from "@/lib/query-provider";
 
 // Import brand fonts
 const montserrat = Montserrat({
@@ -39,9 +40,11 @@ export default function RootLayout({
       className={`${montserrat.variable} ${poppins.variable} ${inter.variable}`}
     >
       <body className="antialiased flex flex-col min-h-screen">
-        <Navigation />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <ReactQueryProvider>
+          <Navigation />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </ReactQueryProvider>
       </body>
     </html>
   );

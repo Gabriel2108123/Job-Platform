@@ -2,6 +2,7 @@ using HospitalityPlatform.Jobs.DTOs;
 using HospitalityPlatform.Jobs.Entities;
 using HospitalityPlatform.Jobs.Enums;
 using HospitalityPlatform.Audit.Services;
+using HospitalityPlatform.Core.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -12,19 +13,44 @@ public class JobService : IJobService
     private readonly IJobsDbContext _context;
     private readonly IAuditService _auditService;
     private readonly ILogger<JobService> _logger;
+    private readonly ILocationService _locationService;
 
     public JobService(
         IJobsDbContext context,
         IAuditService auditService,
-        ILogger<JobService> logger)
+        ILogger<JobService> logger,
+        ILocationService locationService)
     {
         _context = context;
         _auditService = auditService;
         _logger = logger;
+        _locationService = locationService;
     }
 
     public async Task<JobDto> CreateJobAsync(CreateJobDto dto, string userId, Guid organizationId)
     {
+        // Compute coordinates based on location visibility
+        decimal? latExact = dto.LatExact;
+        decimal? lngExact = dto.LngExact;
+        decimal? latApprox = null;
+        decimal? lngApprox = null;
+
+        if (dto.LocationVisibility == LocationVisibility.PublicExact && latExact.HasValue && lngExact.HasValue)
+        {
+            // Use provided exact coords
+            // Also compute approx coords as fallback
+            var approxCoords = await _locationService.GetApproxCoordsAsync(dto.PostalCode, dto.Location);
+            latApprox = approxCoords.lat;
+            lngApprox = approxCoords.lng;
+        }
+        else
+        {
+            // Compute approximate coords from postal code or city
+            var approxCoords = await _locationService.GetApproxCoordsAsync(dto.PostalCode, dto.Location);
+            latApprox = approxCoords.lat;
+            lngApprox = approxCoords.lng;
+        }
+
         var job = new Job
         {
             Id = Guid.NewGuid(),
@@ -41,6 +67,12 @@ public class JobService : IJobService
             SalaryPeriod = dto.SalaryPeriod,
             Location = dto.Location,
             PostalCode = dto.PostalCode,
+            LocationVisibility = dto.LocationVisibility,
+            LatExact = latExact,
+            LngExact = lngExact,
+            LatApprox = latApprox,
+            LngApprox = lngApprox,
+            ApproxRadiusMeters = 1200,
             RequiredExperienceYears = dto.RequiredExperienceYears,
             RequiredQualifications = dto.RequiredQualifications,
             Benefits = dto.Benefits,
@@ -58,14 +90,15 @@ public class JobService : IJobService
             "JobCreated",
             "Job",
             job.Id.ToString(),
-            new { jobId = job.Id, title = job.Title, organizationId },
+            new { jobId = job.Id, title = job.Title, organizationId, locationVisibility = job.LocationVisibility },
             userId,
             organizationId
         );
 
-        _logger.LogInformation("Job {JobId} created by user {UserId}", job.Id, userId);
+        _logger.LogInformation("Job {JobId} created by user {UserId} with location visibility {LocationVisibility}", 
+            job.Id, userId, job.LocationVisibility);
 
-        return MapToDto(job);
+        return MapToDto(job, userId);
     }
 
     public async Task<JobDto> UpdateJobAsync(Guid jobId, UpdateJobDto dto, string userId)
@@ -198,7 +231,7 @@ public class JobService : IJobService
 
         return new PagedResult<JobDto>
         {
-            Items = items.Select(MapToDto).ToList(),
+            Items = items.Select(j => MapToDto(j, null)).ToList(),
             TotalCount = totalCount,
             PageNumber = pageNumber,
             PageSize = pageSize
@@ -273,7 +306,7 @@ public class JobService : IJobService
 
         return new PagedResult<JobDto>
         {
-            Items = items.Select(MapToDto).ToList(),
+            Items = items.Select(j => MapToDto(j, null)).ToList(),
             TotalCount = totalCount,
             PageNumber = searchDto.PageNumber,
             PageSize = searchDto.PageSize
@@ -329,10 +362,37 @@ public class JobService : IJobService
         };
     }
 
-    private static JobDto MapToDto(Job job)
+    private static JobDto MapToDto(Job job, string? currentUserId = null)
     {
         // Anonymize if Private
         var isPrivate = job.Visibility == JobVisibility.Private;
+        
+        // Determine if current user is the job owner/business staff
+        var isOwner = !string.IsNullOrEmpty(currentUserId) && job.CreatedByUserId == currentUserId;
+        
+        // Apply location visibility rules
+        decimal? latToShow, lngToShow;
+        if (job.LocationVisibility == LocationVisibility.PublicExact)
+        {
+            // Public exact: show exact coords if available, fallback to approx
+            latToShow = job.LatExact ?? job.LatApprox;
+            lngToShow = job.LngExact ?? job.LngApprox;
+        }
+        else // LocationVisibility.PrivateApprox
+        {
+            if (isOwner)
+            {
+                // Business owner can see exact coords
+                latToShow = job.LatExact ?? job.LatApprox;
+                lngToShow = job.LngExact ?? job.LngApprox;
+            }
+            else
+            {
+                // Public viewers see only approx coords
+                latToShow = job.LatApprox;
+                lngToShow = job.LngApprox;
+            }
+        }
 
         return new JobDto
         {
@@ -364,7 +424,13 @@ public class JobService : IJobService
             CreatedAt = job.CreatedAt,
             UpdatedAt = job.UpdatedAt,
             Visibility = job.Visibility,
-            ViewsCount = job.ViewsCount
+            ViewsCount = job.ViewsCount,
+            LocationVisibility = job.LocationVisibility,
+            LatExact = isOwner ? job.LatExact : null, // Only owners see exact in DTO
+            LngExact = isOwner ? job.LngExact : null,
+            LatApprox = latToShow, // Use computed lat based on visibility
+            LngApprox = lngToShow, // Use computed lng based on visibility
+            ApproxRadiusMeters = job.ApproxRadiusMeters
         };
     }
 }

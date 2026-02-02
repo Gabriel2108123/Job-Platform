@@ -44,4 +44,12 @@ public class JobDto
     
     public JobVisibility Visibility { get; set; }
     public int ViewsCount { get; set; }
+    
+    // Location Privacy & Coordinates (Phase 1)
+    public LocationVisibility LocationVisibility { get; set; }
+    public decimal? LatExact { get; set; }
+    public decimal? LngExact { get; set; }
+    public decimal? LatApprox { get; set; }
+    public decimal? LngApprox { get; set; }
+    public int? ApproxRadiusMeters { get; set; }
 }

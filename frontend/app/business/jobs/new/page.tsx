@@ -12,9 +12,11 @@ interface FormData {
   title: string;
   description: string;
   location: string;
+  postalCode?: string;
   employmentType: 'FullTime' | 'PartTime' | 'Temporary';
   shiftPattern?: string;
   salary?: string;
+  locationVisibility: 'PublicExact' | 'PrivateApprox';
 }
 
 export default function CreateJobPage() {
@@ -25,9 +27,11 @@ export default function CreateJobPage() {
     title: '',
     description: '',
     location: '',
+    postalCode: '',
     employmentType: 'FullTime',
     shiftPattern: '',
     salary: '',
+    locationVisibility: 'PrivateApprox', // Default to privacy
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -92,6 +96,8 @@ export default function CreateJobPage() {
         title: formData.title,
         description: formData.description,
         location: formData.location,
+        postalCode: formData.postalCode,
+        locationVisibility: formData.locationVisibility,
         roleType: 1, // Default to Server (1) - should be selectable in future
         employmentType: employmentTypeMap[formData.employmentType] || EmploymentType.FullTime,
         shiftPattern: 1, // Default to Day (1) - should be selectable in future
@@ -174,6 +180,65 @@ export default function CreateJobPage() {
                 )}
               </div>
 
+              {/* Postal Code */}
+              <div>
+                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  Postal Code (optional)
+                </label>
+                <Input
+                  id="postalCode"
+                  name="postalCode"
+                  type="text"
+                  value={formData.postalCode || ''}
+                  onChange={handleChange}
+                  placeholder="e.g., SW1A 1AA, M1 1AE"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Helps improve location accuracy on the map
+                </p>
+              </div>
+
+              {/* Location Privacy */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Location Privacy <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-start cursor-pointer">
+                    <input
+                      type="radio"
+                      name="locationVisibility"
+                      value="PrivateApprox"
+                      checked={formData.locationVisibility === 'PrivateApprox'}
+                      onChange={handleChange}
+                      className="mt-1 mr-3"
+                    />
+                    <div>
+                      <span className="font-medium text-gray-900">Private (Recommended)</span>
+                      <p className="text-sm text-gray-600">
+                        Show approximate area (~1km radius). Exact address hidden from public.
+                      </p>
+                    </div>
+                  </label>
+                  <label className="flex items-start cursor-pointer">
+                    <input
+                      type="radio"
+                      name="locationVisibility"
+                      value="PublicExact"
+                      checked={formData.locationVisibility === 'PublicExact'}
+                      onChange={handleChange}
+                      className="mt-1 mr-3"
+                    />
+                    <div>
+                      <span className="font-medium text-gray-900">Public (Exact location)</span>
+                      <p className="text-sm text-gray-600">
+                        Show exact address to all viewers on the map.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {/* Employment Type */}
               <div>
                 <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700 mb-1">
@@ -234,9 +299,8 @@ export default function CreateJobPage() {
                   onChange={handleChange}
                   placeholder="Describe the job responsibilities, requirements, and benefits..."
                   rows={8}
-                  className={`w-full px-3 py-2 border ${
-                    fieldErrors.description ? 'border-red-500' : 'border-gray-300'
-                  } rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]`}
+                  className={`w-full px-3 py-2 border ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'
+                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]`}
                 />
                 {fieldErrors.description && (
                   <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>

@@ -8,6 +8,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { getJobs, JobDto, JobPagedResult, EmploymentType } from '@/lib/api/client';
+import { useQuery } from '@tanstack/react-query';
 
 // Dynamically import JobMap to avoid SSR issues with Leaflet
 const JobMap = dynamic(() => import('@/components/jobs/JobMap'), {
@@ -16,52 +17,32 @@ const JobMap = dynamic(() => import('@/components/jobs/JobMap'), {
 });
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState<JobDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await getJobs({
-          page: currentPage,
-          pageSize: 10,
-          search: search || undefined,
-          location: locationFilter || undefined,
-          employmentType: employmentTypeFilter || undefined,
-        });
+  const { data, isLoading: loading, error: queryError } = useQuery({
+    queryKey: ['jobs', { search, locationFilter, employmentTypeFilter, currentPage }],
+    queryFn: () => getJobs({
+      page: currentPage,
+      pageSize: 10,
+      search: search || undefined,
+      location: locationFilter || undefined,
+      employmentType: employmentTypeFilter || undefined,
+    }),
+  });
 
-        if (response.success && response.data) {
-          // Handle both paged and non-paged responses
-          if ('items' in response.data) {
-            setJobs((response.data as JobPagedResult).items);
-            setTotalPages((response.data as JobPagedResult).totalPages || 1);
-          } else {
-            setJobs(response.data as JobDto[]);
-            setTotalPages(1);
-          }
-        } else {
-          setError(response.error || 'Failed to load jobs');
-          setJobs([]);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        setJobs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const error = queryError instanceof Error ? queryError.message : (data?.success === false ? data.error : null);
 
-    fetchJobs();
-  }, [search, locationFilter, employmentTypeFilter, currentPage]);
+  const jobs: JobDto[] = data?.success && data.data
+    ? ('items' in data.data ? (data.data as JobPagedResult).items : (data.data as JobDto[]))
+    : [];
+
+  const totalPages = data?.success && data.data && 'totalPages' in data.data
+    ? (data.data as JobPagedResult).totalPages
+    : 1;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);

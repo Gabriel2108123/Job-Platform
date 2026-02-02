@@ -11,5 +11,7 @@ public interface IBillingDbContext
     DbSet<Subscription> Subscriptions { get; }
     DbSet<WebhookEvent> WebhookEvents { get; }
     DbSet<Plan> Plans { get; }
+    DbSet<OrganizationCredit> OrganizationCredits { get; }
+    DbSet<OutreachActivity> OutreachActivities { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

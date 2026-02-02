@@ -45,7 +45,7 @@ export default function WaitlistForm() {
       // Since I am replacing the whole block, I need to make sure I add the import first.
       // But I can't add imports with replace_file_content easily if I only replace this block.
       // Use multi_replace to add import AND replace submit logic.
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5205'}/api/waitlist`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/waitlist`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

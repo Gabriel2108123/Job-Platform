@@ -49,7 +49,7 @@ export default function LoginPage() {
       if (response.success && response.data) {
         // Store token and user info
         const { token, user } = response.data;
-        
+
         // Map API response to CurrentUser format and store
         const currentUser: CurrentUser = {
           id: user.id,
@@ -59,7 +59,7 @@ export default function LoginPage() {
           organizationId: user.organizationId,
           role: user.role || 'Candidate', // Use backend role if available, default to Candidate
         };
-        
+
         setCurrentUser(currentUser, token);
 
         // Redirect based on role
@@ -99,7 +99,7 @@ export default function LoginPage() {
         {/* Login Form Card */}
         <Card className="bg-white shadow-md">
           <CardBody>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

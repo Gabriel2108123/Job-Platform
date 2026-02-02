@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Link from 'next/link';
@@ -19,41 +19,6 @@ interface JobMapProps {
     jobs: JobDto[];
 }
 
-// Geocoding approximation - in production, use a geocoding service
-const getCoordinatesForLocation = (location: string): [number, number] | null => {
-    const locationMap: Record<string, [number, number]> = {
-        'London': [51.5074, -0.1278],
-        'Manchester': [53.4808, -2.2426],
-        'Birmingham': [52.4862, -1.8904],
-        'Liverpool': [53.4084, -2.9916],
-        'Leeds': [53.8008, -1.5491],
-        'Glasgow': [55.8642, -4.2518],
-        'Edinburgh': [55.9533, -3.1883],
-        'Bristol': [51.4545, -2.5879],
-        'Cardiff': [51.4816, -3.1791],
-        'Belfast': [54.5973, -5.9301],
-        'Brighton': [50.8225, -0.1372],
-        'Newcastle': [54.9783, -1.6178],
-        'Sheffield': [53.3811, -1.4701],
-        'Nottingham': [52.9548, -1.1581],
-    };
-
-    // Try exact match first
-    if (locationMap[location]) {
-        return locationMap[location];
-    }
-
-    // Try partial match
-    for (const [city, coords] of Object.entries(locationMap)) {
-        if (location.toLowerCase().includes(city.toLowerCase())) {
-            return coords;
-        }
-    }
-
-    // Default to London if no match
-    return [51.5074, -0.1278];
-};
-
 export default function JobMap({ jobs }: JobMapProps) {
     useEffect(() => {
         // Ensure Leaflet CSS is loaded
@@ -67,19 +32,32 @@ export default function JobMap({ jobs }: JobMapProps) {
         }
     }, []);
 
-    // Filter jobs with valid locations
+    // Filter jobs with valid coordinates from database
     const jobsWithCoords = jobs
+        .filter(job => job.latApprox !== null && job.latApprox !== undefined &&
+            job.lngApprox !== null && job.lngApprox !== undefined)
         .map(job => ({
             job,
-            coords: getCoordinatesForLocation(job.location),
-        }))
-        .filter(({ coords }) => coords !== null) as Array<{
-            job: JobDto;
-            coords: [number, number];
-        }>;
+            coords: [job.latApprox!, job.lngApprox!] as [number, number],
+            isApprox: job.locationVisibility === 'PrivateApprox',
+            radius: job.approxRadiusMeters || 1200,
+        }));
 
-    // Calculate center - UK center
-    const center: [number, number] = [54.0, -2.5];
+    // Calculate center - UK center if no jobs, otherwise average of job locations
+    const center: [number, number] = jobsWithCoords.length > 0
+        ? [
+            jobsWithCoords.reduce((sum, { coords }) => sum + coords[0], 0) / jobsWithCoords.length,
+            jobsWithCoords.reduce((sum, { coords }) => sum + coords[1], 0) / jobsWithCoords.length,
+        ]
+        : [54.0, -2.5]; // UK center
+
+    if (jobsWithCoords.length === 0) {
+        return (
+            <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-500">No jobs with map locations available</p>
+            </div>
+        );
+    }
 
     return (
         <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg">
@@ -93,28 +71,44 @@ export default function JobMap({ jobs }: JobMapProps) {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                {jobsWithCoords.map(({ job, coords }) => (
-                    <Marker key={job.id} position={coords}>
-                        <Popup>
-                            <div className="p-2">
-                                <h3 className="font-bold text-[var(--brand-navy)] mb-1">{job.title}</h3>
-                                <p className="text-sm text-gray-600 mb-2">{job.location}</p>
-                                {(job.salaryMin || job.salaryMax) && (
-                                    <p className="text-sm font-semibold text-[var(--brand-primary)] mb-2">
-                                        {job.salaryMin && job.salaryMax
-                                            ? `£${job.salaryMin.toLocaleString()} - £${job.salaryMax.toLocaleString()}`
-                                            : `£${(job.salaryMin || job.salaryMax)?.toLocaleString()}`}
+                {jobsWithCoords.map(({ job, coords, isApprox, radius }) => (
+                    <div key={job.id}>
+                        {isApprox && (
+                            <Circle
+                                center={coords}
+                                radius={radius}
+                                pathOptions={{
+                                    color: 'rgba(59, 130, 246, 0.5)',
+                                    fillColor: 'rgba(59, 130, 246, 0.2)',
+                                    fillOpacity: 0.3,
+                                }}
+                            />
+                        )}
+                        <Marker position={coords}>
+                            <Popup>
+                                <div className="p-2">
+                                    <h3 className="font-bold text-[var(--brand-navy)] mb-1">{job.title}</h3>
+                                    <p className="text-sm text-gray-600 mb-2">
+                                        {job.location}
+                                        {isApprox && <span className="text-xs italic"> (approximate area)</span>}
                                     </p>
-                                )}
-                                <Link
-                                    href={`/jobs/${job.id}`}
-                                    className="inline-block px-3 py-1 bg-[var(--brand-primary)] text-white text-sm rounded hover:bg-[var(--brand-primary-hover)] transition-colors"
-                                >
-                                    View Details
-                                </Link>
-                            </div>
-                        </Popup>
-                    </Marker>
+                                    {(job.salaryMin || job.salaryMax) && (
+                                        <p className="text-sm font-semibold text-[var(--brand-primary)] mb-2">
+                                            {job.salaryMin && job.salaryMax
+                                                ? `£${job.salaryMin.toLocaleString()} - £${job.salaryMax.toLocaleString()}`
+                                                : `£${(job.salaryMin || job.salaryMax)?.toLocaleString()}`}
+                                        </p>
+                                    )}
+                                    <Link
+                                        href={`/jobs/${job.id}`}
+                                        className="inline-block px-3 py-1 bg-[var(--brand-primary)] text-white text-sm rounded hover:bg-[var(--brand-primary-hover)] transition-colors"
+                                    >
+                                        View Details
+                                    </Link>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    </div>
                 ))}
             </MapContainer>
         </div>

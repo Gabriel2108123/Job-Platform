@@ -17,6 +17,8 @@ using HospitalityPlatform.Documents.Services;
 using HospitalityPlatform.Audit.Entities;
 using HospitalityPlatform.Waitlist.Entities;
 using HospitalityPlatform.Waitlist.Services;
+using HospitalityPlatform.Candidates.Entities;
+using HospitalityPlatform.Candidates.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +28,7 @@ namespace HospitalityPlatform.Database;
 /// <summary>
 /// Application database context with Identity and custom entities
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext, IApplicationsDbContext, IBillingDbContext, IEntitlementsDbContext, IMessagingDbContext, IDocumentsDbContext, IWaitlistDbContext, HospitalityPlatform.Ratings.Services.IRatingsDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IJobsDbContext, IApplicationsDbContext, IBillingDbContext, IEntitlementsDbContext, IMessagingDbContext, IDocumentsDbContext, IWaitlistDbContext, ICandidatesDbContext, HospitalityPlatform.Ratings.Services.IRatingsDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -43,6 +45,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Subscription> Subscriptions { get; set; }
     public DbSet<WebhookEvent> WebhookEvents { get; set; }
     public DbSet<Plan> Plans { get; set; }
+    public DbSet<OrganizationCredit> OrganizationCredits { get; set; }
+    public DbSet<OutreachActivity> OutreachActivities { get; set; }
     
     // Entitlements DbSets
     public DbSet<EntitlementLimit> EntitlementLimits { get; set; }
@@ -66,6 +70,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     // Identity - Verification DbSets
     public DbSet<CandidateProfile> CandidateProfiles { get; set; }
     public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
+    
+    // Candidates DbSets
+    public DbSet<WorkExperience> WorkExperiences { get; set; }
+    public DbSet<CandidateMapSettings> CandidateMapSettings { get; set; }
+    public DbSet<CoworkerConnection> CoworkerConnections { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -463,12 +472,86 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => new { e.UserId, e.IsUsed });
         });
 
+        // Configure WorkExperience
+        builder.Entity<WorkExperience>(entity =>
+        {
+            entity.ToTable("WorkExperiences");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.EmployerName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.LocationText).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.City).HasMaxLength(100);
+            entity.Property(e => e.PostalCode).HasMaxLength(20);
+            entity.Property(e => e.RoleTitle).HasMaxLength(100);
+            entity.Property(e => e.VisibilityLevel).IsRequired().HasMaxLength(50).HasDefaultValue("private");
+            entity.Property(e => e.IsMapEnabled).IsRequired().HasDefaultValue(false);
+            entity.Property(e => e.LatApprox).HasColumnType("decimal(9,6)");
+            entity.Property(e => e.LngApprox).HasColumnType("decimal(9, 6)");
+            entity.Property(e => e.PlaceKey).HasMaxLength(200);
+            
+            entity.HasIndex(e => e.CandidateUserId);
+            entity.HasIndex(e => e.VisibilityLevel);
+            entity.HasIndex(e => e.IsMapEnabled);
+            entity.HasIndex(e => e.PlaceKey); // For Phase 3 coworker matching
+            entity.HasIndex(e => new { e.CandidateUserId, e.IsMapEnabled });
+        });
+
+        // Configure CandidateMapSettings
+        builder.Entity<CandidateMapSettings>(entity =>
+        {
+            entity.ToTable("CandidateMapSettings");
+            entity.HasKey(e => e.CandidateUserId);
+            entity.Property(e => e.WorkerMapEnabled).IsRequired().HasDefaultValue(false);
+            entity.Property(e => e.DiscoverableByWorkplaces).IsRequired().HasDefaultValue(false);
+            entity.Property(e => e.AllowConnectionRequests).IsRequired().HasDefaultValue(false);
+            
+            entity.HasIndex(e => e.WorkerMapEnabled);
+            entity.HasIndex(e => e.DiscoverableByWorkplaces); // For Phase 3
+        });
+
+        // Configure CoworkerConnection
+        builder.Entity<CoworkerConnection>(entity =>
+        {
+            entity.ToTable("CoworkerConnections");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RequesterId).IsRequired();
+            entity.Property(e => e.ReceiverId).IsRequired();
+            entity.Property(e => e.PlaceKey).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50).HasDefaultValue("Pending");
+            entity.Property(e => e.WorkplaceName).IsRequired().HasMaxLength(200);
+            
+            entity.HasIndex(e => e.RequesterId);
+            entity.HasIndex(e => e.ReceiverId);
+            entity.HasIndex(e => e.PlaceKey);
+            entity.HasIndex(e => e.Status);
+            // Unique connection per pair per place
+            entity.HasIndex(e => new { e.RequesterId, e.ReceiverId, e.PlaceKey }).IsUnique();
+        });
+
         // Rename Identity tables
         builder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims");
         builder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
         builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
         builder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles");
         builder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
+
+        // Configure OrganizationCredit
+        builder.Entity<OrganizationCredit>(entity =>
+        {
+            entity.ToTable("OrganizationCredits");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrganizationId).IsUnique();
+        });
+
+        // Configure OutreachActivity
+        builder.Entity<OutreachActivity>(entity =>
+        {
+            entity.ToTable("OutreachActivities");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.CandidateUserId);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => new { e.OrganizationId, e.CandidateUserId });
+        });
     }
 
     public async Task SaveAuditLogAsync(AuditLog auditLog)

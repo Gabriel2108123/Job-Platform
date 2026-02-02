@@ -1,4 +1,5 @@
 using HospitalityPlatform.Auth.Handlers;
+using HospitalityPlatform.Api.Middleware;
 using HospitalityPlatform.Auth.Policies;
 using HospitalityPlatform.Auth.Requirements;
 using HospitalityPlatform.Database;
@@ -109,7 +110,20 @@ builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IEmailVerificat
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IProfileService, HospitalityPlatform.Identity.Services.ProfileService>();
 
 // Register application services
+// Audit
 builder.Services.AddScoped<HospitalityPlatform.Audit.Services.IAuditService, HospitalityPlatform.Audit.Services.AuditService>();
+
+// Core Services
+builder.Services.AddScoped<HospitalityPlatform.Core.Services.ILocationService, 
+                           HospitalityPlatform.Core.Services.LocationService>();
+
+// Candidate Services
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IWorkExperienceService, 
+                           HospitalityPlatform.Candidates.Services.WorkExperienceService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidateMapService, 
+                           HospitalityPlatform.Candidates.Services.CandidateMapService>();
+
+// Jobs
 builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobService, HospitalityPlatform.Jobs.Services.JobService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IApplicationService, HospitalityPlatform.Applications.Services.ApplicationService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IPipelineService, HospitalityPlatform.Applications.Services.PipelineService>();
@@ -120,6 +134,7 @@ builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobsDbContext>(pro
 // Register Billing services
 builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IBillingService, HospitalityPlatform.Billing.Services.BillingService>();
 builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IBillingDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IOutreachService, HospitalityPlatform.Billing.Services.OutreachService>();
 
 // Register Entitlements services
 builder.Services.AddScoped<HospitalityPlatform.Entitlements.Services.IEntitlementsService, HospitalityPlatform.Entitlements.Services.EntitlementsService>();
@@ -131,6 +146,12 @@ builder.Services.AddScoped<HospitalityPlatform.Api.Services.IAdminService, Hospi
 // Register Messaging services
 builder.Services.AddScoped<HospitalityPlatform.Messaging.Services.IMessagingService, HospitalityPlatform.Messaging.Services.MessagingService>();
 builder.Services.AddScoped<HospitalityPlatform.Messaging.Services.IMessagingDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidatesDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IPlaceKeyGenerator, HospitalityPlatform.Candidates.Services.PlaceKeyGenerator>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICoworkerDiscoveryService, HospitalityPlatform.Candidates.Services.CoworkerDiscoveryService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidateIdentityService, HospitalityPlatform.Api.Services.CandidateIdentityService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IConnectionService, HospitalityPlatform.Candidates.Services.ConnectionService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IBusinessDiscoveryService, HospitalityPlatform.Candidates.Services.BusinessDiscoveryService>();
 
 // Register Documents services
 builder.Services.AddScoped<HospitalityPlatform.Documents.Services.IDocumentsService, HospitalityPlatform.Documents.Services.DocumentsService>();
@@ -173,7 +194,28 @@ builder.Services.AddCors(options =>
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "UK Hospitality Platform API",
+        Version = "v1",
+        Description = "A modern SaaS platform for UK hospitality hiring.",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Development Team",
+            Email = "dev@hospitalityplatform.com"
+        }
+    });
+
+    // Include XML comments
+    var xmlFile = $"{typeof(Program).Assembly.GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
 
 var app = builder.Build();
 
@@ -218,40 +260,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    try
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-    catch (Exception ex)
-    {
-        var logger = app.Services.GetRequiredService<ILogger<Program>>();
-        logger.LogWarning(ex, "Failed to configure Swagger - this is non-critical");
-    }
-}
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Add global exception handling middleware
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next();
-    }
-    catch (Exception ex)
-    {
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Unhandled exception during request");
-        
-        if (!context.Response.HasStarted)
-        {
-            context.Response.StatusCode = 500;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsJsonAsync(new { error = "Internal server error" });
-        }
-    }
-});
+if (app.Environment.IsDevelopment())
 
 try
 {

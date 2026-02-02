@@ -52,4 +52,15 @@ public class CreateJobDto
     public DateTime? ExpiresAt { get; set; }
     
     public JobVisibility Visibility { get; set; } = JobVisibility.Public;
+    
+    // Location Privacy (Phase 1)
+    [Required]
+    public LocationVisibility LocationVisibility { get; set; } = LocationVisibility.PrivateApprox;
+    
+    // Optional: Exact coordinates (if LocationVisibility == PublicExact)
+    [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90")]
+    public decimal? LatExact { get; set; }
+    
+    [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180")]
+    public decimal? LngExact { get; set; }
 }

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { getJob, updateJob, UpdateJobDto, EmploymentType, JobDto } from '@/lib/api/client';
+import { getJob, updateJob, EmploymentType, JobDto } from '@/lib/api/client';
 
 interface FormData {
     title: string;
@@ -140,7 +140,7 @@ export default function EditJobPage() {
                 'Temporary': EmploymentType.Temporary
             };
 
-            const updateDto: UpdateJobDto = {
+            const updateDto: Partial<JobDto> = {
                 title: formData.title,
                 description: formData.description,
                 location: formData.location,

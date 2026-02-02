@@ -374,7 +374,7 @@ public class AuthController : ControllerBase
         // Add OrganizationId claim if user belongs to an organization
         if (user.OrganizationId.HasValue)
         {
-            claims.Add(new Claim("OrganizationId", user.OrganizationId.Value.ToString()));
+            claims.Add(new Claim("org_id", user.OrganizationId.Value.ToString()));
         }
 
         // Add role claims

@@ -175,6 +175,11 @@ export default function BusinessJobsPage() {
                         Edit
                       </Button>
                     </Link>
+                    <Link href={`/business/jobs/${job.id}/discovery`} className="flex-1">
+                      <Button variant="secondary" className="w-full text-sm bg-pink-50 text-pink-700 hover:bg-pink-100 border-pink-200">
+                        Find Workers
+                      </Button>
+                    </Link>
                     {job.status === JobStatus.Draft && (
                       <Button
                         variant="secondary"
@@ -189,6 +194,7 @@ export default function BusinessJobsPage() {
                             const res = await apiRequest(`/api/jobs/${job.id}/publish`, { method: 'POST' });
                             if (res.success) {
                               // Refresh jobs
+                              if (!organizationId) return;
                               const response = await getOrganizationJobs(organizationId);
                               if (response.success && response.data) {
                                 // Handle both array and PagedResult

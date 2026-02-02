@@ -1,0 +1,3 @@
+﻿app/business/jobs/[id]/edit/page.tsx(9,29): error TS2724: '"@/lib/api/client"' has no exported member named 'UpdateJobDto'. Did you mean 'updateJob'?
+app/business/jobs/page.tsx(192,74): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.

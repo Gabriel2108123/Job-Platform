@@ -7,13 +7,23 @@ import { RequireRole } from '@/components/auth/RoleBasedAccess';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
-import { getMyProfile, updateMyProfile, ProfileDto } from '@/lib/api/client';
+import { getMyProfile, updateMyProfile, ProfileDto, getWorkExperiences, WorkExperienceDto } from '@/lib/api/client';
+import dynamic from 'next/dynamic';
+import WorkHistoryList from '@/components/candidate/WorkHistoryList';
+import WorkerMapSettings from '@/components/candidate/WorkerMapSettings';
+import { PotentialCoworkerList } from '@/components/candidate/PotentialCoworkerList';
+import { ConnectionInbox } from '@/components/candidate/ConnectionInbox';
+
+// Dynamically import map to avoid SSR issues
+const WorkerMap = dynamic(() => import('@/components/candidate/WorkerMap'), { ssr: false });
 
 export default function CandidateProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'work-history' | 'worker-map' | 'my-network'>('profile');
   const [profile, setProfile] = useState<ProfileDto | null>(null);
+  const [workExperiences, setWorkExperiences] = useState<WorkExperienceDto[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -34,7 +44,17 @@ export default function CandidateProfilePage() {
       setLoading(false);
     };
     fetchProfile();
+    fetchWorkHistory();
   }, []);
+
+  const fetchWorkHistory = async () => {
+    try {
+      const data = await getWorkExperiences();
+      setWorkExperiences(data);
+    } catch (error) {
+      console.error("Failed to load work history", error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -104,43 +124,118 @@ export default function CandidateProfilePage() {
                 </div>
               </div>
 
-              {/* Profile Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">First Name</label>
-                  <Input
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    disabled={!editing}
-                    className="py-3 px-4"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Last Name</label>
-                  <Input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    disabled={!editing}
-                    className="py-3 px-4"
-                  />
-                </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'profile' ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setActiveTab('profile')}
+                >
+                  Personal Info
+                </button>
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'work-history' ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setActiveTab('work-history')}
+                >
+                  Work History
+                </button>
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'worker-map' ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setActiveTab('worker-map')}
+                >
+                  Worker Map
+                </button>
+                <button
+                  className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'my-network' ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]' : 'text-gray-500 hover:text-gray-700'}`}
+                  onClick={() => setActiveTab('my-network')}
+                >
+                  My Network
+                </button>
               </div>
 
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Professional Bio</label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  disabled={!editing}
-                  placeholder="Share your hospitality journey, passions, and career goals..."
-                  className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
-                />
-              </div>
+              {activeTab === 'profile' && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">First Name</label>
+                      <Input
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        disabled={!editing}
+                        className="py-3 px-4"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Last Name</label>
+                      <Input
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        disabled={!editing}
+                        className="py-3 px-4"
+                      />
+                    </div>
+                  </div>
 
-              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-4">
+                  <div className="mb-8">
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Professional Bio</label>
+                    <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      disabled={!editing}
+                      placeholder="Share your hospitality journey, passions, and career goals..."
+                      className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
+                    />
+                  </div>
+                </>
+              )}
+
+              {activeTab === 'work-history' && (
+                <div className="mb-8">
+                  <WorkHistoryList workExperiences={workExperiences} onRefresh={fetchWorkHistory} />
+                </div>
+              )}
+
+              {activeTab === 'worker-map' && (
+                <div className="space-y-6 mb-8">
+                  <div className="bg-blue-50 p-4 rounded-lg text-sm text-blue-800 mb-4">
+                    Enable the map to show your verified work locations to potential employers.
+                    You can also enable "Discoverable by Coworkers" in settings below to find past colleagues.
+                  </div>
+                  <WorkerMapSettings />
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-2">My Map Preview</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      This is how your map appears to approved businesses. Only locations you enabled and are visible based on your privacy settings are shown.
+                    </p>
+                    <WorkerMap workExperiences={workExperiences} />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'my-network' && (
+                <div className="space-y-8 mb-8">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold mb-2">My Network</h2>
+                    <p className="text-gray-500">
+                      Find and connect with people you worked with in the past. To see potential coworkers, you must both have
+                      "Discoverable by Coworkers" enabled in settings.
+                    </p>
+                  </div>
+
+                  <WorkerMapSettings />
+
+                  <ConnectionInbox />
+
+                  <div className="pt-8 border-t border-gray-200">
+                    <PotentialCoworkerList />
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-4 mt-8">
                 <div className="text-3xl">🛡️</div>
                 <div>
                   <h4 className="font-bold text-blue-900 leading-tight">Identity Verified</h4>
@@ -173,7 +268,6 @@ export default function CandidateProfilePage() {
           </div>
         </div>
       </div>
-    </RequireRole>
+    </RequireRole >
   );
 }
-

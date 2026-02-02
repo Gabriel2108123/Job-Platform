@@ -4,6 +4,9 @@ using HospitalityPlatform.Applications.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using HospitalityPlatform.Candidates.Services;
+using HospitalityPlatform.Candidates.DTOs;
+using HospitalityPlatform.Applications.Enums;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -12,11 +15,19 @@ namespace HospitalityPlatform.Api.Controllers;
 public class ApplicationsController : ControllerBase
 {
     private readonly IApplicationService _applicationService;
+    private readonly IWorkExperienceService _workExperienceService;
+    private readonly ICoworkerDiscoveryService _discoveryService;
     private readonly ILogger<ApplicationsController> _logger;
 
-    public ApplicationsController(IApplicationService applicationService, ILogger<ApplicationsController> logger)
+    public ApplicationsController(
+        IApplicationService applicationService, 
+        IWorkExperienceService workExperienceService,
+        ICoworkerDiscoveryService discoveryService,
+        ILogger<ApplicationsController> logger)
     {
         _applicationService = applicationService;
+        _workExperienceService = workExperienceService;
+        _discoveryService = discoveryService;
         _logger = logger;
     }
 
@@ -169,5 +180,77 @@ public class ApplicationsController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while withdrawing the application" });
         }
     }
-}
 
+    /// <summary>
+    /// Get candidate's visible work history for an application (business user only)
+    /// </summary>
+    [HttpGet("{id}/work-history")]
+    [Authorize(Policy = PolicyNames.RequireBusinessRole)]
+    public async Task<ActionResult<List<WorkExperienceDto>>> GetCandidateWorkHistory(Guid id)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            
+            // 1. Get Application to verify access and status
+            var application = await _applicationService.GetApplicationByIdAsync(id);
+            if (application == null)
+            {
+                return NotFound(new { error = "Application not found" });
+            }
+
+            // 2. Determine Stage Gating
+            var status = application.CurrentStatus;
+            bool isShortlisted = status >= ApplicationStatus.Interview && status != ApplicationStatus.Rejected && status != ApplicationStatus.Withdrawn;
+
+            // 3. Get Work History
+            var candidateGuid = Guid.Parse(application.CandidateUserId);
+            var history = await _workExperienceService.GetPublicWorkExperiencesAsync(candidateGuid, isShortlisted);
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving candidate work history");
+            return StatusCode(500, new { error = "An error occurred" });
+        }
+    }
+
+    /// <summary>
+    /// Get candidate's verified coworker connection count (business user only)
+    /// </summary>
+    [HttpGet("{id}/connection-count")]
+    [Authorize(Policy = PolicyNames.RequireBusinessRole)]
+    public async Task<ActionResult<int>> GetCandidateConnectionCount(Guid id)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            
+            // 1. Get Application to verify access and status
+            var application = await _applicationService.GetApplicationByIdAsync(id);
+            if (application == null)
+            {
+                return NotFound(new { error = "Application not found" });
+            }
+
+            // 2. Stage Gating: Need Shortlisted status to see connection count
+            var status = application.CurrentStatus;
+            bool isShortlisted = status >= ApplicationStatus.Interview && status != ApplicationStatus.Rejected && status != ApplicationStatus.Withdrawn;
+
+            if (!isShortlisted)
+            {
+                return Ok(0); // Return 0 if not yet shortlisted
+            }
+
+            // 3. Get Verified Connection Count
+            var candidateGuid = Guid.Parse(application.CandidateUserId);
+            var count = await _discoveryService.GetAcceptedConnectionCountAsync(candidateGuid);
+            return Ok(count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving candidate connection count");
+            return StatusCode(500, new { error = "An error occurred" });
+        }
+    }
+}

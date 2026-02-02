@@ -104,7 +104,8 @@ export default function AdminWaitlist() {
         return;
       }
 
-      const blob = await response.blob();
+      // Hack to fix TS error, apiRequest doesn't return a Response object with .blob()
+      const blob = response.data as any as Blob;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

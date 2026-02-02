@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +34,7 @@
     <ProjectReference Include="..\HospitalityPlatform.Messaging\HospitalityPlatform.Messaging.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Waitlist\HospitalityPlatform.Waitlist.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Candidates\HospitalityPlatform.Candidates.csproj" />
   </ItemGroup>
 
 </Project>

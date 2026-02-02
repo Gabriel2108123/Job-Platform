@@ -22,8 +22,8 @@ export function Navigation() {
 
   const handleLogout = () => {
     authApi.logout();
-    setLoggedIn(false);
-    router.push('/');
+    // Use hard reload to ensure all React state and forms are completely cleared
+    window.location.href = '/login';
   };
 
   const publicLinks = [
@@ -60,11 +60,10 @@ export function Navigation() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                  pathname === link.href
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === link.href
                     ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
                     : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -72,11 +71,10 @@ export function Navigation() {
             {showBilling && (
               <Link
                 href="/business/billing"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                  pathname === '/business/billing'
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === '/business/billing'
                     ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
                     : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Billing
               </Link>
@@ -140,11 +138,10 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  pathname === link.href
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === link.href
                     ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
                     : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {link.label}
               </Link>
@@ -153,11 +150,10 @@ export function Navigation() {
               <Link
                 href="/business/billing"
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
-                  pathname === '/business/billing'
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === '/business/billing'
                     ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
                     : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Billing
               </Link>

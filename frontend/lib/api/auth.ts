@@ -1,5 +1,6 @@
 import { apiRequest } from './client';
 import type { AuthResponse, LoginCredentials, RegisterData } from '../types/auth';
+import { clearCurrentUser } from '../auth-helpers';
 
 /**
  * Authentication API
@@ -45,13 +46,10 @@ export const authApi = {
   },
 
   /**
-   * Client-side logout (clears token from storage)
+   * Client-side logout (clears all auth data from storage)
    * Note: Backend doesn't have logout endpoint - JWT is stateless
    */
   logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+    clearCurrentUser();
   },
 };

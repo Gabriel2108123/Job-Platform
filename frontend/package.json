@@ -9,7 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.20",
+    "date-fns": "^4.1.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^0.563.0",
     "next": "16.1.1",
     "playwright": "^1.58.0",
     "react": "19.2.3",

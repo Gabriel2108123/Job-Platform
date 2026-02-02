@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5205',
+  baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   timeout: 30000,
 };
 
@@ -131,6 +131,10 @@ export interface JobDto {
   expiresAt?: string;
   createdAt: string;
   updatedAt: string;
+  locationVisibility?: 'PublicExact' | 'PrivateApprox';
+  latApprox?: number;
+  lngApprox?: number;
+  approxRadiusMeters?: number;
 }
 
 export interface JobPagedResult {
@@ -293,6 +297,10 @@ export interface CreateJobDto {
   salaryPeriod?: number;
   location: string;
   postalCode?: string;
+  locationVisibility?: 'PublicExact' | 'PrivateApprox';
+  latApprox?: number;
+  lngApprox?: number;
+  approxRadiusMeters?: number;
   requiredExperienceYears?: number;
   requiredQualifications?: string;
   benefits?: string;
@@ -492,3 +500,266 @@ export async function incrementJobView(jobId: string): Promise<ApiResponse<void>
   return apiRequest<void>(`/api/jobs/${jobId}/view`, { method: 'POST' });
 }
 
+
+// --- Work Experience DTOs ---
+
+export interface CandidateMapSettingsDto {
+  workerMapEnabled: boolean;
+  discoverableByWorkplaces: boolean;
+  allowConnectionRequests: boolean;
+  updatedAt: string;
+}
+
+export interface UpdateCandidateMapSettingsDto {
+  workerMapEnabled?: boolean;
+  discoverableByWorkplaces?: boolean;
+  allowConnectionRequests?: boolean;
+}
+
+export interface WorkExperienceDto {
+  id: string;
+  candidateUserId: string;
+  employerName: string;
+  locationText: string;
+  city?: string;
+  postalCode?: string;
+  roleTitle?: string;
+  startDate?: string;
+  endDate?: string;
+  visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
+  isMapEnabled: boolean;
+  latApprox?: number;
+  lngApprox?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateWorkExperienceDto {
+  employerName: string;
+  locationText: string;
+  city?: string;
+  postalCode?: string;
+  roleTitle?: string;
+  startDate?: string;
+  endDate?: string;
+  visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
+  isMapEnabled: boolean;
+}
+
+export interface UpdateWorkExperienceDto {
+  employerName?: string;
+  locationText?: string;
+  city?: string;
+  postalCode?: string;
+  roleTitle?: string;
+  startDate?: string;
+  endDate?: string;
+  visibilityLevel?: 'private' | 'applied_only' | 'shortlisted_only';
+  isMapEnabled?: boolean;
+}
+
+// --- Candidate API Functions ---
+
+export async function getWorkExperiences(): Promise<WorkExperienceDto[]> {
+  const response = await apiRequest<WorkExperienceDto[]>('/api/candidate/work-experiences');
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+export async function createWorkExperience(dto: CreateWorkExperienceDto): Promise<WorkExperienceDto> {
+  const response = await apiRequest<WorkExperienceDto>('/api/candidate/work-experiences', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+  if (response.error) throw new Error(response.error);
+  if (!response.data) throw new Error('No data returned');
+  return response.data;
+}
+
+export async function updateWorkExperience(id: string, dto: UpdateWorkExperienceDto): Promise<WorkExperienceDto> {
+  const response = await apiRequest<WorkExperienceDto>(`/api/candidate/work-experiences/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+  if (response.error) throw new Error(response.error);
+  if (!response.data) throw new Error('No data returned');
+  return response.data;
+}
+
+export async function deleteWorkExperience(id: string): Promise<void> {
+  const response = await apiRequest<void>(`/api/candidate/work-experiences/${id}`, {
+    method: 'DELETE',
+  });
+  if (response.error) throw new Error(response.error);
+}
+
+export async function getMapSettings(): Promise<CandidateMapSettingsDto> {
+  const response = await apiRequest<CandidateMapSettingsDto>('/api/candidate/map-settings');
+  if (response.error) throw new Error(response.error);
+  return response.data || {
+    workerMapEnabled: false,
+    discoverableByWorkplaces: false,
+    allowConnectionRequests: false,
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+export async function updateMapSettings(dto: UpdateCandidateMapSettingsDto): Promise<CandidateMapSettingsDto> {
+  const response = await apiRequest<CandidateMapSettingsDto>('/api/candidate/map-settings', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+  if (response.error) throw new Error(response.error);
+  if (!response.data) throw new Error('No data returned');
+  return response.data;
+}
+
+export async function getApplicationWorkHistory(applicationId: string): Promise<WorkExperienceDto[]> {
+  const response = await apiRequest<WorkExperienceDto[]>(`/api/applications/${applicationId}/work-history`);
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+export async function getApplicationConnectionCount(applicationId: string): Promise<number> {
+  const response = await apiRequest<number>(`/api/applications/${applicationId}/connection-count`);
+  if (response.error) throw new Error(response.error);
+  return response.data || 0;
+}
+
+export interface PotentialCoworkerDto {
+  candidateUserId: string;
+  firstName: string;
+  lastNameInitial: string;
+  sharedWorkplace: string;
+  placeKey: string;
+  overlapStart: string;
+  overlapEnd: string;
+  overlapDays: number;
+}
+
+export async function getPotentialCoworkers(): Promise<PotentialCoworkerDto[]> {
+  const response = await apiRequest<PotentialCoworkerDto[]>(`/api/candidate/coworkers/potential`);
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+export async function getPotentialCoworkerCount(): Promise<number> {
+  const response = await apiRequest<number>(`/api/candidate/coworkers/count`);
+  if (response.error) throw new Error(response.error);
+  return response.data || 0;
+}
+
+export interface SendConnectionRequestDto {
+  receiverId: string;
+  placeKey: string;
+  workplaceName: string;
+}
+
+export interface ConnectionDto {
+  id: string;
+  otherUserId: string;
+  otherUserName: string;
+  workplaceName: string;
+  status: string;
+  requestedAt: string;
+}
+
+export interface ConnectionResultDto {
+  success: boolean;
+  message: string;
+}
+
+export async function sendConnectionRequest(dto: SendConnectionRequestDto): Promise<ConnectionResultDto> {
+  const response = await apiRequest<ConnectionResultDto>(`/api/candidate/connections/requests`, {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+  if (response.error) throw new Error(response.error);
+  return response.data || { success: false, message: 'Unknown error' };
+}
+
+export async function getPendingConnections(): Promise<ConnectionDto[]> {
+  const response = await apiRequest<ConnectionDto[]>(`/api/candidate/connections/pending`);
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+export async function getAcceptedConnections(): Promise<ConnectionDto[]> {
+  const response = await apiRequest<ConnectionDto[]>(`/api/candidate/connections`);
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+export async function acceptConnection(id: string): Promise<void> {
+  const response = await apiRequest<void>(`/api/candidate/connections/${id}/accept`, {
+    method: 'POST',
+  });
+  if (response.error) throw new Error(response.error);
+}
+
+export async function declineConnection(id: string): Promise<void> {
+  const response = await apiRequest<void>(`/api/candidate/connections/${id}/decline`, {
+    method: 'POST',
+  });
+  if (response.error) throw new Error(response.error);
+}
+
+// ============================================================================
+// Business Discovery DTOs & Functions
+// ============================================================================
+
+export interface NearbyCandidateDto {
+  candidateUserId: string;
+  name: string;
+  distanceKm: number;
+  verifiedConnectionCount: number;
+  currentRole?: string;
+  currentEmployer?: string;
+  latApprox?: number;
+  lngApprox?: number;
+}
+
+export interface OutreachRequestDto {
+  candidateUserId: string;
+  jobId?: string;
+  message: string;
+}
+
+export interface OutreachResultDto {
+  success: boolean;
+  error?: string;
+  remainingBalance: number;
+}
+
+/**
+ * Find candidates near a job
+ */
+export async function getNearbyCandidates(jobId: string, radiusKm: number = 10): Promise<NearbyCandidateDto[]> {
+  const response = await apiRequest<NearbyCandidateDto[]>(`/api/business/discovery/nearby/${jobId}?radiusKm=${radiusKm}`);
+  if (response.error) throw new Error(response.error);
+  return response.data || [];
+}
+
+/**
+ * Get outreach credit balance
+ */
+export async function getOutreachCreditBalance(): Promise<number> {
+  const response = await apiRequest<number>(`/api/business/discovery/credits`);
+  if (response.error) throw new Error(response.error);
+  return response.data || 0;
+}
+
+/**
+ * Send outreach to a candidate
+ */
+export async function sendOutreach(dto: OutreachRequestDto): Promise<OutreachResultDto> {
+  const response = await apiRequest<OutreachResultDto>(`/api/business/discovery/outreach`, {
+    method: 'POST',
+    body: JSON.stringify(dto),
+  });
+  if (response.error) throw new Error(response.error);
+  return response.data || { success: false, remainingBalance: 0 };
+}

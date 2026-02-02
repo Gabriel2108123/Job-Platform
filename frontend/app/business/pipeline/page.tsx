@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { apiRequest } from '@/lib/api/client';
 import { Badge } from '@/components/ui/Badge';
+import CandidateApplicationView from '@/components/business/CandidateApplicationView';
 
 type ApplicationStatus = 'Applied' | 'Screening' | 'Interview' | 'PreHireChecks' | 'Hired' | 'Rejected';
 
@@ -45,6 +46,7 @@ function PipelineContent() {
   const [movingAppId, setMovingAppId] = useState<string | null>(null);
   const [showPreHireModal, setShowPreHireModal] = useState(false);
   const [selectedAppToHire, setSelectedAppToHire] = useState<PipelineApplication | null>(null);
+  const [selectedAppToView, setSelectedAppToView] = useState<PipelineApplication | null>(null);
   const [preHireNotes, setPreHireNotes] = useState('');
   const [preHireConfirmed, setPreHireConfirmed] = useState(false);
   const [confirmText, setConfirmText] = useState('');
@@ -261,9 +263,17 @@ function PipelineContent() {
                           <p className="text-xs text-gray-500">Moving...</p>
                         ) : (
                           <div className="flex flex-col gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full text-xs h-8"
+                              onClick={() => setSelectedAppToView(app)}
+                            >
+                              View Profile & Map
+                            </Button>
                             <select
                               onChange={(e) => handleMoveApplication(app.id, e.target.value as ApplicationStatus)}
-                              className="text-xs px-2 py-1 border rounded"
+                              className="text-xs px-2 py-1 border rounded w-full"
                               defaultValue=""
                             >
                               <option value="" disabled>Move to...</option>
@@ -375,6 +385,15 @@ function PipelineContent() {
               </div>
             </div>
           </div>
+        )}
+        {/* Candidate View Modal */}
+        {selectedAppToView && (
+          <CandidateApplicationView
+            applicationId={selectedAppToView.id}
+            candidateName={selectedAppToView.candidateName}
+            jobId={selectedJobId || undefined}
+            onClose={() => setSelectedAppToView(null)}
+          />
         )}
       </div>
     </div>
