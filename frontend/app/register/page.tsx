@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -22,6 +22,19 @@ export default function RegisterPage() {
     accountType: 'candidate', // 'candidate' or 'business'
     organizationName: '',
   });
+
+  // Clear form on mount to ensure fresh start
+  useEffect(() => {
+    setFormData({
+      email: '',
+      password: '',
+      confirmPassword: '',
+      fullName: '',
+      accountType: 'candidate',
+      organizationName: '',
+    });
+    setError(null);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -75,7 +88,7 @@ export default function RegisterPage() {
       if (response.success && response.data) {
         // Store token and user info
         const { token, user } = response.data;
-        
+
         // Map API response to CurrentUser format and store
         const currentUser: CurrentUser = {
           id: user.id,
@@ -85,7 +98,7 @@ export default function RegisterPage() {
           organizationId: user.organizationId,
           role: user.role || 'Candidate',
         };
-        
+
         setCurrentUser(currentUser, token);
 
         // Role-based routing
@@ -123,7 +136,7 @@ export default function RegisterPage() {
         {/* Register Form Card */}
         <Card className="bg-white shadow-md">
           <CardBody>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* Account Type Selection */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -174,6 +187,7 @@ export default function RegisterPage() {
                   value={formData.fullName}
                   onChange={handleInputChange}
                   disabled={loading}
+                  autoComplete="off"
                   className="w-full"
                 />
               </div>
@@ -193,6 +207,7 @@ export default function RegisterPage() {
                     onChange={handleInputChange}
                     disabled={loading}
                     required={formData.accountType === 'business'}
+                    autoComplete="off"
                     className="w-full"
                   />
                 </div>
@@ -212,6 +227,7 @@ export default function RegisterPage() {
                   onChange={handleInputChange}
                   disabled={loading}
                   required
+                  autoComplete="new-email"
                   className="w-full"
                 />
               </div>
@@ -230,6 +246,7 @@ export default function RegisterPage() {
                   onChange={handleInputChange}
                   disabled={loading}
                   required
+                  autoComplete="new-password"
                   className="w-full"
                 />
                 <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
@@ -249,6 +266,7 @@ export default function RegisterPage() {
                   onChange={handleInputChange}
                   disabled={loading}
                   required
+                  autoComplete="new-password"
                   className="w-full"
                 />
               </div>

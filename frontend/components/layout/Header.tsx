@@ -27,18 +27,18 @@ export default function Header() {
               UK Hospitality Platform
             </Link>
           </div>
-          
+
           <nav className="flex items-center space-x-4">
-            <Link 
-              href="/jobs" 
+            <Link
+              href="/jobs"
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Jobs
             </Link>
-            
+
             {user && !isBusiness && (
-              <Link 
-                href="/applications" 
+              <Link
+                href="/applications"
                 className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
               >
                 My Applications
@@ -47,47 +47,38 @@ export default function Header() {
 
             {user && isBusiness && (
               <>
-                <Link 
-                  href="/business" 
+                <Link
+                  href="/business"
                   className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Dashboard
                 </Link>
-                <Link 
-                  href="/business/jobs" 
+                <Link
+                  href="/business/jobs"
                   className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   My Jobs
                 </Link>
               </>
             )}
-            
-            <Link 
-              href="/employers" 
+
+            <Link
+              href="/employers"
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               For Employers
             </Link>
-            
-            {user && (
-              <Link 
-                href="/billing/subscription" 
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Billing
-              </Link>
-            )}
-            
+
             {!user ? (
               <>
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   Sign In
                 </Link>
-                <Link 
-                  href="/register" 
+                <Link
+                  href="/register"
                   className="bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-hover)] px-4 py-2 rounded-md text-sm font-medium"
                 >
                   Get Started

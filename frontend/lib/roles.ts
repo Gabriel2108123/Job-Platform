@@ -43,7 +43,7 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
     { href: '/business/team', label: 'Team Members', icon: 'users' },
     { href: '/business/billing', label: 'Billing', icon: 'credit-card' },
     { href: '/messages', label: 'Messages', icon: 'message-square' },
-    { href: '/profile', label: 'Profile', icon: 'user' },
+    { href: '/business/profile', label: 'Profile', icon: 'user' },
   ],
   [ROLES.Staff]: [
     { href: '/business', label: 'Dashboard', icon: 'grid' },
@@ -95,6 +95,7 @@ export const ROLE_ACCESSIBLE_PAGES: Record<Role, string[]> = {
     '/business/pipeline',
     '/business/team',
     '/business/billing',
+    '/business/profile',
     '/messages',
     '/profile',
     '/logout',

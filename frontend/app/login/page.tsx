@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +18,15 @@ export default function LoginPage() {
     email: '',
     password: '',
   });
+
+  // Clear form on mount to ensure fresh start
+  useEffect(() => {
+    setFormData({
+      email: '',
+      password: '',
+    });
+    setError(null);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -114,6 +123,7 @@ export default function LoginPage() {
                   onChange={handleInputChange}
                   disabled={loading}
                   required
+                  autoComplete="new-email"
                   className="w-full"
                 />
               </div>
@@ -132,6 +142,7 @@ export default function LoginPage() {
                   onChange={handleInputChange}
                   disabled={loading}
                   required
+                  autoComplete="new-password"
                   className="w-full"
                 />
               </div>

@@ -69,7 +69,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<IEnumerable<JobDto>>> GetMyOrganizationJobs()
     {
-        var orgIdClaim = User.FindFirstValue("OrganizationId");
+        var orgIdClaim = User.FindFirstValue("org_id");
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
@@ -109,7 +109,7 @@ public class JobsController : ControllerBase
 
         // TODO: Get organizationId from user's current context or claims
         // For now, we'll expect it in the request or from a claim
-        var orgIdClaim = User.FindFirstValue("OrganizationId");
+        var orgIdClaim = User.FindFirstValue("org_id");
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
@@ -155,7 +155,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<OrganizationAnalyticsDto>> GetAnalytics()
     {
-        var orgIdClaim = User.FindFirstValue("OrganizationId");
+        var orgIdClaim = User.FindFirstValue("org_id");
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });

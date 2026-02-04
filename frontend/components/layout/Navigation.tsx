@@ -35,9 +35,6 @@ export function Navigation() {
   // Get role-specific navigation from role system
   const navLinks = loggedIn && role && ROLE_NAVIGATION[role] ? ROLE_NAVIGATION[role] : publicLinks;
 
-  // Show billing only for BusinessOwner
-  const showBilling = loggedIn && role === 'BusinessOwner';
-
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,24 +58,13 @@ export function Navigation() {
                 key={link.href}
                 href={link.href}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === link.href
-                    ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-                    : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
+                  ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
+                  : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
                   }`}
               >
                 {link.label}
               </Link>
             ))}
-            {showBilling && (
-              <Link
-                href="/business/billing"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === '/business/billing'
-                    ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-                    : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                  }`}
-              >
-                Billing
-              </Link>
-            )}
           </div>
 
           {/* User Info & Auth Buttons */}
@@ -139,25 +125,13 @@ export function Navigation() {
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === link.href
-                    ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-                    : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
+                  ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
+                  : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
                   }`}
               >
                 {link.label}
               </Link>
             ))}
-            {showBilling && (
-              <Link
-                href="/business/billing"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${pathname === '/business/billing'
-                    ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-                    : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                  }`}
-              >
-                Billing
-              </Link>
-            )}
             <div className="pt-4 border-t border-gray-200 mt-4">
               {!loggedIn ? (
                 <>

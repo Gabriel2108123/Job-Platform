@@ -34,7 +34,7 @@ public class PipelineController : ControllerBase
         try
         {
             // TODO: Verify user belongs to job's organization
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -80,7 +80,7 @@ public class PipelineController : ControllerBase
             }
 
             // TODO: Verify user belongs to job's organization
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });

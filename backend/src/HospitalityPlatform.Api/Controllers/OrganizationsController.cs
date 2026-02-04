@@ -147,7 +147,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -193,7 +193,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -254,7 +254,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -288,7 +288,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("OrganizationId");
+            var orgIdClaim = User.FindFirstValue("org_id");
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -315,6 +315,129 @@ public class OrganizationsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing team member");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Get current organization's profile
+    /// </summary>
+    [HttpGet("profile")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<DTOs.OrganizationProfileDto>> GetOrganizationProfile()
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("org_id");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var organization = await _context.Organizations.FindAsync(organizationId);
+            if (organization == null)
+            {
+                return NotFound(new { error = "Organization not found" });
+            }
+
+            return Ok(new DTOs.OrganizationProfileDto
+            {
+                Id = organization.Id,
+                Name = organization.Name,
+                BusinessName = organization.BusinessName,
+                Location = organization.Location,
+                Website = organization.Website,
+                Industry = organization.Industry,
+                CompanySize = organization.CompanySize,
+                PointOfContactName = organization.PointOfContactName,
+                PointOfContactEmail = organization.PointOfContactEmail,
+                PointOfContactPhone = organization.PointOfContactPhone,
+                LogoUrl = organization.LogoUrl,
+                Description = organization.Description,
+                CreatedAt = organization.CreatedAt,
+                UpdatedAt = organization.UpdatedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving organization profile");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Update current organization's profile
+    /// </summary>
+    [HttpPut("profile")]
+    [Authorize(Policy = "RequireBusinessOwner")]
+    public async Task<ActionResult<DTOs.OrganizationProfileDto>> UpdateOrganizationProfile([FromBody] DTOs.UpdateOrganizationProfileDto request)
+    {
+        try
+        {
+            var orgIdClaim = User.FindFirstValue("org_id");
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var organization = await _context.Organizations.FindAsync(organizationId);
+            if (organization == null)
+            {
+                return NotFound(new { error = "Organization not found" });
+            }
+
+            // Update fields if provided
+            if (!string.IsNullOrWhiteSpace(request.BusinessName))
+                organization.BusinessName = request.BusinessName.Trim();
+            
+            if (request.Location != null)
+                organization.Location = request.Location.Trim();
+            
+            if (request.Website != null)
+                organization.Website = request.Website.Trim();
+            
+            if (request.Industry != null)
+                organization.Industry = request.Industry.Trim();
+            
+            if (request.CompanySize != null)
+                organization.CompanySize = request.CompanySize.Trim();
+            
+            if (request.PointOfContactName != null)
+                organization.PointOfContactName = request.PointOfContactName.Trim();
+            
+            if (request.PointOfContactEmail != null)
+                organization.PointOfContactEmail = request.PointOfContactEmail.Trim();
+            
+            if (request.PointOfContactPhone != null)
+                organization.PointOfContactPhone = request.PointOfContactPhone.Trim();
+            
+            if (request.Description != null)
+                organization.Description = request.Description.Trim();
+
+            organization.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return Ok(new DTOs.OrganizationProfileDto
+            {
+                Id = organization.Id,
+                Name = organization.Name,
+                BusinessName = organization.BusinessName,
+                Location = organization.Location,
+                Website = organization.Website,
+                Industry = organization.Industry,
+                CompanySize = organization.CompanySize,
+                PointOfContactName = organization.PointOfContactName,
+                PointOfContactEmail = organization.PointOfContactEmail,
+                PointOfContactPhone = organization.PointOfContactPhone,
+                LogoUrl = organization.LogoUrl,
+                Description = organization.Description,
+                CreatedAt = organization.CreatedAt,
+                UpdatedAt = organization.UpdatedAt
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating organization profile");
             return StatusCode(500, new { error = "Internal server error" });
         }
     }
