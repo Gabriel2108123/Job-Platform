@@ -75,6 +75,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<WorkExperience> WorkExperiences { get; set; }
     public DbSet<CandidateMapSettings> CandidateMapSettings { get; set; }
     public DbSet<CoworkerConnection> CoworkerConnections { get; set; }
+    
+    // Job Roles DbSet
+    public DbSet<JobRole> JobRoles { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -440,6 +444,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasKey(e => e.Id);
             entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.DateOfBirth).IsRequired();
+            entity.Property(e => e.PreferredJobRoleIds)
+                .HasColumnType("uuid[]"); // PostgreSQL array column
             
             // One-to-one relationship with ApplicationUser
             entity.HasOne(e => e.User)
@@ -450,6 +456,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.UserId).IsUnique();
             entity.HasIndex(e => e.DateOfBirth);
         });
+
+        // Configure JobRole
+        builder.Entity<JobRole>(entity =>
+        {
+            entity.ToTable("JobRoles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Department).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.DisplayOrder).IsRequired();
+            entity.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
+            
+            entity.HasIndex(e => e.Department);
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => new { e.Department, e.DisplayOrder });
+        });
+
 
         // Configure EmailVerificationToken
         builder.Entity<EmailVerificationToken>(entity =>

@@ -49,6 +49,65 @@ export default function HomePage() {
       {/* HERO SECTION */}
       <HeroSection onScrollToForm={scrollToWaitlist} />
 
+      {/* WAITLIST FORM SECTION - MOVED HIGHER FOR PROMINENCE */}
+      <section id="waitlist-form-section" className="py-20 bg-gradient-to-br from-[var(--brand-accent)] via-[var(--brand-primary)] to-[var(--brand-navy)] relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,215,0,0.1),transparent_50%)]"></div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center rounded-full bg-white/20 px-6 py-2 border border-white/30 backdrop-blur-md mb-6">
+                <span className="flex h-3 w-3 rounded-full bg-[var(--brand-gold)] mr-3 animate-pulse"></span>
+                <span className="text-sm md:text-base font-bold text-white tracking-wide">
+                  LIMITED OFFER - LAUNCHING SOON
+                </span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                Join the Waitlist<br />
+                <span className="text-[var(--brand-gold)]">Get 12 Months Free</span>
+              </h2>
+
+              <p className="text-xl md:text-2xl text-white/90 mb-4">
+                First <span className="font-bold text-[var(--brand-gold)]">1,000 employers</span> and <span className="font-bold text-[var(--brand-gold)]">5,000 professionals</span>
+              </p>
+
+              <p className="text-lg text-white/80 max-w-2xl mx-auto">
+                Be among the first to experience commission-free hospitality recruitment. Join thousands already on our waitlist.
+              </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <WaitlistForm />
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="mt-12 flex flex-wrap justify-center gap-6 text-white/70 text-sm">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-[var(--brand-gold)]" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-[var(--brand-gold)]" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>Instant access on launch</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-[var(--brand-gold)]" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <span>Cancel anytime</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PROBLEM STATEMENT */}
       <section className="py-24 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl text-center">
@@ -171,27 +230,6 @@ export default function HomePage() {
             <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm hover:bg-white/10 transition-all duration-300 border border-white/10 hover:scale-105 hover:shadow-xl">
               <h3 className="text-xl font-bold text-[var(--brand-accent)] mb-3">Verified Talent</h3>
               <p className="text-gray-400">Access verified hospitality professionals with transparency enforced.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* WAITLIST FORM SECTION */}
-      <section id="waitlist-form-section" className="py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
-        {/* Decorative Background */}
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] bg-center"></div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-[var(--brand-navy)] mb-4">Join the Movement</h2>
-              <p className="text-xl text-gray-600">
-                First <span className="font-bold text-[var(--brand-primary)]">1,000 employers</span> and <span className="font-bold text-[var(--brand-primary)]">5,000 employees</span> get <span className="underline decoration-[var(--brand-gold)] decoration-4 underline-offset-4">12 months free</span>.
-              </p>
-            </div>
-
-            <div className="max-w-2xl mx-auto">
-              <WaitlistForm />
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 using HospitalityPlatform.Auth.Handlers;
 using HospitalityPlatform.Api.Middleware;
+using HospitalityPlatform.Api.Extensions;
 using HospitalityPlatform.Auth.Policies;
 using HospitalityPlatform.Auth.Requirements;
 using HospitalityPlatform.Database;
@@ -255,6 +256,18 @@ using (var scope = app.Services.CreateScope())
         {
             logger.LogError(ex, "Data seeding failed");
         }
+
+        // Seed Job Roles
+        try
+        {
+            await dbContext.SeedJobRolesAsync();
+            logger.LogInformation("Job roles seeded successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Job roles seeding failed");
+        }
+
     }
     catch (Exception ex)
     {

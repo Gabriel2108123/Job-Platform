@@ -28,6 +28,11 @@ public class CandidateProfile : BaseEntity
     /// </summary>
     public string? ResumeJson { get; set; }
 
+    /// <summary>
+    /// Array of preferred job role IDs (candidates can select multiple roles they're interested in)
+    /// </summary>
+    public Guid[]? PreferredJobRoleIds { get; set; }
+
     // Navigation properties
     public ApplicationUser? User { get; set; }
 }

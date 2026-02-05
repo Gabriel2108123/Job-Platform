@@ -14,6 +14,10 @@ public class Job : BaseEntity
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     
+    // Standardized Job Role
+    public Guid? JobRoleId { get; set; }
+    public JobRole? JobRole { get; set; }
+    
     public RoleType RoleType { get; set; }
     public EmploymentType EmploymentType { get; set; }
     public ShiftPattern ShiftPattern { get; set; }
