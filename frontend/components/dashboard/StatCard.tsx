@@ -1,18 +1,25 @@
 'use client';
 
 import { Card, CardBody } from '@/components/ui/Card';
+import Link from 'next/link';
 
 interface StatCardProps {
     label: string;
     value: string | number;
-    icon: string;
+    icon?: string; // Icon is now optional/removed
     trend?: string;
     color?: string;
+    href?: string;
+    onClick?: () => void;
 }
 
-export function StatCard({ label, value, icon, trend, color = 'var(--brand-primary)' }: StatCardProps) {
-    return (
-        <Card variant="default" className="hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+export function StatCard({ label, value, icon, trend, color = 'var(--brand-primary)', href, onClick }: StatCardProps) {
+    const CardContent = (
+        <Card
+            variant="default"
+            className={`transition-all duration-300 transform hover:-translate-y-1 ${href || onClick ? 'cursor-pointer hover:shadow-lg' : ''}`}
+            onClick={onClick}
+        >
             <CardBody className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
@@ -24,11 +31,19 @@ export function StatCard({ label, value, icon, trend, color = 'var(--brand-prima
                             </p>
                         )}
                     </div>
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: `${color}15`, color }}>
-                        {icon}
-                    </div>
+                    {icon && (
+                        <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl" style={{ backgroundColor: `${color}15`, color }}>
+                            {icon}
+                        </div>
+                    )}
                 </div>
             </CardBody>
         </Card>
     );
+
+    if (href) {
+        return <Link href={href}>{CardContent}</Link>;
+    }
+
+    return CardContent;
 }

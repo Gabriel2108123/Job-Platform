@@ -33,6 +33,7 @@ public class DataSeedingService
             await SeedRolesAsync();
             await SeedUsersAsync();
             await SeedJobsAsync();
+            await SeedWorkExperiencesAsync();
         }
         catch (Exception ex)
         {
@@ -255,5 +256,89 @@ public class DataSeedingService
         _context.Jobs.AddRange(jobs);
         await _context.SaveChangesAsync();
         _logger.LogInformation("Seeded {Count} new jobs.", jobs.Count);
+    }
+
+    private async Task SeedWorkExperiencesAsync()
+    {
+        // Check if any work experiences exist
+        // Note: We need to cast DbContext to IQueryable if accessing generic set, or use Set<WorkExperience>()
+        // But ApplicationDbContext should have WorkExperiences DbSet if integrated correctly.
+        // Let's assume _context.WorkExperiences exists (via connection to CandidatesDbContext logic in ApplicationDbContext)
+        
+        // Since ApplicationDbContext combines all contexts usually, let's check.
+        // If not, we might need to inject ICandidatesDbContext.
+        // But DataSeedingService uses ApplicationDbContext directly.
+        
+        // To be safe, let's access via Set<HospitalityPlatform.Candidates.Entities.WorkExperience>() if proper property not visible
+        var count = await _context.Set<HospitalityPlatform.Candidates.Entities.WorkExperience>().CountAsync();
+        if (count > 0) return;
+
+        var candidate = await _userManager.FindByEmailAsync("candidate@test.com");
+        if (candidate == null) return;
+
+        var experiences = new List<HospitalityPlatform.Candidates.Entities.WorkExperience>
+        {
+            new HospitalityPlatform.Candidates.Entities.WorkExperience
+            {
+                Id = Guid.NewGuid(),
+                CandidateUserId = candidate.Id,
+                EmployerName = "The Grand Hotel",
+                LocationText = "Brighton",
+                City = "Brighton",
+                PostalCode = "BN1 2FW",
+                RoleTitle = "Concierge",
+                StartDate = DateTime.UtcNow.AddYears(-2),
+                EndDate = DateTime.UtcNow.AddYears(-1),
+                VisibilityLevel = "public", // or whatever valid level
+                IsMapEnabled = true,
+                LatApprox = 50.8225m,
+                LngApprox = -0.1372m,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
+            new HospitalityPlatform.Candidates.Entities.WorkExperience
+            {
+                Id = Guid.NewGuid(),
+                CandidateUserId = candidate.Id,
+                EmployerName = "London Cafe",
+                LocationText = "London",
+                City = "London",
+                PostalCode = "SW1A 1AA",
+                RoleTitle = "Barista",
+                StartDate = DateTime.UtcNow.AddYears(-1),
+                EndDate = null, // Current
+                VisibilityLevel = "public",
+                IsMapEnabled = true,
+                LatApprox = 51.5074m,
+                LngApprox = -0.1278m,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            }
+        };
+
+        await _context.Set<HospitalityPlatform.Candidates.Entities.WorkExperience>().AddRangeAsync(experiences);
+        
+        // Also ensure Map Settings are enabled for this candidate
+        var mapSettings = await _context.Set<HospitalityPlatform.Candidates.Entities.CandidateMapSettings>()
+            .FirstOrDefaultAsync(s => s.CandidateUserId == candidate.Id);
+            
+        if (mapSettings == null)
+        {
+            await _context.Set<HospitalityPlatform.Candidates.Entities.CandidateMapSettings>().AddAsync(
+                new HospitalityPlatform.Candidates.Entities.CandidateMapSettings
+                {
+                    CandidateUserId = candidate.Id,
+                    WorkerMapEnabled = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+        }
+        else if (!mapSettings.WorkerMapEnabled)
+        {
+            mapSettings.WorkerMapEnabled = true;
+        }
+
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Seeded {Count} work experiences for candidate.", experiences.Count);
     }
 }

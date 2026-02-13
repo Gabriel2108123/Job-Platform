@@ -13,4 +13,10 @@ public interface IJobService
     Task<PagedResult<JobDto>> SearchJobsAsync(SearchJobsDto searchDto);
     Task IncrementJobViewAsync(Guid jobId);
     Task<OrganizationAnalyticsDto> GetOrganizationAnalyticsAsync(Guid organizationId);
+    
+    /// <summary>
+    /// Backfill coordinates for jobs that are missing lat/lng data.
+    /// Returns count of jobs updated.
+    /// </summary>
+    Task<int> BackfillCoordinatesAsync();
 }

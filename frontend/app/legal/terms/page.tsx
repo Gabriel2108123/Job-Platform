@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { COMPANY_INFO } from '@/lib/constants/company';
 
 export default function TermsAndConditions() {
     return (
@@ -21,11 +22,11 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">1. Company Information</h2>
                         <div className="space-y-2 text-gray-700">
-                            <p><strong>Registered Company Name:</strong> <span className="text-red-600">{{ COMPANY_REGISTERED_NAME }}</span></p>
-                            <p><strong>Trading Name:</strong> <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span></p>
-                            <p><strong>Company Number:</strong> <span className="text-red-600">{{ COMPANY_NUMBER }}</span></p>
-                            <p><strong>License Number:</strong> <span className="text-red-600">{{ LICENSE_NUMBER }}</span></p>
-                            <p><strong>Registered Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
+                            <p><strong>Registered Company Name:</strong> {COMPANY_INFO.REGISTERED_NAME}</p>
+                            <p><strong>Trading Name:</strong> {COMPANY_INFO.TRADING_NAME}</p>
+                            <p><strong>Company Number:</strong> {COMPANY_INFO.COMPANY_NUMBER}</p>
+                            <p><strong>License Number:</strong> {COMPANY_INFO.LICENSE_NUMBER}</p>
+                            <p><strong>Registered Address:</strong> {COMPANY_INFO.ADDRESS}</p>
                         </div>
                     </section>
 
@@ -33,7 +34,7 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">2. Agreement to Terms</h2>
                         <p className="text-gray-700">
-                            By accessing and using YokeConnect ("the Platform"), you accept and agree to be bound by the terms and provisions
+                            By accessing and using {COMPANY_INFO.TRADING_NAME} (&quot;the Platform&quot;), you accept and agree to be bound by the terms and provisions
                             of this agreement. If you do not agree to abide by these Terms and Conditions, please do not use this Platform.
                         </p>
                     </section>
@@ -49,142 +50,112 @@ export default function TermsAndConditions() {
                             <li>Modify or copy the materials</li>
                             <li>Use the materials for any commercial purpose or public display</li>
                             <li>Attempt to decompile or reverse engineer any software contained on the Platform</li>
-                            <li>Remove any copyright or proprietary notations from the materials</li>
-                            <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
+                            <li>Remove any copyright or other proprietary notations from the materials</li>
+                            <li>Transfer the materials to another person or &quot;mirror&quot; the materials on any other server</li>
                         </ul>
                     </section>
 
                     {/* User Accounts */}
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">4. User Accounts</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>4.1 Account Creation:</strong> Users may create accounts as either Candidates (job seekers) or Business Owners (employers).</p>
-                            <p><strong>4.2 Account Security:</strong> You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
-                            <p><strong>4.3 Accurate Information:</strong> You agree to provide accurate, current, and complete information during registration and to update such information to keep it accurate, current, and complete.</p>
-                            <p><strong>4.4 Account Suspension:</strong> We reserve the right to suspend or terminate accounts that violate these Terms or for accounts with expired documentation (after notification period).</p>
-                        </div>
-                    </section>
-
-                    {/* Services */}
-                    <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">5. Platform Services</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>5.1 For Candidates:</strong> Job search, profile creation, CV building, document management, location-based job discovery, and application services.</p>
-                            <p><strong>5.2 For Businesses:</strong> Job posting, candidate discovery, team management, applicant tracking, and subscription-based premium features.</p>
-                            <p><strong>5.3 Service Availability:</strong> While we strive to keep the Platform available 24/7, we do not guarantee uninterrupted access and may suspend services for maintenance or updates.</p>
-                        </div>
-                    </section>
-
-                    {/* Subscription Terms */}
-                    <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">6. Subscription and Payments</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>6.1 Subscription Plans:</strong> Business accounts may require paid subscriptions. Details are outlined in the <Link href="/legal/subscription" className="text-[var(--brand-primary)] hover:underline">Subscription Contract</Link>.</p>
-                            <p><strong>6.2 Billing:</strong> Subscription fees are billed in advance on a recurring basis (monthly or annually).</p>
-                            <p><strong>6.3 Refunds:</strong> Refund policies are outlined in the Subscription Contract.</p>
-                            <p><strong>6.4 Cancellation:</strong> You may cancel your subscription at any time through your account settings.</p>
-                        </div>
-                    </section>
-
-                    {/* Document Requirements */}
-                    <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">7. Document Management and Expiry</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>7.1 Document Uploads:</strong> Candidates may be required to upload identification, certifications, and other relevant documents.</p>
-                            <p><strong>7.2 Expiry Notifications:</strong> The Platform will notify users 3 months before document expiry.</p>
-                            <p><strong>7.3 Account Status:</strong> Accounts with expired essential documents may be subject to restrictions until documents are renewed.</p>
-                            <p><strong>7.4 Document Verification:</strong> We reserve the right to verify uploaded documents and may request additional information.</p>
-                        </div>
-                    </section>
-
-                    {/* User Conduct */}
-                    <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">8. User Conduct</h2>
                         <p className="text-gray-700 mb-3">
-                            Detailed conduct guidelines are outlined in our <Link href="/legal/acceptable-use" className="text-[var(--brand-primary)] hover:underline">Acceptable Use Policy</Link>.
-                            Users must not:
+                            When you create an account with us, you must provide information that is accurate, complete, and current at all times.
+                            You are responsible for:
                         </p>
                         <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                            <li>Post false, misleading, or fraudulent job listings or profiles</li>
-                            <li>Harass, abuse, or harm other users</li>
-                            <li>Violate any applicable laws or regulations</li>
-                            <li>Infringe on intellectual property rights</li>
-                            <li>Attempt to gain unauthorized access to the Platform</li>
+                            <li>Safeguarding your password</li>
+                            <li>All activities that occur under your account</li>
+                            <li>Notifying us immediately of any unauthorized use of your account</li>
                         </ul>
                     </section>
 
-                    {/* Intellectual Property */}
+                    {/* Platform Services */}
                     <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">9. Intellectual Property</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>9.1 Platform Ownership:</strong> The Platform and its original content, features, and functionality are owned by <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span> and are protected by international copyright, trademark, and other intellectual property laws.</p>
-                            <p><strong>9.2 User Content:</strong> You retain ownership of content you upload (CVs, documents, job descriptions) but grant us a license to use, display, and process this content to provide our services.</p>
-                            <p><strong>9.3 YokeConnect Branding:</strong> CVs generated through our platform may include YokeConnect branding/watermark.</p>
-                        </div>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">5. Platform Services</h2>
+                        <p className="text-gray-700 mb-3">
+                            {COMPANY_INFO.TRADING_NAME} provides a platform connecting hospitality professionals with employers. We:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>Do not guarantee employment or job placement</li>
+                            <li>Are not responsible for the conduct of users on the platform</li>
+                            <li>Reserve the right to remove any content or user at our discretion</li>
+                            <li>May introduce or modify features without prior notice</li>
+                        </ul>
+                    </section>
+
+                    {/* Subscription and Payments */}
+                    <section>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">6. Subscription and Payments</h2>
+                        <p className="text-gray-700 mb-3">
+                            For paid subscription services:
+                        </p>
+                        <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li>Subscription fees are billed in advance on a recurring basis</li>
+                            <li>All fees are non-refundable unless otherwise stated</li>
+                            <li>We reserve the right to change pricing with 30 days notice</li>
+                            <li>Failure to pay may result in suspension of access</li>
+                        </ul>
+                    </section>
+
+                    {/* Disclaimer */}
+                    <section>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">7. Disclaimer</h2>
+                        <p className="text-gray-700">
+                            The Platform and all materials on it are provided &quot;as is&quot;. {COMPANY_INFO.REGISTERED_NAME} makes no warranties,
+                            expressed or implied, and hereby disclaims all other warranties. We do not warrant that the Platform will be
+                            uninterrupted, secure, or error-free.
+                        </p>
                     </section>
 
                     {/* Limitation of Liability */}
                     <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">10. Limitation of Liability</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p>
-                                To the fullest extent permitted by applicable law, <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span> shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from:
-                            </p>
-                            <ul className="list-disc list-inside space-y-2 ml-4">
-                                <li>Your use or inability to use the Platform</li>
-                                <li>Any unauthorized access to or use of our servers and/or any personal information stored therein</li>
-                                <li>Any interruption or cessation of transmission to or from the Platform</li>
-                                <li>Any bugs, viruses, trojan horses, or the like that may be transmitted through the Platform by any third party</li>
-                                <li>Any employment or business relationships formed through the Platform</li>
-                            </ul>
-                        </div>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">8. Limitation of Liability</h2>
+                        <p className="text-gray-700">
+                            In no event shall {COMPANY_INFO.REGISTERED_NAME}, its directors, employees, or affiliates be liable for any
+                            indirect, incidental, special, consequential, or punitive damages arising from your use of the Platform.
+                        </p>
                     </section>
 
-                    {/* Jurisdiction */}
+                    {/* Governing Law */}
                     <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">11. Governing Law and Jurisdiction</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p><strong>11.1 Primary Jurisdictions:</strong> These Terms are governed by the laws of the United Kingdom, European Union, United States, and United Arab Emirates, as applicable based on your location and usage.</p>
-                            <p><strong>11.2 Dispute Resolution:</strong> Any disputes arising from these Terms are subject to our <Link href="/legal/dispute" className="text-[var(--brand-primary)] hover:underline">Dispute Resolution and Arbitration procedures</Link>.</p>
-                            <p><strong>11.3 International Compliance:</strong> Users are responsible for compliance with local laws in their jurisdiction.</p>
-                        </div>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">9. Governing Law</h2>
+                        <p className="text-gray-700">
+                            These Terms shall be governed by and construed in accordance with {COMPANY_INFO.GOVERNING_LAW},
+                            without regard to its conflict of law provisions. Any disputes shall be subject to the exclusive
+                            jurisdiction of the courts of {COMPANY_INFO.JURISDICTION}.
+                        </p>
                     </section>
 
                     {/* Changes to Terms */}
                     <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">12. Changes to Terms</h2>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">10. Changes to Terms</h2>
                         <p className="text-gray-700">
-                            We reserve the right to modify these Terms at any time. We will notify users of material changes via email or platform notification. Continued use of the Platform after changes constitutes acceptance of the modified Terms.
+                            We reserve the right to modify these Terms at any time. We will notify users of any material changes
+                            by posting the new Terms on this page along with the updated effective date.
                         </p>
                     </section>
 
-                    {/* Related Policies */}
+                    {/* Contact Information */}
                     <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">13. Related Policies</h2>
-                        <div className="space-y-2">
-                            <p className="text-gray-700">Please also review our related policies:</p>
-                            <ul className="list-disc list-inside space-y-2 text-[var(--brand-primary)] ml-4">
-                                <li><Link href="/legal/privacy" className="hover:underline">Privacy Policy (GDPR Compliant)</Link></li>
-                                <li><Link href="/legal/cookies" className="hover:underline">Cookie Policy</Link></li>
-                                <li><Link href="/legal/subscription" className="hover:underline">Subscription Contract</Link></li>
-                                <li><Link href="/legal/acceptable-use" className="hover:underline">Acceptable Use Policy</Link></li>
-                                <li><Link href="/legal/dpa" className="hover:underline">Data Processing Agreement</Link></li>
-                                <li><Link href="/legal/dispute" className="hover:underline">Dispute Resolution & Arbitration</Link></li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    {/* Contact */}
-                    <section>
-                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">14. Contact Information</h2>
+                        <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">11. Contact Us</h2>
                         <p className="text-gray-700">
-                            If you have any questions about these Terms and Conditions, please contact us at:
+                            For questions about these Terms, please contact us at:
                         </p>
-                        <div className="mt-3 text-gray-700">
-                            <p><strong>Email:</strong> legal@yokeconnect.com</p>
-                            <p><strong>Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
+                        <div className="mt-2 text-gray-700">
+                            <p><strong>Email:</strong> {COMPANY_INFO.EMAIL}</p>
+                            <p><strong>Address:</strong> {COMPANY_INFO.ADDRESS}</p>
                         </div>
                     </section>
+                </div>
+
+                {/* Related Links */}
+                <div className="mt-8 flex gap-4 text-sm">
+                    <Link href="/legal/privacy" className="text-[var(--brand-primary)] hover:underline">
+                        Privacy Policy
+                    </Link>
+                    <Link href="/legal/cookies" className="text-[var(--brand-primary)] hover:underline">
+                        Cookie Policy
+                    </Link>
                 </div>
             </div>
         </div>

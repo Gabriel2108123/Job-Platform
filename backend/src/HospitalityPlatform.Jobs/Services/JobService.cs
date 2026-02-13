@@ -433,4 +433,48 @@ public class JobService : IJobService
             ApproxRadiusMeters = job.ApproxRadiusMeters
         };
     }
+
+    /// <summary>
+    /// Backfill coordinates for jobs that are missing lat/lng data.
+    /// </summary>
+    public async Task<int> BackfillCoordinatesAsync()
+    {
+        var jobsWithoutCoords = await _context.Jobs
+            .Where(j => j.LatApprox == null && j.LngApprox == null)
+            .ToListAsync();
+
+        int updated = 0;
+
+        foreach (var job in jobsWithoutCoords)
+        {
+            // Try to geocode based on PostalCode and Location
+            var coords = await _locationService.GetApproxCoordsAsync(job.PostalCode, job.Location);
+            
+            if (coords.lat.HasValue && coords.lng.HasValue)
+            {
+                job.LatApprox = coords.lat;
+                job.LngApprox = coords.lng;
+                job.ApproxRadiusMeters = job.ApproxRadiusMeters ?? 1200;
+                updated++;
+                
+                _logger.LogInformation("Backfilled coordinates for job {JobId} ({Location}): {Lat}, {Lng}",
+                    job.Id, job.Location, coords.lat, coords.lng);
+            }
+            else
+            {
+                _logger.LogWarning("Could not geocode job {JobId} with location: {Location}, postal: {PostalCode}",
+                    job.Id, job.Location, job.PostalCode);
+            }
+        }
+
+        if (updated > 0)
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        _logger.LogInformation("Backfill complete: {Updated} of {Total} jobs updated with coordinates",
+            updated, jobsWithoutCoords.Count);
+
+        return updated;
+    }
 }

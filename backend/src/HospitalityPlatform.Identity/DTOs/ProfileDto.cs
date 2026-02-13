@@ -10,6 +10,7 @@ public class ProfileDto
     public string? Bio { get; set; }
     public string? ResumeJson { get; set; }
     public string? Role { get; set; }
+    public List<Guid>? PreferredJobRoleIds { get; set; }
 }
 
 public class UpdateProfileDto
@@ -19,4 +20,5 @@ public class UpdateProfileDto
     public string? ProfilePictureUrl { get; set; }
     public string? Bio { get; set; }
     public string? ResumeJson { get; set; }
+    public List<Guid>? PreferredJobRoleIds { get; set; }
 }

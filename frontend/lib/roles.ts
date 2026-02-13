@@ -31,9 +31,6 @@ export const ROLE_NAVIGATION: Record<Role, NavigationItem[]> = {
   [ROLES.Candidate]: [
     { href: '/dashboard', label: 'Dashboard', icon: 'grid' },
     { href: '/jobs', label: 'Browse Jobs', icon: 'briefcase' },
-    { href: '/applications', label: 'My Applications', icon: 'file-text' },
-    { href: '/messages', label: 'Messages', icon: 'message-square' },
-    { href: '/documents', label: 'Documents', icon: 'file' },
     { href: '/profile', label: 'Profile', icon: 'user' },
   ],
   [ROLES.BusinessOwner]: [

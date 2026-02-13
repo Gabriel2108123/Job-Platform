@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { createJob, CreateJobDto, EmploymentType } from '@/lib/api/client';
+import JobRoleSelector from '@/components/JobRoleSelector';
 
 interface FormData {
   title: string;
@@ -17,6 +18,7 @@ interface FormData {
   shiftPattern?: string;
   salary?: string;
   locationVisibility: 'PublicExact' | 'PrivateApprox';
+  jobRoleId?: string;
 }
 
 export default function CreateJobPage() {
@@ -32,6 +34,7 @@ export default function CreateJobPage() {
     shiftPattern: '',
     salary: '',
     locationVisibility: 'PrivateApprox', // Default to privacy
+    jobRoleId: undefined,
   });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -41,6 +44,9 @@ export default function CreateJobPage() {
 
     if (!formData.title.trim()) {
       errors.title = 'Job title is required';
+    }
+    if (!formData.jobRoleId) {
+      errors.jobRoleId = 'Please select a job role';
     }
     if (!formData.description.trim()) {
       errors.description = 'Job description is required';
@@ -98,7 +104,7 @@ export default function CreateJobPage() {
         location: formData.location,
         postalCode: formData.postalCode,
         locationVisibility: formData.locationVisibility,
-        roleType: 1, // Default to Server (1) - should be selectable in future
+        jobRoleId: formData.jobRoleId,
         employmentType: employmentTypeMap[formData.employmentType] || EmploymentType.FullTime,
         shiftPattern: 1, // Default to Day (1) - should be selectable in future
         salaryMin: formData.salary ? parseFloat(formData.salary) : undefined,
@@ -159,6 +165,25 @@ export default function CreateJobPage() {
                 {fieldErrors.title && (
                   <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
                 )}
+              </div>
+
+              {/* Job Role Selector */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Job Role <span className="text-red-500">*</span>
+                </label>
+                <JobRoleSelector
+                  selectedRoleIds={formData.jobRoleId ? [formData.jobRoleId] : []}
+                  onChange={(roleIds) => setFormData(prev => ({ ...prev, jobRoleId: roleIds[0] }))}
+                  maxSelections={1}
+                  placeholder="Select a job role..."
+                />
+                {fieldErrors.jobRoleId && (
+                  <p className="text-red-600 text-sm mt-1">{fieldErrors.jobRoleId}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Choose from our standardized hospitality roles
+                </p>
               </div>
 
               {/* Location */}

@@ -174,4 +174,15 @@ public class CandidatesController : ControllerBase
     }
 
     #endregion
+
+    /// <summary>
+    /// Backfill coordinates for candidate work experience (admin use)
+    /// </summary>
+    [HttpPost("admin/backfill-coordinates")]
+    [AllowAnonymous] // Temporary - remove in production
+    public async Task<ActionResult<object>> BackfillCoordinates()
+    {
+        var updatedCount = await _workExperienceService.BackfillCoordinatesAsync();
+        return Ok(new { message = "Candidate backfill complete", candidatesUpdated = updatedCount });
+    }
 }

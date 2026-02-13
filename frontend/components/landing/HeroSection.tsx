@@ -44,7 +44,7 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
                     <Button
                         size="lg"
                         onClick={onScrollToForm}
-                        className="w-full sm:w-auto text-lg px-8 py-6 bg-white text-[var(--brand-navy)] hover:bg-gray-100 font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all"
+                        className="w-full sm:w-auto text-lg px-8 py-6 bg-white text-blue-700 hover:text-blue-800 hover:bg-gray-100 font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all"
                     >
                         Join the Waitlist
                     </Button>

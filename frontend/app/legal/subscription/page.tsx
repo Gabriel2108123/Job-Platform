@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { COMPANY_INFO } from '@/lib/constants/company';
 
 export default function SubscriptionContract() {
     return (
@@ -18,7 +19,7 @@ export default function SubscriptionContract() {
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">1. Subscription Services</h2>
                         <p className="text-gray-700">
-                            <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span> offers subscription-based services for Business Owners to post jobs,
+                            {COMPANY_INFO.TRADING_NAME} offers subscription-based services for Business Owners to post jobs,
                             access candidate profiles, and utilize premium platform features.
                         </p>
                     </section>

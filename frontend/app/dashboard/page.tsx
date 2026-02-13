@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { getUser } from '@/lib/auth';
-import { getMyApplications, ApplicationDto, ApplicationStatus } from '@/lib/api/client';
+import { getMyApplications, getMyProfile, getWorkExperiences, ApplicationDto, ApplicationStatus } from '@/lib/api/client';
 
 export default function DashboardPage() {
     return (
@@ -22,14 +22,50 @@ function DashboardContent() {
     const user = getUser();
     const [applications, setApplications] = useState<ApplicationDto[]>([]);
     const [loading, setLoading] = useState(true);
+    const [profileStrength, setProfileStrength] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await getMyApplications();
-                if (res.success && res.data) {
-                    setApplications(res.data);
+                // Fetch all data needed for dashboard and strength calc
+                const [appsRes, profileRes, workExpRes] = await Promise.all([
+                    getMyApplications(),
+                    getMyProfile(),
+                    getWorkExperiences()
+                ]);
+
+                if (appsRes.success && appsRes.data) {
+                    setApplications(appsRes.data);
                 }
+
+                // Calculate Profile Strength
+                let strength = 0;
+                // 1. Personal Info (30%)
+                if (profileRes.success && profileRes.data) {
+                    const p = profileRes.data;
+                    if (p.firstName && p.lastName && p.email) strength += 30;
+                }
+
+                // 2. Work Experience (30%)
+                if (workExpRes && workExpRes.length > 0) {
+                    strength += 30;
+                }
+
+                // 3. CV / Resume Built (20%)
+                if (profileRes.success && profileRes.data && profileRes.data.resumeJson) {
+                    strength += 20;
+                }
+
+                // 4. Documents Uploaded (20%) - Mocked for now as we don't have doc API yet
+                // For now, we'll assume if they have a CV build, they might have docs, 
+                // or we just leave it at 80% max until doc system is real.
+                // Let's give 20% free if they have > 2 work experiences as a proxy for "strong profile"
+                if (workExpRes && workExpRes.length > 2) {
+                    strength += 20;
+                }
+
+                setProfileStrength(strength);
+
             } catch (err) {
                 console.error('Fetch error:', err);
             } finally {
@@ -65,7 +101,7 @@ function DashboardContent() {
                 <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-[var(--brand-navy)]">
-                            Welcome back, {user?.name?.split(' ')[0] || 'Professional'}! 👋
+                            Welcome back, {user?.name?.split(' ')[0] || 'Professional'}
                         </h1>
                         <p className="text-gray-500 mt-1">Here's what's happening with your job search.</p>
                     </div>
@@ -73,26 +109,86 @@ function DashboardContent() {
                         <Link href="/jobs">
                             <Button variant="outline" className="shadow-sm">Browse Jobs</Button>
                         </Link>
-                        <Link href="/profile">
-                            <Button variant="primary" className="bg-[var(--brand-primary)] shadow-md">Edit Profile</Button>
-                        </Link>
+                        {/* Edit Profile button removed as requested */}
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                    <StatCard label="Active Applications" value={applications.length} icon="📄" color="#3B82F6" />
-                    <StatCard label="Interviews" value={applications.filter(a => a.currentStatus === ApplicationStatus.Interview).length} icon="🎯" color="#8B5CF6" />
-                    <StatCard label="Upcoming Tasks" value="3" icon="📅" color="#F59E0B" />
-                    <StatCard label="Profile Strength" value="85%" icon="⚡" color="#10B981" />
+                {/* Overview Stats - Cleaner, Less Bold */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    {/* 1. Profile Strength */}
+                    <Card className="border border-gray-100 shadow-sm">
+                        <CardBody className="p-6 flex items-center gap-6">
+                            <div className="relative w-16 h-16 flex items-center justify-center">
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle
+                                        cx="32"
+                                        cy="32"
+                                        r="28"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                        className="text-gray-100"
+                                    />
+                                    <circle
+                                        cx="32"
+                                        cy="32"
+                                        r="28"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="transparent"
+                                        strokeDasharray={175}
+                                        strokeDashoffset={175 - (175 * profileStrength) / 100}
+                                        className="text-emerald-500 transition-all duration-1000 ease-out"
+                                    />
+                                </svg>
+                                <span className="absolute text-sm font-bold text-gray-700">{profileStrength}%</span>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Profile Strength</h3>
+                                <p className="text-sm text-gray-500">Complete your profile to stand out.</p>
+                                <Link href="/profile" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium mt-1 inline-block">
+                                    Improve Profile →
+                                </Link>
+                            </div>
+                        </CardBody>
+                    </Card>
+
+                    {/* 2. Applications Summary */}
+                    <Card className="border border-gray-100 shadow-sm">
+                        <CardBody className="p-6">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Application Activity</h3>
+                                    <p className="text-sm text-gray-500">{applications.length} Total Applications</p>
+                                </div>
+                                <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                                    📄
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="flex-1 p-3 bg-gray-50 rounded-lg">
+                                    <p className="text-xs text-gray-500 uppercase font-semibold">In Progress</p>
+                                    <p className="text-xl font-bold text-gray-900">
+                                        {applications.filter(a => a.currentStatus === ApplicationStatus.Applied).length}
+                                    </p>
+                                </div>
+                                <div className="flex-1 p-3 bg-purple-50 rounded-lg">
+                                    <p className="text-xs text-purple-600 uppercase font-semibold">Interviewing</p>
+                                    <p className="text-xl font-bold text-purple-700">
+                                        {applications.filter(a => a.currentStatus === ApplicationStatus.Interview).length}
+                                    </p>
+                                </div>
+                            </div>
+                        </CardBody>
+                    </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Recent Applications */}
+                    {/* Recent Applications - Main Column */}
                     <div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-bold text-[var(--brand-navy)]">Recent Applications</h2>
-                            <Link href="/applications" className="text-sm font-semibold text-[var(--brand-primary)] hover:underline">
+                            <h2 className="text-lg font-bold text-gray-900">Recent Applications</h2>
+                            <Link href="/applications" className="text-sm font-medium text-[var(--brand-primary)] hover:underline">
                                 View All
                             </Link>
                         </div>
@@ -102,32 +198,32 @@ function DashboardContent() {
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-primary)]"></div>
                             </div>
                         ) : applications.length === 0 ? (
-                            <Card className="border-dashed border-2">
+                            <Card className="border-dashed border-2 bg-gray-50/50">
                                 <CardBody className="text-center py-12">
-                                    <p className="text-gray-400 mb-4 text-lg">No applications yet.</p>
+                                    <p className="text-gray-400 mb-4">You haven't applied to any jobs yet.</p>
                                     <Link href="/jobs">
-                                        <Button variant="outline">Find your first job</Button>
+                                        <Button variant="outline">Find Opportunities</Button>
                                     </Link>
                                 </CardBody>
                             </Card>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {applications.slice(0, 4).map((app) => (
-                                    <Card key={app.id} className="hover:shadow-md transition-shadow group">
+                                    <Card key={app.id} className="hover:border-[var(--brand-primary)]/30 transition-colors shadow-sm">
                                         <CardBody className="p-5">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex gap-4">
-                                                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-lg text-gray-500">
                                                         🏢
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-bold text-gray-900 group-hover:text-[var(--brand-primary)] transition-colors">
-                                                            {app.jobId /* In future fetch Job title */}
+                                                        <h4 className="font-semibold text-gray-900">
+                                                            {app.jobId}
                                                         </h4>
-                                                        <p className="text-sm text-gray-500">Applied on {new Date(app.appliedAt).toLocaleDateString()}</p>
+                                                        <p className="text-xs text-gray-500">Applied {new Date(app.appliedAt).toLocaleDateString()}</p>
                                                     </div>
                                                 </div>
-                                                <Badge className={getStatusColor(app.currentStatus)}>
+                                                <Badge className={`${getStatusColor(app.currentStatus)} px-3 py-1`}>
                                                     {getStatusLabel(app.currentStatus)}
                                                 </Badge>
                                             </div>
@@ -138,41 +234,75 @@ function DashboardContent() {
                         )}
                     </div>
 
-                    {/* Sidebar / Quick Actions */}
-                    <div className="space-y-8">
-                        {/* CV Builder Preview */}
-                        <Card className="bg-gradient-to-br from-[var(--brand-navy)] to-[#1e293b] text-white overflow-hidden relative">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">📄</div>
-                            <CardBody className="relative z-10 p-6">
-                                <h3 className="text-xl font-bold mb-2">CV Builder</h3>
-                                <p className="text-blue-100/70 text-sm mb-6">Create a professional CV tailored for hospitality in minutes.</p>
+                    {/* Sidebar */}
+                    <div className="space-y-6">
+                        {/* 1. Recent Messages (Inbox Widget) */}
+                        <Card className="border border-gray-100 shadow-sm">
+                            <CardBody className="p-0">
+                                <div className="p-4 border-b border-gray-50 flex justify-between items-center">
+                                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                                        <span>💬</span> Inbox
+                                    </h3>
+                                    <Link href="/in-development" className="text-xs text-[var(--brand-primary)] hover:underline">
+                                        View All
+                                    </Link>
+                                </div>
+                                <div className="divide-y divide-gray-50">
+                                    {[
+                                        { sender: 'The Ritz London', title: 'Interview Invitation', time: '2h ago', unread: true },
+                                        { sender: 'Claridge\'s', title: 'Application Update', time: '1d ago', unread: false },
+                                        { sender: 'System', title: 'Profile completed', time: '2d ago', unread: false }
+                                    ].map((msg, i) => (
+                                        <div key={i} className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${msg.unread ? 'bg-blue-50/30' : ''}`}>
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className={`text-sm font-semibold ${msg.unread ? 'text-gray-900' : 'text-gray-600'}`}>{msg.sender}</span>
+                                                <span className="text-xs text-gray-400">{msg.time}</span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 truncate">{msg.title}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardBody>
+                        </Card>
+
+                        {/* 2. CV Builder */}
+                        <Card className="bg-white border border-gray-100 shadow-sm overflow-hidden relative group">
+                            <CardBody className="relative z-10 p-5">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 text-lg">Your CV</h3>
+                                        <p className="text-gray-500 text-xs mt-1">Professional hospitality format.</p>
+                                    </div>
+                                    <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                                        📄
+                                    </div>
+                                </div>
                                 <Link href="/dashboard/cv-builder">
-                                    <Button variant="primary" className="w-full bg-[var(--brand-primary)] border-none">
+                                    <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition-all text-xs py-2 h-auto">
                                         Open Builder
                                     </Button>
                                 </Link>
                             </CardBody>
                         </Card>
 
-                        {/* Documents Card */}
-                        <Card>
-                            <CardBody className="p-6">
-                                <h3 className="text-lg font-bold text-[var(--brand-navy)] mb-4 flex items-center gap-2">
+                        {/* 3. Documents */}
+                        <Card className="border border-gray-100 shadow-sm">
+                            <CardBody className="p-5">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
                                     <span>📁</span> Documents
                                 </h3>
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border border-transparent hover:border-gray-100 transition-all cursor-pointer">
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between p-2 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all cursor-pointer">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-red-500 text-xl">PDF</span>
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-700">Resume_v2.pdf</p>
-                                                <p className="text-xs text-gray-400">2.4 MB</p>
+                                            <span className="text-red-500 text-lg">PDF</span>
+                                            <div className="overflow-hidden">
+                                                <p className="text-sm font-medium text-gray-700 truncate">Resume_v2.pdf</p>
+                                                <p className="text-[10px] text-gray-400">2.4 MB</p>
                                             </div>
                                         </div>
-                                        <span className="text-gray-300">⋮</span>
                                     </div>
-                                    <Button variant="outline" className="w-full text-sm py-2">
-                                        + Upload New
+                                    <Button variant="outline" size="sm" className="w-full text-xs">
+                                        Upload New
                                     </Button>
                                 </div>
                             </CardBody>

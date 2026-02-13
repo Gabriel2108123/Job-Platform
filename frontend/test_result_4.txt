@@ -1,0 +1,38 @@
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] tests\verify_map.spec.ts:12:5 › Verify User Map Access for Candidate and Business
+[1A[2Ktests\verify_map.spec.ts:12:5 › Verify User Map Access for Candidate and Business
+[Step 1] Registering candidate: auto_test_1770133493677@example.com
+
+[1A[2K  1) tests\verify_map.spec.ts:12:5 › Verify User Map Access for Candidate and Business ─────────────
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 120000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="firstName"]')[22m
+
+
+      20 |
+      21 |     await page.goto('/register');
+    > 22 |     await page.fill('input[name="firstName"]', 'Auto');
+         |                ^
+      23 |     await page.fill('input[name="fullName"]', 'Auto Test User');
+      24 |     await page.fill('input[name="email"]', email);
+      25 |     await page.fill('input[name="password"]', 'password123');
+        at C:\Users\gaby8\Documents\GitHub\Job-Platform\frontend\tests\verify_map.spec.ts:22:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\tests-verify_map-Verify-Us-fae2f--for-Candidate-and-Business\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\tests-verify_map-Verify-Us-fae2f--for-Candidate-and-Business\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-verify_map-Verify-Us-fae2f--for-Candidate-and-Business\error-context.md
+
+
+[1A[2K  1 failed
+    tests\verify_map.spec.ts:12:5 › Verify User Map Access for Candidate and Business ──────────────

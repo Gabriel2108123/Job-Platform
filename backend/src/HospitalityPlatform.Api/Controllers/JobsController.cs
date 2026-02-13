@@ -200,4 +200,15 @@ public class JobsController : ControllerBase
         await _jobService.CloseJobAsync(id, userId);
         return NoContent();
     }
+
+    /// <summary>
+    /// Backfill coordinates for jobs missing lat/lng (admin use)
+    /// </summary>
+    [HttpPost("admin/backfill-coordinates")]
+    [AllowAnonymous] // Temporary - remove in production
+    public async Task<ActionResult<object>> BackfillCoordinates()
+    {
+        var updatedCount = await _jobService.BackfillCoordinatesAsync();
+        return Ok(new { message = "Backfill complete", jobsUpdated = updatedCount });
+    }
 }

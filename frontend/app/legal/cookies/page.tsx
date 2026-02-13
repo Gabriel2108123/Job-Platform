@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { COMPANY_INFO } from '@/lib/constants/company';
 
 export default function CookiePolicy() {
     const [cookiePreferences, setCookiePreferences] = useState({
@@ -202,7 +203,7 @@ export default function CookiePolicy() {
                         </p>
                         <div className="mt-3 text-gray-700">
                             <p><strong>Email:</strong> privacy@yokeconnect.com</p>
-                            <p><strong>Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
+                            <p><strong>Address:</strong> {COMPANY_INFO.ADDRESS}</p>
                         </div>
                         <p className="mt-4 text-gray-700">
                             For more information about privacy, see our <Link href="/legal/privacy" className="text-[var(--brand-primary)] hover:underline">Privacy Policy</Link>.

@@ -55,6 +55,12 @@ public class WorkExperience
     public decimal? LngApprox { get; set; }
     
     /// <summary>
+    /// Description of the role and responsibilities (for CV)
+    /// </summary>
+    [MaxLength(2000)]
+    public string? Description { get; set; }
+
+    /// <summary>
     /// PlaceKey for coworker matching (Phase 3)
     /// Format: normalize(EmployerName)|coarseGeoHash|City
     /// </summary>

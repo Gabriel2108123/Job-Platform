@@ -288,7 +288,7 @@ export async function withdrawApplication(
 export interface CreateJobDto {
   title: string;
   description: string;
-  roleType: number;
+  jobRoleId?: string;
   employmentType: EmploymentType;
   shiftPattern: number;
   salaryMin?: number;
@@ -432,6 +432,7 @@ export interface ProfileDto {
   bio?: string;
   resumeJson?: string;
   role?: string;
+  preferredJobRoleIds?: string[];
 }
 
 export interface UpdateProfileDto {
@@ -440,6 +441,7 @@ export interface UpdateProfileDto {
   profilePictureUrl?: string;
   bio?: string;
   resumeJson?: string;
+  preferredJobRoleIds?: string[];
 }
 
 /**
@@ -524,6 +526,7 @@ export interface WorkExperienceDto {
   city?: string;
   postalCode?: string;
   roleTitle?: string;
+  description?: string;
   startDate?: string;
   endDate?: string;
   visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
@@ -540,6 +543,7 @@ export interface CreateWorkExperienceDto {
   city?: string;
   postalCode?: string;
   roleTitle?: string;
+  description?: string;
   startDate?: string;
   endDate?: string;
   visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
@@ -552,6 +556,7 @@ export interface UpdateWorkExperienceDto {
   city?: string;
   postalCode?: string;
   roleTitle?: string;
+  description?: string;
   startDate?: string;
   endDate?: string;
   visibilityLevel?: 'private' | 'applied_only' | 'shortlisted_only';

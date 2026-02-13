@@ -38,7 +38,8 @@ export default function JobRoleSelector({
     useEffect(() => {
         const fetchJobRoles = async () => {
             try {
-                const response = await fetch('http://localhost:5254/api/jobroles/by-department');
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                const response = await fetch(`${baseUrl}/api/jobroles/by-department`);
                 if (!response.ok) throw new Error('Failed to fetch job roles');
                 const data = await response.json();
                 setJobRolesByDept(data);

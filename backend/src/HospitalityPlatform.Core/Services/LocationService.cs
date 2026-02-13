@@ -73,11 +73,11 @@ public class LocationService : ILocationService
                 return Task.FromResult<(decimal?, decimal?)>(approxFromPostcode.Value);
         }
 
-        // Priority 2: Use city centroid
+        // Priority 2: Use city centroid - improved matching
         if (!string.IsNullOrWhiteSpace(city))
         {
-            var normalizedCity = city.Trim();
-            if (UkCityCentroids.TryGetValue(normalizedCity, out var centroid))
+            var matchedCity = FindMatchingCity(city);
+            if (matchedCity != null && UkCityCentroids.TryGetValue(matchedCity, out var centroid))
             {
                 return Task.FromResult<(decimal?, decimal?)>(centroid);
             }
@@ -85,6 +85,36 @@ public class LocationService : ILocationService
 
         // Unknown location - return null (DO NOT default to London)
         return Task.FromResult<(decimal?, decimal?)>((null, null));
+    }
+
+    /// <summary>
+    /// Try to extract a known city name from a location string.
+    /// Handles formats like "Brighton", "Brighton, UK", "Central Brighton", "Manchester City Centre"
+    /// </summary>
+    private string? FindMatchingCity(string location)
+    {
+        var normalizedLocation = location.Trim().ToLowerInvariant();
+        
+        // First try exact match
+        foreach (var cityName in UkCityCentroids.Keys)
+        {
+            if (normalizedLocation.Equals(cityName, StringComparison.OrdinalIgnoreCase))
+            {
+                return cityName;
+            }
+        }
+        
+        // Try to find city name within the location string
+        // Sort by length descending to match longer city names first (e.g., "Newcastle upon Tyne" before "Newcastle")
+        foreach (var cityName in UkCityCentroids.Keys.OrderByDescending(c => c.Length))
+        {
+            if (normalizedLocation.Contains(cityName.ToLowerInvariant()))
+            {
+                return cityName;
+            }
+        }
+        
+        return null;
     }
 
     public Task<(decimal? lat, decimal? lng)> GetExactCoordsAsync(string fullAddress)

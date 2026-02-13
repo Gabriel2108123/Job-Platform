@@ -13,4 +13,10 @@ public interface IWorkExperienceService
     // Business view support
     Task<List<WorkExperienceDto>> GetVisibleWorkExperiencesForApplicationAsync(Guid applicationId, Guid candidateId);
     Task<List<WorkExperienceDto>> GetPublicWorkExperiencesAsync(Guid candidateId, bool isShortlisted);
+
+    /// <summary>
+    /// Backfill coordinates for work experiences missing lat/lng.
+    /// Also enables map visibility for testing purposes.
+    /// </summary>
+    Task<int> BackfillCoordinatesAsync();
 }

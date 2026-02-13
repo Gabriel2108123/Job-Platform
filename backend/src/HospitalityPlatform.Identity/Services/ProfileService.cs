@@ -41,7 +41,8 @@ public class ProfileService : IProfileService
             ProfilePictureUrl = user.ProfilePictureUrl,
             Bio = profile?.Bio,
             ResumeJson = profile?.ResumeJson,
-            Role = roles.FirstOrDefault()
+            Role = roles.FirstOrDefault(),
+            PreferredJobRoleIds = profile?.PreferredJobRoleIds?.ToList()
         };
     }
 
@@ -77,6 +78,7 @@ public class ProfileService : IProfileService
             {
                 if (dto.Bio != null) profile.Bio = dto.Bio;
                 if (dto.ResumeJson != null) profile.ResumeJson = dto.ResumeJson;
+                if (dto.PreferredJobRoleIds != null) profile.PreferredJobRoleIds = dto.PreferredJobRoleIds.ToArray();
                 profile.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
@@ -90,6 +92,7 @@ public class ProfileService : IProfileService
                     DateOfBirth = DateTime.UtcNow.AddYears(-20), // Fallback
                     Bio = dto.Bio,
                     ResumeJson = dto.ResumeJson,
+                    PreferredJobRoleIds = dto.PreferredJobRoleIds?.ToArray(),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };

@@ -18,6 +18,9 @@ public class UpdateWorkExperienceDto
     
     [MaxLength(100)]
     public string? RoleTitle { get; set; }
+
+    [MaxLength(2000)]
+    public string? Description { get; set; }
     
     public DateTime? StartDate { get; set; }
     

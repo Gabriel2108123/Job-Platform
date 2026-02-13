@@ -24,6 +24,7 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly ILogger<AuthController> _logger;
     private readonly IEmailVerificationService? _emailVerificationService;
+    private readonly IEmailService? _emailService;
     private readonly ApplicationDbContext _context;
 
     /// <summary>
@@ -35,7 +36,8 @@ public class AuthController : ControllerBase
         IConfiguration configuration,
         ILogger<AuthController> logger,
         ApplicationDbContext context,
-        IEmailVerificationService? emailVerificationService = null)
+        IEmailVerificationService? emailVerificationService = null,
+        IEmailService? emailService = null)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -43,6 +45,75 @@ public class AuthController : ControllerBase
         _logger = logger;
         _context = context;
         _emailVerificationService = emailVerificationService;
+        _emailService = emailService;
+    }
+
+    // ... (Existing Login/Register methods unchanged for now) ...
+
+    /// <summary>
+    /// Send email verification link to current user
+    /// </summary>
+    [HttpPost("send-verification")]
+    [Authorize]
+    public async Task<ActionResult> SendVerificationEmail()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
+            {
+                return Unauthorized(new { error = "User not found in token" });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { error = "User not found" });
+            }
+
+            if (user.EmailVerified)
+            {
+                return Ok(new { message = "Email already verified" });
+            }
+
+            // Generate verification token
+            if (_emailVerificationService == null)
+            {
+                _logger.LogWarning("EmailVerificationService not available");
+                return StatusCode(500, new { error = "Email verification service not configured" });
+            }
+
+            var token = await _emailVerificationService.GenerateVerificationTokenAsync(userGuid);
+            
+            // Generate verification URL
+            // In a real app, base URL should come from config (e.g., ClientAppUrl)
+            // Assuming localhost:3000 for local dev frontend
+            
+            var clientUrl = _configuration.GetValue<string>("ClientAppUrl") ?? "http://localhost:3000";
+            var verificationUrl = $"{clientUrl}/verify-email?token={Uri.EscapeDataString(token)}&userId={userGuid}";
+
+            _logger.LogInformation("Generated verification token for user {UserId}", userGuid);
+
+            if (_emailService != null)
+            {
+                await _emailService.SendVerificationEmailAsync(user.Email!, verificationUrl);
+            }
+            else
+            {
+                // Fallback logging if service missing
+                 _logger.LogWarning("EmailService is missing! printing to console only.");
+                 Console.WriteLine($"\n========== EMAIL VERIFICATION ==========");
+                 Console.WriteLine($"Verification URL: {verificationUrl}");
+                 Console.WriteLine($"=========================================\n");
+            }
+
+            return Ok(new { message = "Verification email sent" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending verification email");
+            return StatusCode(500, new { error = "An error occurred while sending verification email" });
+        }
     }
 
     /// <summary>

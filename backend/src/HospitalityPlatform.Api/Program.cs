@@ -112,6 +112,7 @@ builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<Ap
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IAgeVerificationService, HospitalityPlatform.Identity.Services.AgeVerificationService>();
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IEmailVerificationService, HospitalityPlatform.Identity.Services.EmailVerificationService>();
 builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IProfileService, HospitalityPlatform.Identity.Services.ProfileService>();
+builder.Services.AddScoped<HospitalityPlatform.Identity.Services.IEmailService, HospitalityPlatform.Identity.Services.MockEmailService>();
 
 // Register application services
 // Audit

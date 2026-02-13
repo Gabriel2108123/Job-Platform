@@ -58,6 +58,7 @@ public class WorkExperienceService : IWorkExperienceService
             City = dto.City,
             PostalCode = dto.PostalCode,
             RoleTitle = dto.RoleTitle,
+            Description = dto.Description,
             StartDate = dto.StartDate,
             EndDate = dto.EndDate,
             VisibilityLevel = dto.VisibilityLevel,
@@ -97,6 +98,7 @@ public class WorkExperienceService : IWorkExperienceService
         if (dto.City != null) { entity.City = dto.City; locationChanged = true; }
         if (dto.PostalCode != null) { entity.PostalCode = dto.PostalCode; locationChanged = true; }
         if (dto.RoleTitle != null) entity.RoleTitle = dto.RoleTitle;
+        if (dto.Description != null) entity.Description = dto.Description;
         if (dto.StartDate.HasValue) entity.StartDate = dto.StartDate;
         if (dto.EndDate.HasValue) entity.EndDate = dto.EndDate;
         if (dto.VisibilityLevel != null) entity.VisibilityLevel = dto.VisibilityLevel;
@@ -206,6 +208,7 @@ public class WorkExperienceService : IWorkExperienceService
             City = entity.City,
             PostalCode = entity.PostalCode,
             RoleTitle = entity.RoleTitle,
+            Description = entity.Description,
             StartDate = entity.StartDate,
             EndDate = entity.EndDate,
             VisibilityLevel = entity.VisibilityLevel,
@@ -215,5 +218,96 @@ public class WorkExperienceService : IWorkExperienceService
             CreatedAt = entity.CreatedAt,
             UpdatedAt = entity.UpdatedAt
         };
+    }
+
+    /// <summary>
+    /// Backfill coordinates for work experiences missing lat/lng.
+    /// Also enables map visibility for testing purposes.
+    /// </summary>
+    public async Task<int> BackfillCoordinatesAsync()
+    {
+        // Get ALL work experiences to check/enable map for them
+        var entries = await _context.WorkExperiences.ToListAsync();
+
+        int updated = 0;
+        var affectedUserIds = new HashSet<Guid>();
+
+        foreach (var entry in entries)
+        {
+            bool wasUpdated = false;
+
+            // 1. Geocode if missing
+            if (entry.LatApprox == null || entry.LngApprox == null)
+            {
+                var (lat, lng) = await _locationService.GetApproxCoordsAsync(entry.PostalCode, entry.City ?? entry.LocationText);
+                if (lat.HasValue && lng.HasValue)
+                {
+                    entry.LatApprox = lat;
+                    entry.LngApprox = lng;
+                    wasUpdated = true;
+                     _logger.LogInformation("Backfilled WorkExperience {Id} for User {UserId}: {Lat}, {Lng}", 
+                        entry.Id, entry.CandidateUserId, lat, lng);
+                }
+            }
+
+            // 2. Enable map if we have coords (force enable for validation)
+            if (entry.LatApprox != null && entry.LngApprox != null)
+            {
+                if (!entry.IsMapEnabled)
+                {
+                    entry.IsMapEnabled = true;
+                    wasUpdated = true;
+                }
+            }
+
+            if (wasUpdated)
+            {
+                entry.UpdatedAt = DateTime.UtcNow;
+                updated++;
+                affectedUserIds.Add(entry.CandidateUserId);
+            }
+        }
+
+        // Ensure global map setting is enabled for these users
+        if (affectedUserIds.Count > 0)
+        {
+            var existingSettings = await _context.CandidateMapSettings
+                .Where(s => affectedUserIds.Contains(s.CandidateUserId))
+                .ToListAsync();
+            
+            var existingUserIds = new HashSet<Guid>(existingSettings.Select(s => s.CandidateUserId));
+
+            // Update existing
+            foreach (var setting in existingSettings)
+            {
+                if (!setting.WorkerMapEnabled)
+                {
+                    setting.WorkerMapEnabled = true;
+                    setting.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            // Create missing
+            foreach (var userId in affectedUserIds)
+            {
+                if (!existingUserIds.Contains(userId))
+                {
+                    _context.CandidateMapSettings.Add(new CandidateMapSettings
+                    {
+                        CandidateUserId = userId,
+                        WorkerMapEnabled = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+        }
+
+        if (updated > 0 || affectedUserIds.Count > 0)
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        return updated;
     }
 }

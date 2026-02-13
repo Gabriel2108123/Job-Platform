@@ -1,0 +1,108 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - link "Y YokeConnect" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: "Y"
+        - generic [ref=e9]: YokeConnect
+      - generic [ref=e10]:
+        - link "Home" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "Jobs" [ref=e12] [cursor=pointer]:
+          - /url: /jobs
+        - link "Join Waitlist" [ref=e13] [cursor=pointer]:
+          - /url: /waitlist
+      - generic [ref=e14]:
+        - link "Login" [ref=e15] [cursor=pointer]:
+          - /url: /login
+          - button "Login" [ref=e16]
+        - link "Register" [ref=e17] [cursor=pointer]:
+          - /url: /register
+          - button "Register" [ref=e18]
+  - main [ref=e19]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - heading "Create Account" [level=1] [ref=e23]
+        - paragraph [ref=e24]: Sign up to get started
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Account Type
+            - generic [ref=e30]:
+              - generic [ref=e31]:
+                - radio "Candidate (Job Seeker)" [checked] [ref=e32]
+                - generic [ref=e33]: Candidate (Job Seeker)
+              - generic [ref=e34]:
+                - radio "Business Owner (Post Jobs)" [ref=e35]
+                - generic [ref=e36]: Business Owner (Post Jobs)
+          - generic [ref=e37]:
+            - generic [ref=e38]: Full Name (Optional)
+            - textbox "Full Name (Optional)" [ref=e40]:
+              - /placeholder: Your full name
+          - generic [ref=e41]:
+            - generic [ref=e42]: Email Address
+            - textbox "Email Address" [ref=e44]:
+              - /placeholder: you@example.com
+          - generic [ref=e45]:
+            - generic [ref=e46]: Password
+            - textbox "Password" [ref=e48]:
+              - /placeholder: ••••••••
+            - paragraph [ref=e49]: At least 8 characters
+          - generic [ref=e50]:
+            - generic [ref=e51]: Confirm Password
+            - textbox "Confirm Password" [ref=e53]:
+              - /placeholder: ••••••••
+          - button "Create Account" [ref=e54]
+        - paragraph [ref=e56]:
+          - text: Already have an account?
+          - link "Log in here" [ref=e57] [cursor=pointer]:
+            - /url: /login
+      - link "Browse jobs as guest" [ref=e59] [cursor=pointer]:
+        - /url: /jobs
+  - contentinfo [ref=e60]:
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - heading "For Job Seekers" [level=3] [ref=e64]
+          - list [ref=e65]:
+            - listitem [ref=e66]:
+              - link "Browse Jobs" [ref=e67] [cursor=pointer]:
+                - /url: /jobs
+            - listitem [ref=e68]:
+              - link "Create Profile" [ref=e69] [cursor=pointer]:
+                - /url: /candidate/profile
+        - generic [ref=e70]:
+          - heading "For Employers" [level=3] [ref=e71]
+          - list [ref=e72]:
+            - listitem [ref=e73]:
+              - link "Post a Job" [ref=e74] [cursor=pointer]:
+                - /url: /employer/post-job
+            - listitem [ref=e75]:
+              - link "Pricing" [ref=e76] [cursor=pointer]:
+                - /url: /employer/pricing
+        - generic [ref=e77]:
+          - heading "Company" [level=3] [ref=e78]
+          - list [ref=e79]:
+            - listitem [ref=e80]:
+              - link "About Us" [ref=e81] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e82]:
+              - link "Contact" [ref=e83] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=e84]:
+          - heading "Legal" [level=3] [ref=e85]
+          - list [ref=e86]:
+            - listitem [ref=e87]:
+              - link "Privacy Policy" [ref=e88] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e89]:
+              - link "Terms of Service" [ref=e90] [cursor=pointer]:
+                - /url: /terms
+      - paragraph [ref=e92]: © 2026 UK Hospitality Platform. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=e98] [cursor=pointer]:
+    - img [ref=e99]
+  - alert [ref=e102]
+```

@@ -9,6 +9,7 @@ public class WorkExperienceDto
     public string? City { get; set; }
     public string? PostalCode { get; set; }
     public string? RoleTitle { get; set; }
+    public string? Description { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public string VisibilityLevel { get; set; } = "private";

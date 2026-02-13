@@ -13,6 +13,7 @@ import WorkHistoryList from '@/components/candidate/WorkHistoryList';
 import WorkerMapSettings from '@/components/candidate/WorkerMapSettings';
 import { PotentialCoworkerList } from '@/components/candidate/PotentialCoworkerList';
 import { ConnectionInbox } from '@/components/candidate/ConnectionInbox';
+import JobRoleSelector from '@/components/JobRoleSelector';
 
 // Dynamically import map to avoid SSR issues
 const WorkerMap = dynamic(() => import('@/components/candidate/WorkerMap'), { ssr: false });
@@ -28,6 +29,7 @@ export default function CandidateProfilePage() {
     firstName: '',
     lastName: '',
     bio: '',
+    preferredJobRoleIds: [] as string[],
   });
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function CandidateProfilePage() {
           firstName: res.data.firstName || '',
           lastName: res.data.lastName || '',
           bio: res.data.bio || '',
+          preferredJobRoleIds: res.data.preferredJobRoleIds || [],
         });
       }
       setLoading(false);
@@ -188,6 +191,31 @@ export default function CandidateProfilePage() {
                       placeholder="Share your hospitality journey, passions, and career goals..."
                       className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                     />
+                  </div>
+
+                  <div className="mb-8">
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Preferred Job Roles</label>
+                    <p className="text-sm text-gray-500 mb-3">Select the hospitality roles you're interested in (up to 5)</p>
+                    {editing ? (
+                      <JobRoleSelector
+                        selectedRoleIds={formData.preferredJobRoleIds}
+                        onChange={(roleIds) => setFormData(prev => ({ ...prev, preferredJobRoleIds: roleIds }))}
+                        maxSelections={5}
+                        placeholder="Select your preferred roles..."
+                      />
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.preferredJobRoleIds.length > 0 ? (
+                          formData.preferredJobRoleIds.map((roleId) => (
+                            <span key={roleId} className="px-3 py-1 bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] rounded-full text-sm font-medium">
+                              Role ID: {roleId.slice(0, 8)}...
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 italic">No preferred roles selected</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </>
               )}
