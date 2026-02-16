@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -44,6 +45,20 @@ export default function BusinessDiscoveryMap({
     candidates,
     onCandidateClick
 }: BusinessDiscoveryMapProps) {
+    useEffect(() => {
+        // Ensure Leaflet CSS is loaded
+        if (typeof window !== 'undefined') {
+            const existingLink = document.querySelector('link[href*="leaflet.css"]');
+            if (!existingLink) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                link.crossOrigin = '';
+                document.head.appendChild(link);
+            }
+        }
+    }, []);
 
     return (
         <div className="h-full w-full relative z-0">

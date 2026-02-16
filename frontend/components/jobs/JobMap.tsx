@@ -23,12 +23,16 @@ export default function JobMap({ jobs }: JobMapProps) {
     useEffect(() => {
         // Ensure Leaflet CSS is loaded
         if (typeof window !== 'undefined') {
-            const link = document.createElement('link');
-            link.rel = 'stylesheet';
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-            link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-            link.crossOrigin = '';
-            document.head.appendChild(link);
+            // Check if CSS is already loaded
+            const existingLink = document.querySelector('link[href*="leaflet.css"]');
+            if (!existingLink) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                link.crossOrigin = '';
+                document.head.appendChild(link);
+            }
         }
     }, []);
 
@@ -53,8 +57,17 @@ export default function JobMap({ jobs }: JobMapProps) {
 
     if (jobsWithCoords.length === 0) {
         return (
-            <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
-                <p className="text-gray-500">No jobs with map locations available</p>
+            <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center p-8 border-2 border-dashed border-blue-200">
+                <div className="text-center max-w-md">
+                    <div className="mb-4 text-6xl">🗺️</div>
+                    <h3 className="text-xl font-bold text-gray-700 mb-2">No Map Locations Available</h3>
+                    <p className="text-gray-600 mb-4">
+                        Jobs need location coordinates to appear on the map. Jobs with locations will be displayed here.
+                    </p>
+                    <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg inline-block">
+                        Showing {jobs.length} job{jobs.length !== 1 ? 's' : ''} total • 0 with map coordinates
+                    </div>
+                </div>
             </div>
         );
     }

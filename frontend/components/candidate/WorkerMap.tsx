@@ -1,5 +1,4 @@
-'use client';
-
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -18,6 +17,21 @@ interface WorkerMapProps {
 }
 
 export default function WorkerMap({ workExperiences }: WorkerMapProps) {
+    useEffect(() => {
+        // Ensure Leaflet CSS is loaded
+        if (typeof window !== 'undefined') {
+            const existingLink = document.querySelector('link[href*="leaflet.css"]');
+            if (!existingLink) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+                link.crossOrigin = '';
+                document.head.appendChild(link);
+            }
+        }
+    }, []);
+
     // Filter for map-enabled experiences with valid coords
     const mapLocations = workExperiences.filter(
         w => w.isMapEnabled && w.latApprox != null && w.lngApprox != null
@@ -25,8 +39,12 @@ export default function WorkerMap({ workExperiences }: WorkerMapProps) {
 
     if (mapLocations.length === 0) {
         return (
-            <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
-                No map locations enabled or coordinates available.
+            <div className="h-64 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg flex flex-col items-center justify-center text-center p-6 border-2 border-dashed border-green-200">
+                <div className="text-4xl mb-3">📍</div>
+                <h4 className="font-bold text-gray-700 mb-2">No Map Locations Available</h4>
+                <p className="text-sm text-gray-600 max-w-xs">
+                    Enable map visibility for your work experiences to show them here.
+                </p>
             </div>
         );
     }
