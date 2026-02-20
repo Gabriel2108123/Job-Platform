@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
 
 interface HeroSectionProps {
     onScrollToForm: () => void;
@@ -44,14 +45,38 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
                     <Button
                         size="lg"
                         onClick={onScrollToForm}
-                        className="w-full sm:w-auto text-lg px-8 py-6 bg-white text-blue-700 hover:text-blue-800 hover:bg-gray-100 font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all"
+                        className="w-full sm:w-auto text-lg px-8 py-6 bg-white text-blue-700 hover:text-blue-800 hover:bg-gray-100 font-bold shadow-lg transition-all"
                     >
-                        Join the Waitlist
+                        Join Waitlist
                     </Button>
 
-                    <p className="mt-4 sm:mt-0 text-sm text-gray-400 sm:hidden">
-                        Limited spots available.
-                    </p>
+                    <div className="flex gap-4 w-full sm:w-auto">
+                        <Link href="/register" className="flex-1 sm:flex-initial">
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className="w-full sm:w-80 text-lg px-8 py-6 bg-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/80 text-white font-bold shadow-lg transition-all"
+                            >
+                                Register Now
+                            </Button>
+                        </Link>
+                        <Link href="/login" className="flex-1 sm:flex-initial">
+                            <Button
+                                size="lg"
+                                variant="outline"
+                                className="w-full sm:w-auto text-lg px-8 py-6 border-white text-white hover:bg-white/10 font-bold transition-all"
+                            >
+                                Log In
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="mt-8">
+                    <Link href="/jobs" className="text-gray-300 hover:text-[var(--brand-gold)] transition-colors flex items-center justify-center gap-2 group">
+                        <span>Continue as visitor and</span>
+                        <span className="font-bold underline decoration-[var(--brand-gold)]/30 group-hover:decoration-[var(--brand-gold)]">Browse Jobs →</span>
+                    </Link>
                 </div>
 
             </div>

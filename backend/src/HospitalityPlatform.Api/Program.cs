@@ -279,16 +279,13 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// Always enable CORS for frontend
+app.UseCors("AllowFrontend");
 
-try
+if (app.Environment.IsDevelopment())
 {
-    app.UseCors("AllowFrontend");
-}
-catch (Exception ex)
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogWarning(ex, "CORS configuration encountered an issue");
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 try
@@ -331,8 +328,19 @@ catch (OperationCanceledException)
 }
 catch (Exception ex)
 {
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "Application runtime error - app is shutting down");
+    // Try to log the fatal error to the console as a fallback if the DI container is disposed
+    Console.Error.WriteLine("\nCRITICAL: Application terminated unexpectedly!");
+    Console.Error.WriteLine(ex.ToString());
+
+    try
+    {
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        logger.LogCritical(ex, "Application runtime error - app is shutting down");
+    }
+    catch
+    {
+        // Safe to ignore if services are already gone
+    }
 }
 
 public partial class Program { }

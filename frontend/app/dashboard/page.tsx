@@ -101,15 +101,16 @@ function DashboardContent() {
                 <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-[var(--brand-navy)]">
-                            Welcome back, {user?.name?.split(' ')[0] || 'Professional'}
+                            Welcome back, {user?.name?.split(' ')[0] || 'Professional'}! 👋
                         </h1>
-                        <p className="text-gray-500 mt-1">Here's what's happening with your job search.</p>
+                        <p className="text-gray-500 mt-1">Ready to find your next hospitality career move?</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <Link href="/jobs">
-                            <Button variant="outline" className="shadow-sm">Browse Jobs</Button>
+                            <Button variant="primary" className="shadow-md bg-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/90 px-8">
+                                🔍 Browse Jobs
+                            </Button>
                         </Link>
-                        {/* Edit Profile button removed as requested */}
                     </div>
                 </div>
 
@@ -153,30 +154,33 @@ function DashboardContent() {
                         </CardBody>
                     </Card>
 
-                    {/* 2. Applications Summary */}
+                    {/* 2. Application Activity Tracker */}
                     <Card className="border border-gray-100 shadow-sm">
                         <CardBody className="p-6">
-                            <div className="flex justify-between items-start mb-4">
+                            <div className="flex justify-between items-start mb-6">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900">Application Activity</h3>
-                                    <p className="text-sm text-gray-500">{applications.length} Total Applications</p>
+                                    <h3 className="text-lg font-bold text-gray-900">Application Tracker</h3>
+                                    <p className="text-sm text-gray-500">Track your progress across all roles.</p>
                                 </div>
                                 <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
-                                    📄
+                                    📈
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="flex-1 p-3 bg-gray-50 rounded-lg">
-                                    <p className="text-xs text-gray-500 uppercase font-semibold">In Progress</p>
-                                    <p className="text-xl font-bold text-gray-900">
-                                        {applications.filter(a => a.currentStatus === ApplicationStatus.Applied).length}
-                                    </p>
-                                </div>
-                                <div className="flex-1 p-3 bg-purple-50 rounded-lg">
-                                    <p className="text-xs text-purple-600 uppercase font-semibold">Interviewing</p>
-                                    <p className="text-xl font-bold text-purple-700">
-                                        {applications.filter(a => a.currentStatus === ApplicationStatus.Interview).length}
-                                    </p>
+                            <div className="relative">
+                                <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 rounded-full"></div>
+                                <div className="grid grid-cols-3 relative z-10">
+                                    {[
+                                        { label: 'Applied', count: applications.filter(a => a.currentStatus === ApplicationStatus.Applied).length, color: 'bg-blue-500' },
+                                        { label: 'Interview', count: applications.filter(a => a.currentStatus === ApplicationStatus.Interview).length, color: 'bg-purple-500' },
+                                        { label: 'Hired', count: applications.filter(a => a.currentStatus === ApplicationStatus.Hired).length, color: 'bg-emerald-500' }
+                                    ].map((step, i) => (
+                                        <div key={i} className="flex flex-col items-center">
+                                            <div className={`w-8 h-8 rounded-full ${step.color} text-white flex items-center justify-center text-xs font-bold mb-2 shadow-sm`}>
+                                                {step.count}
+                                            </div>
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">{step.label}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </CardBody>
@@ -234,6 +238,60 @@ function DashboardContent() {
                         )}
                     </div>
 
+                    {/* My Network Section */}
+                    <div className="lg:col-span-2 mt-8">
+                        <Card className="border border-gray-100 shadow-sm overflow-hidden group">
+                            <CardBody className="p-0">
+                                <div className="p-5 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 text-lg">My Network</h3>
+                                        <p className="text-gray-500 text-sm">Connections & Workplace Discovery</p>
+                                    </div>
+                                    <Link href="/my-network">
+                                        <Button size="sm" variant="outline" className="text-xs">Advanced View</Button>
+                                    </Link>
+                                </div>
+                                <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                                    {/* Mini Map Representation */}
+                                    <div className="flex-1 h-48 bg-blue-50 relative flex items-center justify-center overflow-hidden">
+                                        {/* Mock Map Background */}
+                                        <div className="absolute inset-0 opacity-20 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=London&zoom=11&size=600x300&key=MOCK_KEY')] bg-cover"></div>
+                                        {/* Floating Pins */}
+                                        <div className="relative z-10 w-full h-full">
+                                            <div className="absolute top-1/4 left-1/3 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white shadow-lg animate-bounce">📍</div>
+                                            <div className="absolute top-1/2 left-2/3 w-6 h-6 bg-[var(--brand-primary)] rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white shadow-lg animate-pulse">📍</div>
+                                            <div className="absolute bottom-1/4 left-1/2 w-6 h-6 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white shadow-lg">📍</div>
+                                        </div>
+                                        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-white/90 to-transparent">
+                                            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Live Worker Map</p>
+                                        </div>
+                                    </div>
+                                    <div className="p-5 flex-1 bg-white">
+                                        <div className="grid grid-cols-2 gap-4 h-full">
+                                            <Link href="/my-network?tab=requests" className="flex flex-col items-center justify-center p-3 rounded-xl bg-purple-50 hover:bg-purple-100 transition-colors">
+                                                <span className="text-xl mb-1">📩</span>
+                                                <span className="text-[10px] font-bold text-purple-700 uppercase">Requests</span>
+                                                <span className="text-sm font-bold text-purple-900">2 New</span>
+                                            </Link>
+                                            <Link href="/my-network?tab=suggestions" className="flex flex-col items-center justify-center p-3 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors">
+                                                <span className="text-xl mb-1">👥</span>
+                                                <span className="text-[10px] font-bold text-blue-700 uppercase">Suggestions</span>
+                                                <span className="text-sm font-bold text-blue-900">12</span>
+                                            </Link>
+                                            <Link href="/my-network?tab=friends" className="col-span-2 flex items-center justify-between p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-lg">🤝</span>
+                                                    <span className="text-[10px] font-bold text-emerald-700 uppercase">Friends List</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-emerald-900">45 Active</span>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </CardBody>
+                        </Card>
+                    </div>
+
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* 1. Recent Messages (Inbox Widget) */}
@@ -265,23 +323,43 @@ function DashboardContent() {
                             </CardBody>
                         </Card>
 
-                        {/* 2. CV Builder */}
+
+                        {/* 2. Your CV Card */}
                         <Card className="bg-white border border-gray-100 shadow-sm overflow-hidden relative group">
-                            <CardBody className="relative z-10 p-5">
+                            <CardBody className="p-5">
                                 <div className="flex justify-between items-start mb-4">
                                     <div>
                                         <h3 className="font-bold text-gray-900 text-lg">Your CV</h3>
-                                        <p className="text-gray-500 text-xs mt-1">Professional hospitality format.</p>
+                                        <p className="text-gray-500 text-xs mt-1">Hospitality-standard format.</p>
                                     </div>
                                     <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
                                         📄
                                     </div>
                                 </div>
-                                <Link href="/dashboard/cv-builder">
-                                    <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-sm transition-all text-xs py-2 h-auto">
-                                        Open Builder
-                                    </Button>
-                                </Link>
+                                <div className="mb-4">
+                                    <div className="flex justify-between text-[10px] font-bold text-gray-400 mb-1 uppercase uppercase tracking-wider">
+                                        <span>Completion</span>
+                                        <span>{profileStrength}%</span>
+                                    </div>
+                                    <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                        <div
+                                            className="bg-blue-600 h-full transition-all duration-1000"
+                                            style={{ width: `${profileStrength}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Link href="/profile?view=cv">
+                                        <Button variant="outline" size="sm" className="w-full text-xs font-bold py-2 h-auto">
+                                            View CV
+                                        </Button>
+                                    </Link>
+                                    <Link href="/dashboard/cv-builder">
+                                        <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2 h-auto">
+                                            Builder
+                                        </Button>
+                                    </Link>
+                                </div>
                             </CardBody>
                         </Card>
 
@@ -292,17 +370,21 @@ function DashboardContent() {
                                     <span>📁</span> Documents
                                 </h3>
                                 <div className="space-y-2">
-                                    <div className="flex items-center justify-between p-2 rounded-lg border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all cursor-pointer">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-red-500 text-lg">PDF</span>
+                                    <div className="flex items-center justify-between p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50 transition-all cursor-pointer group/doc">
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <span className="flex-shrink-0 w-8 h-8 bg-red-50 text-red-500 rounded flex items-center justify-center text-xs font-bold uppercase">PDF</span>
                                             <div className="overflow-hidden">
-                                                <p className="text-sm font-medium text-gray-700 truncate">Resume_v2.pdf</p>
-                                                <p className="text-[10px] text-gray-400">2.4 MB</p>
+                                                <p className="text-sm font-bold text-gray-700 truncate">Resume_v2.pdf</p>
+                                                <p className="text-[10px] text-gray-400">Modified 2d ago</p>
                                             </div>
                                         </div>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover/doc:opacity-100 transition-opacity">
+                                            <button className="p-1.5 hover:bg-gray-200 rounded-lg text-gray-500">✏️</button>
+                                            <button className="p-1.5 hover:bg-red-50 rounded-lg text-red-500">🗑️</button>
+                                        </div>
                                     </div>
-                                    <Button variant="outline" size="sm" className="w-full text-xs">
-                                        Upload New
+                                    <Button variant="outline" size="sm" className="w-full text-xs font-bold py-2 h-auto border-dashed">
+                                        + Upload Document
                                     </Button>
                                 </div>
                             </CardBody>

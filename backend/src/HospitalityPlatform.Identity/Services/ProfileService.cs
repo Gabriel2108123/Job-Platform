@@ -42,7 +42,14 @@ public class ProfileService : IProfileService
             Bio = profile?.Bio,
             ResumeJson = profile?.ResumeJson,
             Role = roles.FirstOrDefault(),
-            PreferredJobRoleIds = profile?.PreferredJobRoleIds?.ToList()
+            PreferredJobRoleIds = profile?.PreferredJobRoleIds?.ToList(),
+            
+            // Map new fields from User entity
+            CountryOfResidence = user.CountryOfResidence,
+            Address = user.Address,
+            PrimaryRole = user.PrimaryRole,
+            CurrentStatus = user.CurrentStatus,
+            IsOver16 = user.IsOver16
         };
     }
 
@@ -58,6 +65,13 @@ public class ProfileService : IProfileService
         if (dto.FirstName != null) user.FirstName = dto.FirstName;
         if (dto.LastName != null) user.LastName = dto.LastName;
         if (dto.ProfilePictureUrl != null) user.ProfilePictureUrl = dto.ProfilePictureUrl;
+        
+        // Update new fields
+        if (dto.CountryOfResidence != null) user.CountryOfResidence = dto.CountryOfResidence;
+        if (dto.Address != null) user.Address = dto.Address;
+        if (dto.PrimaryRole != null) user.PrimaryRole = dto.PrimaryRole;
+        if (dto.CurrentStatus != null) user.CurrentStatus = dto.CurrentStatus;
+        
         user.UpdatedAt = DateTime.UtcNow;
 
         var result = await _userManager.UpdateAsync(user);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -14,34 +15,58 @@ export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Account Type State
+  const [accountType, setAccountType] = useState<'candidate' | 'business'>('candidate');
+
+  // Form State
   const [formData, setFormData] = useState({
+    // Common
     email: '',
     password: '',
     confirmPassword: '',
-    fullName: '',
-    accountType: 'candidate', // 'candidate' or 'business'
-    organizationName: '',
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    country: '', // Country of Residence (Employee) or Registration (Business)
+
+    // Employee Specific
+    primaryRole: '',
+    currentStatus: '',
+    referralCode: '',
+    isOver16: false,
+
+    // Business Specific
+    registeredCompanyName: '',
+    tradingName: '',
+    workEmail: '', // Should be same as email for now
+    businessType: '',
+    vatNumber: '',
+    discountCode: '',
+    authorizedToHire: false,
+
+    // Legal
+    agreedToTerms: false,
+    agreedToPrivacy: false,
   });
 
-  // Clear form on mount to ensure fresh start
+  // Clear form on mount
   useEffect(() => {
-    setFormData({
-      email: '',
-      password: '',
-      confirmPassword: '',
-      fullName: '',
-      accountType: 'candidate',
-      organizationName: '',
-    });
     setError(null);
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const target = e.target as HTMLInputElement; // Type assertion for checkbox property
+    const { name, value, type } = target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? target.checked : value,
     }));
+  };
+
+  const handleAccountTypeChange = (type: 'candidate' | 'business') => {
+    setAccountType(type);
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,46 +75,61 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      // Validate inputs
+      // Basic Validation
       if (!formData.email || !formData.password || !formData.confirmPassword) {
-        setError('Email, password, and password confirmation are required');
-        setLoading(false);
-        return;
+        throw new Error('Email and password are required');
       }
-
       if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        setLoading(false);
-        return;
+        throw new Error('Passwords do not match');
       }
-
       if (formData.password.length < 8) {
-        setError('Password must be at least 8 characters');
-        setLoading(false);
-        return;
+        throw new Error('Password must be at least 8 characters');
+      }
+      if (!formData.agreedToTerms || !formData.agreedToPrivacy) {
+        throw new Error('You must agree to the Terms and Privacy Policy');
       }
 
-      // Validate business owner requirements
-      if (formData.accountType === 'business' && !formData.organizationName.trim()) {
-        setError('Company name is required for business accounts');
-        setLoading(false);
-        return;
+      // Role specific validation
+      if (accountType === 'candidate') {
+        if (!formData.firstName || !formData.lastName) throw new Error('First and Last name are required');
+        if (!formData.isOver16) throw new Error('You must confirm you are over 16');
+      } else {
+        if (!formData.registeredCompanyName) throw new Error('Registered Company Name is required');
+        if (!formData.authorizedToHire) throw new Error('You must confirm you are authorized to hire');
+      }
+
+      // Prepare payload
+      const payload: any = {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        agreedToTerms: formData.agreedToTerms,
+        agreedToPrivacy: formData.agreedToPrivacy,
+        Role: accountType === 'business' ? 'BusinessOwner' : 'Candidate',
+      };
+
+      if (accountType === 'candidate') {
+        payload.CountryOfResidence = formData.country;
+        payload.PrimaryRole = formData.primaryRole;
+        payload.CurrentStatus = formData.currentStatus;
+        payload.ReferralCode = formData.referralCode;
+        payload.IsOver16 = formData.isOver16;
+      } else {
+        payload.OrganizationName = formData.registeredCompanyName;
+        payload.TradingName = formData.tradingName;
+        payload.CountryOfRegistration = formData.country;
+        payload.VATNumber = formData.vatNumber;
+        payload.DiscountCode = formData.discountCode;
+        payload.AuthorizedToHire = formData.authorizedToHire;
       }
 
       // Call register endpoint
-      const response = await authApi.register({
-        email: formData.email,
-        password: formData.password,
-        FullName: formData.fullName || undefined,
-        Role: formData.accountType === 'business' ? 'BusinessOwner' : 'Candidate',
-        OrganizationName: formData.accountType === 'business' ? formData.organizationName : undefined,
-      });
+      const response = await authApi.register(payload);
 
       if (response.success && response.data) {
-        // Store token and user info
         const { token, user } = response.data;
-
-        // Map API response to CurrentUser format and store
         const currentUser: CurrentUser = {
           id: user.id,
           email: user.email,
@@ -99,16 +139,13 @@ export default function RegisterPage() {
           role: user.role || 'Candidate',
         };
 
-        setCurrentUser(currentUser, token);
+        setCurrentUser(currentUser, token); // This function stores token in cookie
 
-        // Role-based routing
-        if (user.role === 'BusinessOwner') {
-          router.push('/business');
-        } else {
-          router.push('/jobs');
+        if (response.success) {
+          router.push('/register/verify-email');
         }
       } else {
-        setError(response.error || 'Registration failed. Please try again.');
+        setError(response.error || 'Registration failed.');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -117,172 +154,271 @@ export default function RegisterPage() {
     }
   };
 
+  // Theme helpers
+  const isCandidate = accountType === 'candidate';
+  const themeClasses = isCandidate
+    ? 'bg-neutral-950 text-white'
+    : 'bg-gray-50 text-gray-900';
+
+  const cardClasses = isCandidate
+    ? 'bg-neutral-900 border-neutral-800 text-white shadow-xl'
+    : 'bg-white shadow-md border-gray-100';
+
+  const inputLabelClasses = isCandidate
+    ? 'text-gray-300'
+    : 'text-gray-700';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-[var(--brand-navy)] mb-2">Create Account</h1>
-          <p className="text-gray-600">Sign up to get started</p>
+    <div className={`min-h-screen py-12 transition-colors duration-500 ${themeClasses}`}>
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Link href="/" className="mb-6 inline-block transition-transform hover:scale-105">
+            <BrandLogo variant={isCandidate ? 'candidate' : 'business'} width={240} height={60} />
+          </Link>
+          <h1 className={`text-3xl font-bold mb-2 ${isCandidate ? 'text-[var(--brand-gold)]' : 'text-[var(--brand-navy)]'}`}>
+            Create Account
+          </h1>
+          <p className={isCandidate ? 'text-gray-400' : 'text-gray-600'}>
+            Join the hospitality community
+          </p>
         </div>
 
-        {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-800 text-sm">
+            {error}
           </div>
         )}
 
-        {/* Register Form Card */}
-        <Card className="bg-white shadow-md">
+        {/* Account Type Toggle */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-white p-1 rounded-lg shadow-sm border border-gray-200 inline-flex">
+            <button
+              type="button"
+              onClick={() => handleAccountTypeChange('candidate')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${accountType === 'candidate'
+                ? 'bg-[var(--brand-primary)] text-white'
+                : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              I want to Work
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAccountTypeChange('business')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${accountType === 'business'
+                ? 'bg-[var(--brand-primary)] text-white'
+                : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              I want to Hire
+            </button>
+          </div>
+        </div>
+
+        <Card className={`${cardClasses} transition-colors duration-300`}>
           <CardBody>
-            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-              {/* Account Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Account Type
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="candidate"
-                      checked={formData.accountType === 'candidate'}
-                      onChange={handleInputChange}
-                      disabled={loading}
-                      className="h-4 w-4 text-[var(--brand-primary)]"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">
-                      Candidate (Job Seeker)
-                    </span>
+            <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+
+              {/* --- Account Basics --- */}
+              <div className="space-y-4">
+                <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Account Basics</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>First Name *</label>
+                    <Input name="firstName" value={formData.firstName} onChange={handleInputChange} required />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Last Name *</label>
+                    <Input name="lastName" value={formData.lastName} onChange={handleInputChange} required />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Email Address *</label>
+                  <Input name="email" type="email" value={formData.email} onChange={handleInputChange} required />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Password *</label>
+                    <Input name="password" type="password" value={formData.password} onChange={handleInputChange} required />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Confirm Password *</label>
+                    <Input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleInputChange} required />
+                  </div>
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>
+                    {accountType === 'candidate' ? 'Country of Residence *' : 'Country of Registration *'}
                   </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="business"
-                      checked={formData.accountType === 'business'}
-                      onChange={handleInputChange}
-                      disabled={loading}
-                      className="h-4 w-4 text-[var(--brand-primary)]"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">
-                      Business Owner (Post Jobs)
-                    </span>
-                  </label>
+                  <Input name="country" value={formData.country} onChange={handleInputChange} required placeholder="e.g. United Kingdom" />
                 </div>
               </div>
 
-              {/* Full Name Field */}
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name (Optional)
-                </label>
-                <Input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  placeholder="Your full name"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  autoComplete="off"
-                  className="w-full"
-                />
-              </div>
+              {/* --- Role Specific Fields --- */}
 
-              {/* Organization Name Field (Conditional) */}
-              {formData.accountType === 'business' && (
-                <div>
-                  <label htmlFor="organizationName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Company Name
-                  </label>
-                  <Input
-                    id="organizationName"
-                    name="organizationName"
-                    type="text"
-                    placeholder="Your company name"
-                    value={formData.organizationName}
-                    onChange={handleInputChange}
-                    disabled={loading}
-                    required={formData.accountType === 'business'}
-                    autoComplete="off"
-                    className="w-full"
-                  />
+              {accountType === 'candidate' && (
+                <div className="space-y-4">
+                  <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Profile Details</h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Primary Role</label>
+                      <select
+                        name="primaryRole"
+                        value={formData.primaryRole}
+                        onChange={handleInputChange}
+                        className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                      >
+                        <option value="">Select Role...</option>
+                        <option value="Chef">Chef</option>
+                        <option value="Bartender">Bartender</option>
+                        <option value="Waiter">Waiter</option>
+                        <option value="Manager">F&B Manager</option>
+                        <option value="Housekeeping">Housekeeping</option>
+                        <option value="Receptionist">Receptionist</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Current Status</label>
+                      <select
+                        name="currentStatus"
+                        value={formData.currentStatus}
+                        onChange={handleInputChange}
+                        className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                      >
+                        <option value="">Select Status...</option>
+                        <option value="Available">Available</option>
+                        <option value="Employed">Employed</option>
+                        <option value="Seasonal">Seasonal</option>
+                        <option value="Relocating">Relocating soon</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Phone Number (Optional)</label>
+                    <Input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleInputChange} placeholder="+44 7000 000000" />
+                  </div>
+
+                  {/* Commercial / Referral */}
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Referral Code (Optional)</label>
+                    <Input name="referralCode" value={formData.referralCode} onChange={handleInputChange} />
+                  </div>
                 </div>
               )}
 
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
+              {accountType === 'business' && (
+                <div className="space-y-4">
+                  <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Company Details</h3>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Registered Company Name *</label>
+                    <Input name="registeredCompanyName" value={formData.registeredCompanyName} onChange={handleInputChange} required />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Trading Name (if different)</label>
+                    <Input name="tradingName" value={formData.tradingName} onChange={handleInputChange} />
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Business Type</label>
+                    <select
+                      name="businessType"
+                      value={formData.businessType}
+                      onChange={handleInputChange}
+                      className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                    >
+                      <option value="">Select Type...</option>
+                      <option value="Hotel">Hotel</option>
+                      <option value="Restaurant">Restaurant</option>
+                      <option value="Bar">Bar / Pub</option>
+                      <option value="Cafe">Cafe</option>
+                      <option value="Resort">Resort</option>
+                      <option value="Cruise">Cruise Line</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>VAT Number (Optional)</label>
+                    <Input name="vatNumber" value={formData.vatNumber} onChange={handleInputChange} />
+                  </div>
+                  <div>
+                    <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Phone Number</label>
+                    <Input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleInputChange} required />
+                  </div>
+                </div>
+              )}
+
+              {/* --- Legal --- */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <label className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    name="agreedToTerms"
+                    checked={formData.agreedToTerms}
+                    onChange={handleInputChange}
+                    className="mt-1 h-4 w-4 text-[var(--brand-primary)] rounded border-gray-300 focus:ring-[var(--brand-primary)]"
+                    required
+                  />
+                  <span className="text-sm text-gray-600">I accept the <Link href="/terms" className="text-[var(--brand-primary)] hover:underline">Terms & Conditions</Link>.</span>
                 </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  required
-                  autoComplete="new-email"
-                  className="w-full"
-                />
+
+                <label className="flex items-start space-x-3">
+                  <input
+                    type="checkbox"
+                    name="agreedToPrivacy"
+                    checked={formData.agreedToPrivacy}
+                    onChange={handleInputChange}
+                    className="mt-1 h-4 w-4 text-[var(--brand-primary)] rounded border-gray-300 focus:ring-[var(--brand-primary)]"
+                    required
+                  />
+                  <span className="text-sm text-gray-600">I accept the <Link href="/privacy" className="text-[var(--brand-primary)] hover:underline">Privacy Policy</Link>.</span>
+                </label>
+
+                {accountType === 'candidate' && (
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      name="isOver16"
+                      checked={formData.isOver16}
+                      onChange={handleInputChange}
+                      className="mt-1 h-4 w-4 text-[var(--brand-primary)] rounded border-gray-300 focus:ring-[var(--brand-primary)]"
+                      required
+                    />
+                    <span className="text-sm text-gray-600">I confirm I am over 16 years of age.</span>
+                  </label>
+                )}
+
+                {accountType === 'business' && (
+                  <label className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      name="authorizedToHire"
+                      checked={formData.authorizedToHire}
+                      onChange={handleInputChange}
+                      className="mt-1 h-4 w-4 text-[var(--brand-primary)] rounded border-gray-300 focus:ring-[var(--brand-primary)]"
+                      required
+                    />
+                    <span className="text-sm text-gray-600">I confirm I am authorized to hire for this business.</span>
+                  </label>
+                )}
               </div>
 
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  required
-                  autoComplete="new-password"
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-500 mt-1">At least 8 characters</p>
-              </div>
-
-              {/* Confirm Password Field */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  disabled={loading}
-                  required
-                  autoComplete="new-password"
-                  className="w-full"
-                />
-              </div>
-
-              {/* Submit Button */}
               <Button
                 type="submit"
                 variant="primary"
                 className="w-full mt-6"
                 disabled={loading}
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
 
-            {/* Login Link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}

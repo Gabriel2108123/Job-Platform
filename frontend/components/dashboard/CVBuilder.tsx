@@ -509,6 +509,33 @@ export function CVBuilder() {
                                             />
                                         </div>
 
+                                        {/* Privacy Settings */}
+                                        <div className="bg-white p-3 rounded-lg border border-gray-200 mt-3">
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex items-center justify-between">
+                                                    <label className="text-sm font-medium text-gray-700">Visibility</label>
+                                                    <select
+                                                        value={exp.visibilityLevel || 'private'}
+                                                        onChange={(e) => updateExperience(i, 'visibilityLevel', e.target.value)}
+                                                        className="text-sm border-gray-300 rounded-md shadow-sm focus:border-[var(--brand-primary)] focus:ring-[var(--brand-primary)]"
+                                                    >
+                                                        <option value="private">Private</option>
+                                                        <option value="applied_only">When Applied</option>
+                                                        <option value="shortlisted_only">Shortlisted Only</option>
+                                                    </select>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={exp.isMapEnabled !== false}
+                                                        onChange={(e) => updateExperience(i, 'isMapEnabled', e.target.checked)}
+                                                        className="rounded border-gray-300 text-[var(--brand-primary)] focus:ring-[var(--brand-primary)]"
+                                                    />
+                                                    <span className="text-sm text-gray-700">Show on Worker Map</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <textarea
                                             placeholder="Brief description of your responsibilities and achievements..."
                                             value={exp.description || ''}

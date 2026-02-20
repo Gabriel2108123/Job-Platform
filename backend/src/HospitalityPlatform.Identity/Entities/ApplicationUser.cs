@@ -27,7 +27,26 @@ public class ApplicationUser : IdentityUser<Guid>
     /// <summary>
     /// Professional position/title within the company
     /// </summary>
+    /// <summary>
+    /// Professional position/title within the company or primary role for candidates
+    /// </summary>
     public string? Position { get; set; }
+    
+    // Employee/Candidate Specific Fields
+    public string? CountryOfResidence { get; set; }
+    public string? Address { get; set; }
+    public string? PrimaryRole { get; set; } // Chef, Bartender, etc.
+    public string? CurrentStatus { get; set; } // Available, Employed, etc.
+    // PhoneNumber is inherited from IdentityUser
+
+    
+    // Commercial
+    public string? ReferralCode { get; set; }
+    
+    // Legal & Consent
+    public bool AgreedToTerms { get; set; }
+    public bool AgreedToPrivacy { get; set; }
+    public bool IsOver16 { get; set; }
     
     // Navigation properties
     public Organization? Organization { get; set; }

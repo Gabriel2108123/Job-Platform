@@ -1,0 +1,29 @@
+<svg width="240" height="100" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- YOKE Text -->
+  <text x="10" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="52" fill="#000000" letter-spacing="1">YOKE</text>
+  
+  <!-- CONNECT Text -->
+  <text x="12" y="90" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="16" fill="#000000" letter-spacing="8">CONNECT</text>
+
+  <!-- Pineapple Slices Icon -->
+  <g transform="translate(175, 42) scale(0.9)">
+    <!-- Center Circle (Core) -->
+    <circle cx="0" cy="0" r="16" fill="#000000"/>
+    
+    <!-- Rays (Pineapple Slices/Wedges) -->
+    <!-- Slice 1 (Top-Right) -->
+    <path d="M12 -22 L25 -38 A 45 45 0 0 1 42 -22 L22 -12 Z" fill="#000000" />
+    
+    <!-- Slice 2 (Right-Upper) -->
+    <path d="M25 -8 L45 -14 A 45 45 0 0 1 45 5 L25 0 Z" fill="#000000" />
+    
+    <!-- Slice 3 (Right-Lower) -->
+    <path d="M24 10 L44 14 A 45 45 0 0 1 38 30 L20 20 Z" fill="#000000" />
+    
+    <!-- Slice 4 (Bottom-Right) -->
+    <path d="M12 24 L24 40 A 45 45 0 0 1 8 45 L0 26 Z" fill="#000000" />
+    
+    <!-- Top Slice -->
+    <path d="M-6 -26 L-10 -42 A 45 45 0 0 1 10 -42 L6 -26 Z" fill="#000000" />
+  </g>
+</svg>

@@ -192,6 +192,11 @@ public class AuthController : ControllerBase
             return BadRequest(new { error = "Email and password are required" });
         }
 
+        if (!request.AgreedToTerms || !request.AgreedToPrivacy)
+        {
+            return BadRequest(new { error = "You must agree to the Terms and Privacy Policy" });
+        }
+
         try
         {
             // Check if user already exists
@@ -205,9 +210,19 @@ public class AuthController : ControllerBase
             var roleToAssign = request.Role ?? "Candidate";
             
             // Validate BusinessOwner requirements
-            if (roleToAssign == "BusinessOwner" && string.IsNullOrWhiteSpace(request.OrganizationName))
+            if (roleToAssign == "BusinessOwner")
             {
-                return BadRequest(new { error = "Organization name is required for BusinessOwner registration" });
+                if (string.IsNullOrWhiteSpace(request.OrganizationName))
+                    return BadRequest(new { error = "Organization name is required for BusinessOwner registration" });
+                
+                if (!request.AuthorizedToHire)
+                    return BadRequest(new { error = "You must confirm you are authorized to hire" });
+            }
+            // Validate Candidate requirements
+            else 
+            {
+                if (!request.IsOver16)
+                    return BadRequest(new { error = "You must be over 16 to register" });
             }
 
             // Create new user
@@ -215,9 +230,25 @@ public class AuthController : ControllerBase
             {
                 UserName = request.Email,
                 Email = request.Email,
-                FirstName = request.FullName ?? request.Email,
-                EmailConfirmed = false
+                FirstName = request.FirstName ?? request.FullName?.Split(' ')[0] ?? request.Email,
+                LastName = request.LastName ?? (request.FullName?.Contains(' ') == true ? request.FullName.Substring(request.FullName.IndexOf(' ') + 1) : null),
+                EmailConfirmed = false,
+                PhoneNumber = request.PhoneNumber,
+                
+                // Common fields (using updated entity definition)
+                AgreedToTerms = request.AgreedToTerms,
+                AgreedToPrivacy = request.AgreedToPrivacy,
             };
+
+            // Assign Candidate specific fields
+            if (roleToAssign == "Candidate")
+            {
+                user.CountryOfResidence = request.CountryOfResidence;
+                user.PrimaryRole = request.PrimaryRole;
+                user.CurrentStatus = request.CurrentStatus;
+                user.ReferralCode = request.ReferralCode;
+                user.IsOver16 = request.IsOver16;
+            }
 
             var result = await _userManager.CreateAsync(user, request.Password);
             if (!result.Succeeded)
@@ -235,6 +266,14 @@ public class AuthController : ControllerBase
                     var organization = new Organization
                     {
                         Name = request.OrganizationName.Trim(),
+                        BusinessName = request.OrganizationName.Trim(),
+                        TradingName = request.TradingName,
+                        CountryOfRegistration = request.CountryOfRegistration,
+                        VATNumber = request.VATNumber,
+                        DiscountCode = request.DiscountCode,
+                        AuthorizedToHire = request.AuthorizedToHire,
+                        AgreedToTerms = request.AgreedToTerms,
+                        AgreedToPrivacy = request.AgreedToPrivacy,
                         IsActive = true
                     };
                     
@@ -249,6 +288,7 @@ public class AuthController : ControllerBase
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error creating organization during registration");
+                    // In a real scenario, we might want to rollback user creation here
                     return StatusCode(500, new { error = "Failed to create organization" });
                 }
             }
@@ -273,7 +313,12 @@ public class AuthController : ControllerBase
                     IsActive = user.IsActive,
                     EmailVerified = user.EmailVerified,
                     CreatedAt = user.CreatedAt.ToString("O"),
-                    Role = roleToAssign
+                    Role = roleToAssign,
+                    // New fields
+                    Position = user.Position,
+                    CountryOfResidence = user.CountryOfResidence,
+                    PrimaryRole = user.PrimaryRole,
+                    CurrentStatus = user.CurrentStatus
                 },
                 ExpiresAt = DateTime.UtcNow.AddHours(24).ToString("O")
             });
@@ -285,63 +330,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Send email verification link to current user
-    /// </summary>
-    [HttpPost("send-verification")]
-    [Authorize]
-    public async Task<ActionResult> SendVerificationEmail()
-    {
-        try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
-            {
-                return Unauthorized(new { error = "User not found in token" });
-            }
 
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound(new { error = "User not found" });
-            }
-
-            if (user.EmailVerified)
-            {
-                return Ok(new { message = "Email already verified" });
-            }
-
-            // Generate verification token
-            if (_emailVerificationService == null)
-            {
-                _logger.LogWarning("EmailVerificationService not available");
-                return StatusCode(500, new { error = "Email verification service not configured" });
-            }
-
-            var token = await _emailVerificationService.GenerateVerificationTokenAsync(userGuid);
-            
-            // In development, output verification URL to console
-            var isDevelopment = _configuration.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Development";
-            if (isDevelopment)
-            {
-                var verificationUrl = $"http://localhost:3000/verify-email?token={Uri.EscapeDataString(token)}&userId={userGuid}";
-                _logger.LogInformation("Email verification URL (DEV MODE): {Url}", verificationUrl);
-                Console.WriteLine($"\n========== EMAIL VERIFICATION ==========");
-                Console.WriteLine($"Verification URL: {verificationUrl}");
-                Console.WriteLine($"=========================================\n");
-            }
-
-            // TODO: In production, send actual email via SMTP/SendGrid
-            // await _emailService.SendVerificationEmailAsync(user.Email, verificationUrl);
-
-            return Ok(new { message = "Verification email sent" });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error sending verification email");
-            return StatusCode(500, new { error = "An error occurred while sending verification email" });
-        }
-    }
 
     /// <summary>
     /// Verify email with token
@@ -485,11 +474,33 @@ public class LoginRequest
 /// </summary>
 public class RegisterRequest
 {
+    // Common
     public string Email { get; set; } = "";
     public string Password { get; set; } = "";
-    public string? FullName { get; set; }
-    public string? Role { get; set; }  // Optional: "Candidate" (default) or "BusinessOwner"
-    public string? OrganizationName { get; set; }  // Required if Role is "BusinessOwner"
+    public string? FullName { get; set; } // First Name + Last Name logic needed or leave as is
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Role { get; set; }  // "Candidate" or "BusinessOwner"
+    public string? PhoneNumber { get; set; }
+    
+    // Legal & Consent (Common)
+    public bool AgreedToTerms { get; set; }
+    public bool AgreedToPrivacy { get; set; }
+
+    // Employee Specific
+    public string? CountryOfResidence { get; set; }
+    public string? PrimaryRole { get; set; }
+    public string? CurrentStatus { get; set; }
+    public string? ReferralCode { get; set; }
+    public bool IsOver16 { get; set; }
+
+    // Employer Specific
+    public string? OrganizationName { get; set; }  // Registered Name
+    public string? TradingName { get; set; }
+    public string? CountryOfRegistration { get; set; }
+    public string? VATNumber { get; set; }
+    public string? DiscountCode { get; set; }
+    public bool AuthorizedToHire { get; set; }
 }
 /// <summary>
 /// Verify email request DTO
@@ -522,6 +533,10 @@ public class User
     public string? OrganizationId { get; set; }
     public bool IsActive { get; set; }
     public bool EmailVerified { get; set; }
+    public string? Position { get; set; }
+    public string? CountryOfResidence { get; set; }
+    public string? PrimaryRole { get; set; }
+    public string? CurrentStatus { get; set; }
     public string CreatedAt { get; set; } = "";
     public string? Role { get; set; }
 }

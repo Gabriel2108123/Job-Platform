@@ -22,6 +22,12 @@ export interface User {
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
+
+  // Extended fields
+  position?: string;
+  countryOfResidence?: string;
+  primaryRole?: string;
+  currentStatus?: string;
 }
 
 /**
@@ -59,7 +65,27 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  FullName?: string;
+  firstName?: string;
+  lastName?: string;
   Role?: string;  // 'Candidate' or 'BusinessOwner'
+
+  // Common
+  phoneNumber?: string;
+  agreedToTerms?: boolean;
+  agreedToPrivacy?: boolean;
+
+  // Employee
+  CountryOfResidence?: string;
+  PrimaryRole?: string;
+  CurrentStatus?: string;
+  ReferralCode?: string;
+  IsOver16?: boolean;
+
+  // Business
   OrganizationName?: string;
+  TradingName?: string;
+  CountryOfRegistration?: string;
+  VATNumber?: string;
+  DiscountCode?: string;
+  AuthorizedToHire?: boolean;
 }

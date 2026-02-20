@@ -433,6 +433,11 @@ export interface ProfileDto {
   resumeJson?: string;
   role?: string;
   preferredJobRoleIds?: string[];
+  countryOfResidence?: string;
+  address?: string;
+  primaryRole?: string;
+  currentStatus?: string;
+  isOver16?: boolean;
 }
 
 export interface UpdateProfileDto {
@@ -442,6 +447,10 @@ export interface UpdateProfileDto {
   bio?: string;
   resumeJson?: string;
   preferredJobRoleIds?: string[];
+  countryOfResidence?: string;
+  address?: string;
+  primaryRole?: string;
+  currentStatus?: string;
 }
 
 /**

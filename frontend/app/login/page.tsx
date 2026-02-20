@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -90,12 +91,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-neutral-950 py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-[var(--brand-navy)] mb-2">Log In</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Link href="/" className="mb-6 inline-block transition-transform hover:scale-105">
+            <BrandLogo variant="candidate" width={200} height={50} />
+          </Link>
+          <h1 className="text-3xl font-bold text-[var(--brand-gold)] mb-2">Log In</h1>
+          <p className="text-gray-400">Sign in to your account</p>
         </div>
 
         {/* Error Message */}
@@ -106,12 +110,12 @@ export default function LoginPage() {
         )}
 
         {/* Login Form Card */}
-        <Card className="bg-white shadow-md">
+        <Card className="bg-neutral-900 border-neutral-800 text-white shadow-xl">
           <CardBody>
             <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
                 </label>
                 <Input
@@ -130,7 +134,7 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                   Password
                 </label>
                 <Input
