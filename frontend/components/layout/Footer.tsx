@@ -30,6 +30,21 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
 
+          {/* Logo and Brand Column */}
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 mb-4">
+              <img
+                src="/images/yoke-logo-icon.jpg"
+                alt="YokeConnect"
+                className="h-8 w-8"
+              />
+              <span className="text-lg font-bold text-[var(--brand-navy)]">YokeConnect</span>
+            </div>
+            <p className="text-sm text-gray-600">
+              Connecting hospitality professionals worldwide.
+            </p>
+          </div>
+
           {/* For Job Seekers - shown to visitors and candidates, hidden from business users */}
           {(isVisitor || isCandidate) && (
             <div>

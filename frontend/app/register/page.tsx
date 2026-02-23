@@ -170,11 +170,15 @@ export default function RegisterPage() {
 
   return (
     <div className={`min-h-screen py-12 transition-colors duration-500 ${themeClasses}`}>
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col items-center text-center">
-          <Link href="/" className="mb-6 inline-block transition-transform hover:scale-105">
-            <BrandLogo variant={isCandidate ? 'candidate' : 'business'} width={240} height={60} />
-          </Link>
+          <div className="flex justify-center mb-6">
+            <img
+              src="/images/yoke-logo-full.jpg"
+              alt="YokeConnect Logo"
+              className="h-20"
+            />
+          </div>
           <h1 className={`text-3xl font-bold mb-2 ${isCandidate ? 'text-[var(--brand-gold)]' : 'text-[var(--brand-navy)]'}`}>
             Create Account
           </h1>

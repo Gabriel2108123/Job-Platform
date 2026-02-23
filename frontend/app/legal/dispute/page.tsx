@@ -19,7 +19,7 @@ export default function DisputeResolution() {
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">1. Dispute Resolution Process</h2>
                         <p className="text-gray-700">
                             We are committed to resolving disputes fairly and efficiently. This policy outlines the procedures for
-                            resolving disputes between you and <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span>.
+                            resolving disputes between you and <span className="text-red-600">YokeConnect</span>.
                         </p>
                     </section>
 
@@ -141,7 +141,7 @@ export default function DisputeResolution() {
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">10. Contact for Disputes</h2>
                         <div className="space-y-2 text-gray-700">
                             <p><strong>Email:</strong> disputes@yokeconnect.com</p>
-                            <p><strong>Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
+                            <p><strong>Address:</strong> <span className="text-red-600">YokeConnect Ltd, London, UK</span></p>
                             <p className="mt-4 text-sm text-gray-600">
                                 For regulatory complaints in the UK, you may also contact the Advertising Standards Authority (ASA) or Citizens Advice.
                             </p>

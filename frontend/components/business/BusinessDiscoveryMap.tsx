@@ -9,28 +9,6 @@ import { ShieldCheck, MapPin } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 // Custom icons using Lucide and DivIcon
-const createCustomIcon = (color: string, connectionCount?: number) => {
-    const iconMarkup = renderToStaticMarkup(
-        <div className="relative">
-            <MapPin size={30} fill={color} color="white" strokeWidth={1} />
-            {connectionCount !== undefined && connectionCount > 0 && (
-                <div className="absolute -top-1 -right-1 bg-white text-[10px] font-bold px-1 rounded-full border border-gray-200 shadow-sm text-blue-600">
-                    {connectionCount}
-                </div>
-            )}
-        </div>
-    );
-
-    return L.divIcon({
-        html: iconMarkup,
-        className: 'custom-leaflet-icon',
-        iconSize: [30, 30],
-        iconAnchor: [15, 30],
-    });
-};
-
-const jobIcon = createCustomIcon('#1e3a8a'); // Navy
-const candidateIcon = createCustomIcon('#ec4899'); // Pink
 
 interface BusinessDiscoveryMapProps {
     center: { lat: number; lng: number };
@@ -38,13 +16,36 @@ interface BusinessDiscoveryMapProps {
     candidates: NearbyCandidateDto[];
     onCandidateClick: (candidate: NearbyCandidateDto) => void;
 }
-
 export default function BusinessDiscoveryMap({
     center,
     radiusKm,
     candidates,
     onCandidateClick
 }: BusinessDiscoveryMapProps) {
+    // Custom icons using Lucide and DivIcon - created inside component to avoid SSR window issues
+    const createCustomIcon = (color: string, connectionCount?: number) => {
+        if (typeof window === 'undefined') return undefined; // Guard for SSR
+
+        const iconMarkup = renderToStaticMarkup(
+            <div className="relative">
+                <MapPin size={30} fill={color} color="white" strokeWidth={1} />
+                {connectionCount !== undefined && connectionCount > 0 && (
+                    <div className="absolute -top-1 -right-1 bg-white text-[10px] font-bold px-1 rounded-full border border-gray-200 shadow-sm text-blue-600">
+                        {connectionCount}
+                    </div>
+                )}
+            </div>
+        );
+
+        return L.divIcon({
+            html: iconMarkup,
+            className: 'custom-leaflet-icon',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+        });
+    };
+
+    const jobIcon = createCustomIcon('#1e3a8a'); // Navy
     useEffect(() => {
         // Ensure Leaflet CSS is loaded
         if (typeof window !== 'undefined') {
@@ -95,7 +96,7 @@ export default function BusinessDiscoveryMap({
                 />
 
                 {/* Candidate Markers */}
-                {candidates.map((cand) => cand.latApprox && cand.lngApprox && (
+                {candidates.map((cand) => cand.latApprox != null && cand.lngApprox != null && (
                     <Marker
                         key={cand.candidateUserId}
                         position={[cand.latApprox, cand.lngApprox]}

@@ -1,0 +1,7 @@
+﻿Using launch settings from src\HospitalityPlatform.Api\Properties\launchSettings.json...
+Building...
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\AuthController.cs(333,1): error CS8300: Merge conflict marker encountered [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\AuthController.cs(336,1): error CS8300: Merge conflict marker encountered [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\AuthController.cs(337,1): error CS8300: Merge conflict marker encountered [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]

@@ -23,8 +23,18 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-[var(--brand-navy)]">
-              UK Hospitality Platform
+            <Link href="/" className="flex flex-col leading-none py-2">
+              {/* Top row: YOKE with sun */}
+              <div className="flex items-center gap-0.5">
+                <span className="text-2xl font-black tracking-tight text-gray-700">YOKE</span>
+                <img
+                  src="/images/yoke-logo-icon.jpg"
+                  alt=""
+                  className="h-6 w-6"
+                />
+              </div>
+              {/* Bottom row: CONNECT */}
+              <span className="text-sm font-bold tracking-[0.3em] text-gray-600 ml-0.5">CONNECT</span>
             </Link>
           </div>
 

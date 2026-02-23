@@ -94,11 +94,14 @@ export default function LoginPage() {
     <div className="min-h-screen bg-neutral-950 py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <Link href="/" className="mb-6 inline-block transition-transform hover:scale-105">
-            <BrandLogo variant="candidate" width={200} height={50} />
-          </Link>
-          <h1 className="text-3xl font-bold text-[var(--brand-gold)] mb-2">Log In</h1>
+        <div className="mb-8 text-center">
+          <div className="flex justify-center mb-4">
+            <img
+              src="/images/yoke-logo-full.jpg"
+              alt="YokeConnect Logo"
+              className="h-20"
+            />
+          </div>
           <p className="text-gray-400">Sign in to your account</p>
         </div>
 

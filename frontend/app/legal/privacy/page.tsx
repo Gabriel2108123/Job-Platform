@@ -20,27 +20,27 @@ export default function PrivacyPolicy() {
                     {/* Introduction */}
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">1. Introduction</h2>
-                        <div className="space-y-3 text-gray-700">
-                            <p>
-                                <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span> ("we," "our," or "us") is committed to protecting your privacy.
-                                This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our Platform.
-                            </p>
-                            <p>
-                                This policy complies with the General Data Protection Regulation (GDPR), UK Data Protection Act 2018, and other applicable
-                                data protection laws in the UK, EU, USA, and UAE.
-                            </p>
-                        </div>
+                        <p className="text-gray-700 leading-relaxed mb-4">
+                            Welcome to YokeConnect.
+                            <span className="text-red-600">YokeConnect Ltd</span> ("we," "our," or "us") is committed to protecting your privacy.
+                            This policy explains how we collect, use, disclose, and safeguard your information when you visit our Platform.
+                        </p>
+                        <p className="text-gray-700">
+                            This policy complies with the General Data Protection Regulation (GDPR), UK Data Protection Act 2018, and other applicable
+                            data protection laws in the UK, EU, USA, and UAE.
+                        </p>
                     </section>
 
                     {/* Data Controller */}
                     <section>
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">2. Data Controller</h2>
-                        <div className="space-y-2 text-gray-700">
-                            <p><strong>Company Name:</strong> <span className="text-red-600">{{ COMPANY_REGISTERED_NAME }}</span></p>
-                            <p><strong>Trading As:</strong> <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span></p>
-                            <p><strong>Company Number:</strong> <span className="text-red-600">{{ COMPANY_NUMBER }}</span></p>
-                            <p><strong>Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
-                            <p><strong>Data Protection Email:</strong> privacy@yokeconnect.com</p>
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-gray-700">
+                            <h3 className="font-semibold text-lg text-gray-900 mb-2">Data Controller Details</h3>
+                            <p><strong>Company Name:</strong> <span className="text-red-600">YokeConnect Ltd</span></p>
+                            <p><strong>Trading As:</strong> <span className="text-red-600">YokeConnect</span></p>
+                            <p><strong>Company Number:</strong> <span className="text-red-600">[Company Number]</span></p>
+                            <p><strong>Address:</strong> <span className="text-red-600">London, United Kingdom</span></p>
+                            <p><strong>Data Protection Officer:</strong> Contact via <a href="mailto:dpo@yokeconnect.com" className="text-[var(--brand-primary)] hover:underline">dpo@yokeconnect.com</a></p>
                         </div>
                     </section>
 
@@ -244,8 +244,8 @@ export default function PrivacyPolicy() {
                         <div className="space-y-2 text-gray-700">
                             <p>If you have questions about this Privacy Policy or how we handle your data:</p>
                             <p><strong>Email:</strong> privacy@yokeconnect.com</p>
-                            <p><strong>Data Protection Officer:</strong> dpo@yokeconnect.com</p>
-                            <p><strong>Address:</strong> <span className="text-red-600">{{ COMPANY_ADDRESS }}</span></p>
+                            <p><strong>Email:</strong> queries@yokeconnect.com / dpo@yokeconnect.com</p>
+                            <p><strong>Address:</strong> <span className="text-red-600">London, United Kingdom</span></p>
                         </div>
                     </section>
 

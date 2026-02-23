@@ -3,24 +3,26 @@
 :root {
   /* Brand Colors - Primary */
   --brand-navy: #1a3a52;
-  --brand-gold: #d4af37;
+  --brand-gold: #D4A017;
+  --brand-primary: #D4A017;
   --brand-aqua: #00a8a8;
   --brand-off-white: #f5f1ed;
-  --brand-charcoal: #2d2d2d;
+  --brand-charcoal: #1A1A1A;
+  --brand-hover: #B8860B;
 
   /* Background & Foreground */
-  --background: #ffffff;
-  --foreground: #2d2d2d;
+  --background: #F8F9FA;
+  --foreground: #1A1A1A;
 
   /* Secondary Colors */
   --secondary-light: #f0f0f0;
-  --secondary-dark: #666666;
+  --secondary-dark: #5F6368;
 
   /* Status Colors */
-  --success: #10b981;
-  --error: #ef4444;
-  --warning: #f59e0b;
-  --info: #3b82f6;
+  --success: #1F7A4C;
+  --error: #B23A3A;
+  --warning: #B23A3A;
+  --info: #2F5D9E;
 
   /* Neutral Grays */
   --gray-50: #f9fafb;
@@ -35,6 +37,7 @@
   --gray-900: #111827;
 }
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,16 +52,24 @@ body {
   font-family: var(--font-inter);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-montserrat);
   font-weight: 600;
 }
 
-button, [role="button"] {
+button,
+[role="button"] {
   font-family: var(--font-poppins);
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: var(--font-poppins);
 }
 
@@ -72,6 +83,7 @@ input, textarea, select {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -83,6 +95,7 @@ input, textarea, select {
 }
 
 /* Smooth transitions */
-a, button {
+a,
+button {
   transition: all 0.2s ease-in-out;
 }

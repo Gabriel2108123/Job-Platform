@@ -330,8 +330,6 @@ public class AuthController : ControllerBase
         }
     }
 
-
-
     /// <summary>
     /// Verify email with token
     /// </summary>

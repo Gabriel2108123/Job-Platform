@@ -19,7 +19,7 @@ export default function DataProcessingAgreement() {
                         <h2 className="text-2xl font-bold text-[var(--brand-navy)] mb-4">1. Definitions</h2>
                         <div className="space-y-2 text-gray-700">
                             <p><strong>Data Controller:</strong> Business Owner/Employer using YokeConnect services</p>
-                            <p><strong>Data Processor:</strong> <span className="text-red-600">{{ COMPANY_TRADING_NAME }}</span></p>
+                            <p><strong>Data Processor:</strong> <span className="text-red-600">YokeConnect</span></p>
                             <p><strong>Personal Data:</strong> Candidate information processed through the Platform</p>
                             <p><strong>Processing:</strong> Any operation performed on Personal Data</p>
                         </div>
