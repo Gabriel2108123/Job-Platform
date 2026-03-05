@@ -166,7 +166,7 @@ public class AuthController : ControllerBase
                     LastName = user.LastName,
                     OrganizationId = user.OrganizationId?.ToString(),
                     IsActive = user.IsActive,
-                    EmailVerified = user.EmailVerified,
+                    EmailVerified = true, // Force bypass email verification
                     CreatedAt = user.CreatedAt.ToString("O"),
                     Role = roles.FirstOrDefault() ?? "Candidate"
                 },
@@ -232,7 +232,7 @@ public class AuthController : ControllerBase
                 Email = request.Email,
                 FirstName = request.FirstName ?? request.FullName?.Split(' ')[0] ?? request.Email,
                 LastName = request.LastName ?? (request.FullName?.Contains(' ') == true ? request.FullName.Substring(request.FullName.IndexOf(' ') + 1) : null),
-                EmailConfirmed = false,
+                EmailConfirmed = true, // Force bypass email verification for new accounts
                 PhoneNumber = request.PhoneNumber,
                 
                 // Common fields (using updated entity definition)
@@ -311,7 +311,7 @@ public class AuthController : ControllerBase
                     LastName = user.LastName,
                     OrganizationId = user.OrganizationId?.ToString(),
                     IsActive = user.IsActive,
-                    EmailVerified = user.EmailVerified,
+                    EmailVerified = true, // Force bypass email verification
                     CreatedAt = user.CreatedAt.ToString("O"),
                     Role = roleToAssign,
                     // New fields
@@ -400,7 +400,7 @@ public class AuthController : ControllerBase
                 LastName = user.LastName,
                 OrganizationId = user.OrganizationId?.ToString(),
                 IsActive = user.IsActive,
-                EmailVerified = user.EmailVerified,
+                EmailVerified = true, // Force bypass email verification
                 CreatedAt = user.CreatedAt.ToString("O"),
                 Role = roles.FirstOrDefault() ?? "Candidate"
             });

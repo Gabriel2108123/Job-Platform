@@ -91,3 +91,7 @@ public class PagedResult<T>
     public int PageSize { get; set; }
 }
 
+public record BlockUserDto(Guid BlockedUserId);
+public record ReportUserDto(Guid ReportedUserId, string Reason, string? Description);
+
+

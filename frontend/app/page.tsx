@@ -67,11 +67,11 @@ export default function HomePage() {
 
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Join the Waitlist<br />
-                <span className="text-[var(--brand-gold)]">Get 12 Months Free</span>
+                <span className="text-white" style={{ textShadow: '-1px -1px 0 rgba(0,0,0,0.4), 1px -1px 0 rgba(0,0,0,0.4), -1px 1px 0 rgba(0,0,0,0.4), 1px 1px 0 rgba(0,0,0,0.4)' }}>Get 12 Months Free</span>
               </h2>
 
-              <p className="text-xl md:text-2xl text-white/90 mb-4">
-                First <span className="font-bold text-[var(--brand-gold)]">1,000 employers</span> and <span className="font-bold text-[var(--brand-gold)]">5,000 professionals</span>
+              <p className="text-xl md:text-2xl text-white mb-4 font-semibold">
+                First <span className="font-extrabold text-white underline decoration-white/50">1,000 employers</span> and <span className="font-extrabold text-white underline decoration-white/50">5,000 professionals</span>
               </p>
 
               <p className="text-lg text-white/80 max-w-2xl mx-auto">

@@ -161,6 +161,11 @@ public class WaitlistController : ControllerBase
     /// </summary>
     private bool CheckRateLimit(string clientIp)
     {
+        if (_config.GetValue<bool>("Waitlist:DisableRateLimit"))
+        {
+            return true;
+        }
+
         const int maxAttempts = 5;
         const int windowMinutes = 60;
 

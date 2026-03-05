@@ -33,4 +33,6 @@ public class CreateWorkExperienceDto
     public string VisibilityLevel { get; set; } = "private";
     
     public bool IsMapEnabled { get; set; } = false;
+
+    public bool AllowCoworkerDiscovery { get; set; } = false;
 }

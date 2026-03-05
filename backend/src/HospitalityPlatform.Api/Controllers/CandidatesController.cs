@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using HospitalityPlatform.Candidates.DTOs;
 using HospitalityPlatform.Candidates.Services;
+using HospitalityPlatform.Audit.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ public class CandidatesController : ControllerBase
     private readonly ICandidateMapService _mapService;
     private readonly ICoworkerDiscoveryService _discoveryService;
     private readonly IConnectionService _connectionService;
+    private readonly IAuditService _auditService;
     private readonly ILogger<CandidatesController> _logger;
 
     public CandidatesController(
@@ -22,12 +24,14 @@ public class CandidatesController : ControllerBase
         ICandidateMapService mapService,
         ICoworkerDiscoveryService discoveryService,
         IConnectionService connectionService,
+        IAuditService auditService,
         ILogger<CandidatesController> logger)
     {
         _workExperienceService = workExperienceService;
         _mapService = mapService;
         _discoveryService = discoveryService;
         _connectionService = connectionService;
+        _auditService = auditService;
         _logger = logger;
     }
 
@@ -135,6 +139,19 @@ public class CandidatesController : ControllerBase
     {
         var userId = GetUserId();
         var result = await _connectionService.SendRequestAsync(userId, dto);
+        
+        if (result.Success)
+        {
+            await _auditService.LogAsync(
+                "ConnectionRequestSent",
+                "Connection",
+                dto.ReceiverId.ToString(),
+                new { dto.PlaceKey, dto.WorkplaceName },
+                userId.ToString(),
+                Guid.Empty
+            );
+        }
+
         if (!result.Success) return BadRequest(result);
         return Ok(result);
     }

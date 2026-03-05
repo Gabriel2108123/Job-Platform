@@ -20,11 +20,18 @@ export default function DocumentsPage() {
   );
 }
 
+const ALLOWED_DOCUMENT_TYPES = [
+  { value: '1', label: 'CV / Resume' },
+  { value: '2', label: 'Professional Certification' },
+  { value: '99', label: 'Other approved document' },
+];
+
 function DocumentsContent() {
   const [documents, setDocuments] = useState<DocumentDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [documentType, setDocumentType] = useState('1');
 
   useEffect(() => {
     fetchDocuments();
@@ -35,9 +42,7 @@ function DocumentsContent() {
     try {
       const response = await documentsApi.getMyDocuments();
       if (response.success && response.data) {
-        // Backend returns PagedResult<T>
-        // @ts-ignore - Handle PagedResult vs Array check if needed, but assuming PagedResult based on backend code
-        const docs = response.data.items || response.data;
+        const docs = (response.data as any).items || response.data;
         setDocuments(Array.isArray(docs) ? docs : []);
       }
     } catch (error) {
@@ -62,7 +67,8 @@ function DocumentsContent() {
       const createRes = await documentsApi.createUpload(
         selectedFile.name,
         selectedFile.size,
-        selectedFile.type || 'application/octet-stream' // Fallback content type
+        selectedFile.type || 'application/octet-stream',
+        documentType
       );
 
       if (!createRes.success || !createRes.data) {
@@ -76,7 +82,7 @@ function DocumentsContent() {
         method: 'PUT',
         body: selectedFile,
         headers: {
-          'Content-Type': selectedFile.type,
+          'Content-Type': selectedFile.type || 'application/octet-stream',
         },
       });
 
@@ -90,9 +96,9 @@ function DocumentsContent() {
       // Reset and refresh
       setSelectedFile(null);
       fetchDocuments();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to upload document:', error);
-      alert('Upload failed. Please try again.');
+      alert(error.message || 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -151,53 +157,83 @@ function DocumentsContent() {
       <div className="max-w-4xl mx-auto space-y-8">
         <PageHeader
           title="Documents"
-          description="Manage your CVs, certificates, and ID documents."
+          description="Manage your professional documents securely."
         />
+
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              ⚠️
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-amber-700 font-bold">Messaging Safety & Privacy Notice</p>
+              <p className="text-sm text-amber-700 mt-1">
+                Do not upload sensitive identity documents like **Passports**, **Visas**, or **ID Cards**.
+                Platform policy strictly forbids storing identity documents. Any such files will be automatically rejected.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Upload Card */}
         <Card className="border border-dashed border-gray-300 bg-white">
           <CardBody className="p-8">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1 text-center md:text-left">
-                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-2xl mx-auto md:mx-0 mb-3">
-                  📤
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Upload New Document</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Supports PDF, DOCX, JPG, PNG. Max 5MB.
-                </p>
-              </div>
-
-              <div className="flex-1 w-full max-w-sm">
-                <div className="flex gap-2">
-                  <label className="flex-1 block">
-                    <span className="sr-only">Choose file</span>
-                    <input
-                      type="file"
-                      className="block w-full text-sm text-slate-500
-                                      file:mr-4 file:py-2 file:px-4
-                                      file:rounded-full file:border-0
-                                      file:text-sm file:font-semibold
-                                      file:bg-blue-50 file:text-blue-700
-                                      hover:file:bg-blue-100
-                                      cursor-pointer"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
-                  <Button
-                    onClick={handleUpload}
-                    disabled={!selectedFile || uploading}
-                    variant="primary"
-                    className="whitespace-nowrap"
-                  >
-                    {uploading ? 'Uploading...' : 'Upload'}
-                  </Button>
-                </div>
-                {selectedFile && (
-                  <p className="mt-2 text-xs text-green-600 font-medium text-center md:text-left">
-                    Ready to upload: {selectedFile.name}
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-1 text-center md:text-left">
+                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-2xl mx-auto md:mx-0 mb-3">
+                    📤
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">Upload New Document</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Supports PDF, DOCX, JPG, PNG. Max 5MB.
                   </p>
-                )}
+                </div>
+
+                <div className="flex-1 w-full max-w-sm space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+                    <select
+                      value={documentType}
+                      onChange={(e) => setDocumentType(e.target.value)}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 bg-gray-50 border"
+                    >
+                      {ALLOWED_DOCUMENT_TYPES.map(t => (
+                        <option key={t.value} value={t.value}>{t.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <label className="flex-1 block">
+                      <span className="sr-only">Choose file</span>
+                      <input
+                        type="file"
+                        className="block w-full text-sm text-slate-500
+                                        file:mr-4 file:py-2 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:text-sm file:font-semibold
+                                        file:bg-blue-50 file:text-blue-700
+                                        hover:file:bg-blue-100
+                                        cursor-pointer"
+                        onChange={handleFileSelect}
+                      />
+                    </label>
+                    <Button
+                      onClick={handleUpload}
+                      disabled={!selectedFile || uploading}
+                      variant="primary"
+                      className="whitespace-nowrap"
+                    >
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                  </div>
+                  {selectedFile && (
+                    <p className="mt-2 text-xs text-green-600 font-medium text-center md:text-left">
+                      Ready to upload: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </CardBody>
@@ -209,7 +245,7 @@ function DocumentsContent() {
           {documents.length === 0 ? (
             <EmptyState
               title="No documents yet"
-              description="Upload your CV or other documents to get started."
+              description="Upload your CV or other professional documents to get started."
               icon={<span className="text-4xl text-gray-300">📁</span>}
             />
           ) : (
@@ -222,9 +258,17 @@ function DocumentsContent() {
                         {getFileIcon(doc.fileName)}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">{doc.fileName}</h4>
-                        <p className="text-xs text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-gray-900">{doc.fileName}</h4>
+                          <Badge variant="neutral">{doc.documentType}</Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-0.5">
                           {formatFileSize(doc.fileSize)} • Added {new Date(doc.uploadedAt).toLocaleDateString()}
+                          {doc.retentionDate && (
+                            <span className="text-amber-600 ml-2 font-medium">
+                              • Compliance retention until {new Date(doc.retentionDate).toLocaleDateString()}
+                            </span>
+                          )}
                         </p>
                       </div>
                     </div>

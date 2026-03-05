@@ -1,3 +1,5 @@
+using HospitalityPlatform.Documents.Enums;
+
 namespace HospitalityPlatform.Documents.DTOs;
 
 /// <summary>DTO for creating a document upload request (generates presigned URL).</summary>
@@ -6,6 +8,7 @@ public class CreateDocumentUploadDto
     public required string FileName { get; set; }
     public required string ContentType { get; set; }
     public long FileSizeBytes { get; set; }
+    public DocumentType DocumentType { get; set; }
 }
 
 /// <summary>DTO for sharing a document with an application.</summary>
@@ -34,6 +37,8 @@ public class DocumentDto
     public DateTime UploadedAt { get; set; }
     public DateTime? LastAccessedAt { get; set; }
     public int AccessRuleCount { get; set; }
+    public DocumentType DocumentType { get; set; }
+    public DateTime? RetentionDate { get; set; }
 }
 
 /// <summary>DTO for document access rule.</summary>

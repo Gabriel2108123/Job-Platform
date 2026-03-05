@@ -4,6 +4,7 @@ using HospitalityPlatform.Jobs.Enums;
 using HospitalityPlatform.Jobs.Services;
 using HospitalityPlatform.Core.Services;
 using HospitalityPlatform.Audit.Services;
+using HospitalityPlatform.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -60,7 +61,7 @@ public class JobServiceTests
         
         var jobInDb = await _context.Jobs.FirstOrDefaultAsync(j => j.Id == result.Id);
         Assert.NotNull(jobInDb);
-        _mockAudit.Verify(a => a.LogAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), userId, orgId, It.IsAny<string>()), Times.Once);
+        _mockAudit.Verify(a => a.LogAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), userId, orgId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

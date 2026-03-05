@@ -268,6 +268,26 @@ public class MessagingService : IMessagingService
             throw new UnauthorizedAccessException("User is not a participant in this conversation");
         }
 
+        // Check for blocks
+        var otherParticipantIds = await _dbContext.ConversationParticipants
+            .Where(p => p.ConversationId == conversationId && p.UserId != userId && !p.HasLeft)
+            .Select(p => p.UserId)
+            .ToListAsync();
+
+        foreach (var otherId in otherParticipantIds)
+        {
+            var isBlocked = await _dbContext.UserBlocks
+                .AnyAsync(b => (b.BlockerUserId == userId && b.BlockedUserId == otherId) ||
+                               (b.BlockerUserId == otherId && b.BlockedUserId == userId));
+            
+            if (isBlocked)
+            {
+                _logger.LogWarning("Message send blocked: active block between users. ConvId: {ConvId}, Sender: {UserId}, Recipient: {RecipientId}",
+                    conversationId, userId, otherId);
+                throw new UnauthorizedAccessException("Cannot send message: one or more participants have blocked the other");
+            }
+        }
+
         // If conversation is application-scoped, enforce eligibility
         if (conversation.ApplicationId.HasValue)
         {
@@ -793,7 +813,7 @@ public class MessagingService : IMessagingService
         {
             Id = Guid.NewGuid(),
             OrganizationId = organizationId,
-            UserId = string.IsNullOrEmpty(userId) ? null : Guid.Parse(userId),
+            UserId = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : null,
             Action = action,
             EntityType = "Message",
             EntityId = entityId,

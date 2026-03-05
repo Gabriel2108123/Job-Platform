@@ -48,16 +48,13 @@ function MessagesContent() {
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [safetyActionLoading, setSafetyActionLoading] = useState(false);
 
   useEffect(() => {
     fetchConversations();
   }, []);
 
-  useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages(selectedConversation);
-    }
-  }, [selectedConversation]);
+  const selectedConvData = conversations.find(c => c.id === selectedConversation);
 
   const fetchConversations = async () => {
     setLoading(true);
@@ -103,15 +100,72 @@ function MessagesContent() {
         method: 'POST',
         body: JSON.stringify({ text: newMessage }),
       });
-      
+
       if (response.success && response.data) {
         setMessages([...messages, response.data]);
         setNewMessage('');
+      } else {
+        alert(response.error || 'Failed to send message. You might be blocked or rate limited.');
       }
     } catch (error) {
       console.error('Failed to send message:', error);
+      alert('An error occurred. Please try again.');
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!selectedConvData || !confirm(`Are you sure you want to block ${selectedConvData.otherUserName}? You will no longer be able to message each other.`)) return;
+
+    setSafetyActionLoading(true);
+    try {
+      const response = await apiRequest('/api/safety/block', {
+        method: 'POST',
+        body: JSON.stringify({ blockedUserId: selectedConvData.otherUserId })
+      });
+
+      if (response.success) {
+        alert('User blocked successfully.');
+        setSelectedConversation(null);
+        fetchConversations();
+      } else {
+        alert(response.error || 'Failed to block user.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to block user.');
+    } finally {
+      setSafetyActionLoading(false);
+    }
+  };
+
+  const handleReportUser = async () => {
+    if (!selectedConvData) return;
+    const reason = prompt(`Why are you reporting ${selectedConvData.otherUserName}?\n(e.g., Harassment, Spam, Inappropriate behavior)`);
+    if (!reason) return;
+
+    setSafetyActionLoading(true);
+    try {
+      const response = await apiRequest('/api/safety/report', {
+        method: 'POST',
+        body: JSON.stringify({
+          reportedUserId: selectedConvData.otherUserId,
+          reason,
+          description: `Reported via messaging interface for: ${reason}`
+        })
+      });
+
+      if (response.success) {
+        alert('Report submitted. Our safety team will review this. You may also want to block the user.');
+      } else {
+        alert(response.error || 'Failed to submit report. You might be rate limited.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to submit report.');
+    } finally {
+      setSafetyActionLoading(false);
     }
   };
 
@@ -160,9 +214,8 @@ function MessagesContent() {
                     <button
                       key={conv.id}
                       onClick={() => setSelectedConversation(conv.id)}
-                      className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${
-                        selectedConversation === conv.id ? 'bg-blue-50' : ''
-                      }`}
+                      className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${selectedConversation === conv.id ? 'bg-blue-50' : ''
+                        }`}
                     >
                       <div className="flex items-start justify-between mb-1">
                         <span className="font-medium text-gray-900">{conv.otherUserName}</span>
@@ -187,6 +240,33 @@ function MessagesContent() {
               <CardBody className="p-0 flex flex-col h-[600px]">
                 {selectedConversation ? (
                   <>
+                    <div className="border-b p-4 flex justify-between items-center bg-gray-50/50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-400">
+                          {selectedConvData?.otherUserName?.substring(0, 1)}
+                        </div>
+                        <span className="font-semibold text-gray-900">{selectedConvData?.otherUserName}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={handleReportUser}
+                          disabled={safetyActionLoading}
+                        >
+                          Report
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={handleBlockUser}
+                          disabled={safetyActionLoading}
+                        >
+                          Block
+                        </Button>
+                      </div>
+                    </div>
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                       {messagesLoading ? (
@@ -200,11 +280,10 @@ function MessagesContent() {
                             className={`flex ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}
                           >
                             <div
-                              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                                msg.senderId === 'me'
-                                  ? 'bg-[var(--brand-primary)] text-white'
-                                  : 'bg-gray-100 text-gray-900'
-                              }`}
+                              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${msg.senderId === 'me'
+                                ? 'bg-[var(--brand-primary)] text-white'
+                                : 'bg-gray-100 text-gray-900'
+                                }`}
                             >
                               <p className="text-sm font-medium mb-1">{msg.senderName}</p>
                               <p>{msg.text}</p>
@@ -226,10 +305,11 @@ function MessagesContent() {
                           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                           placeholder="Type a message..."
                           className="flex-1"
+                          disabled={safetyActionLoading}
                         />
                         <Button
                           onClick={sendMessage}
-                          disabled={!newMessage.trim() || sending}
+                          disabled={!newMessage.trim() || sending || safetyActionLoading}
                           variant="primary"
                         >
                           {sending ? 'Sending...' : 'Send'}

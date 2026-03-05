@@ -245,6 +245,8 @@ export interface ApplicationHistoryEntry {
   changedAt: string;
   changedBy?: string;
   reason?: string;
+  preHireConfirmation?: boolean;
+  preHireConfirmationText?: string;
 }
 
 // ============================================================================
@@ -540,6 +542,7 @@ export interface WorkExperienceDto {
   endDate?: string;
   visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
   isMapEnabled: boolean;
+  allowCoworkerDiscovery: boolean;
   latApprox?: number;
   lngApprox?: number;
   createdAt: string;
@@ -557,6 +560,7 @@ export interface CreateWorkExperienceDto {
   endDate?: string;
   visibilityLevel: 'private' | 'applied_only' | 'shortlisted_only';
   isMapEnabled: boolean;
+  allowCoworkerDiscovery: boolean;
 }
 
 export interface UpdateWorkExperienceDto {
@@ -570,6 +574,7 @@ export interface UpdateWorkExperienceDto {
   endDate?: string;
   visibilityLevel?: 'private' | 'applied_only' | 'shortlisted_only';
   isMapEnabled?: boolean;
+  allowCoworkerDiscovery?: boolean;
 }
 
 // --- Candidate API Functions ---
@@ -652,6 +657,8 @@ export interface PotentialCoworkerDto {
   overlapStart: string;
   overlapEnd: string;
   overlapDays: number;
+  matchConfidence: number;
+  matchReasons: string[];
 }
 
 export async function getPotentialCoworkers(): Promise<PotentialCoworkerDto[]> {

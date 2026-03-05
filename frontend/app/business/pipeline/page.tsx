@@ -221,7 +221,7 @@ function PipelineContent() {
           <select
             value={selectedJobId || ''}
             onChange={(e) => setSelectedJobId(e.target.value)}
-            className="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent"
+            className="w-full md:w-96 px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent"
           >
             {jobs.map(job => (
               <option key={job.id} value={job.id}>{job.title}</option>
@@ -273,7 +273,7 @@ function PipelineContent() {
                             </Button>
                             <select
                               onChange={(e) => handleMoveApplication(app.id, e.target.value as ApplicationStatus)}
-                              className="text-xs px-2 py-1 border rounded w-full"
+                              className="text-xs px-2 py-1 bg-white text-gray-900 border rounded w-full"
                               defaultValue=""
                             >
                               <option value="" disabled>Move to...</option>
@@ -327,7 +327,7 @@ function PipelineContent() {
                 <textarea
                   value={preHireNotes}
                   onChange={(e) => setPreHireNotes(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent"
+                  className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent"
                   rows={4}
                   placeholder="Document what pre-hire checks were completed (e.g., references, background check, ID verification)..."
                 />
@@ -355,7 +355,7 @@ function PipelineContent() {
                   type="text"
                   value={confirmText}
                   onChange={(e) => setConfirmText(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg"
                   placeholder="Type CONFIRM"
                 />
               </div>

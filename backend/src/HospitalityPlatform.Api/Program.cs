@@ -19,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
+builder.Services.AddMemoryCache();
 
 // Configure database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -233,42 +234,44 @@ using (var scope = app.Services.CreateScope())
     
     try
     {
-        dbContext.Database.Migrate();
-        
-        // Seed roles if they don't exist
-        string[] roles = { "Candidate", "BusinessOwner", "Staff", "Admin", "Support" };
-        foreach (var roleName in roles)
+        if (dbContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
         {
-            if (!await roleManager.RoleExistsAsync(roleName))
+            dbContext.Database.Migrate();
+            
+            // Seed roles if they don't exist
+            string[] roles = { "Candidate", "BusinessOwner", "Staff", "Admin", "Support" };
+            foreach (var roleName in roles)
             {
-                await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
-                logger.LogInformation("Created role: {Role}", roleName);
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
+                    logger.LogInformation("Created role: {Role}", roleName);
+                }
+            }
+
+            // Run Data Seeder
+            try 
+            {
+                var dataSeeder = scope.ServiceProvider.GetRequiredService<HospitalityPlatform.Api.Services.DataSeedingService>();
+                await dataSeeder.SeedAsync();
+                logger.LogInformation("Data seeding completed successfully");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Data seeding failed");
+            }
+
+            // Seed Job Roles
+            try
+            {
+                await dbContext.SeedJobRolesAsync();
+                logger.LogInformation("Job roles seeded successfully");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Job roles seeding failed");
             }
         }
-
-        // Run Data Seeder
-        try 
-        {
-            var dataSeeder = scope.ServiceProvider.GetRequiredService<HospitalityPlatform.Api.Services.DataSeedingService>();
-            await dataSeeder.SeedAsync();
-            logger.LogInformation("Data seeding completed successfully");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Data seeding failed");
-        }
-
-        // Seed Job Roles
-        try
-        {
-            await dbContext.SeedJobRolesAsync();
-            logger.LogInformation("Job roles seeded successfully");
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Job roles seeding failed");
-        }
-
     }
     catch (Exception ex)
     {
@@ -278,6 +281,7 @@ using (var scope = app.Services.CreateScope())
 
 // Configure the HTTP request pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<RateLimitMiddleware>();
 
 // Always enable CORS for frontend
 app.UseCors("AllowFrontend");

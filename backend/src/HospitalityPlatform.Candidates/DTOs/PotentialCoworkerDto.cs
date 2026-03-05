@@ -10,4 +10,7 @@ public class PotentialCoworkerDto
     public DateTime OverlapStart { get; set; }
     public DateTime OverlapEnd { get; set; }
     public int OverlapDays { get; set; }
+    
+    public double MatchConfidence { get; set; }
+    public List<string> MatchReasons { get; set; } = new List<string>();
 }

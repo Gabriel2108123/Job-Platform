@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="9513e8b4-c081-412f-8a58-1687fb222838" name="gaby8@GABRIEL 2026-03-05 16:25:52" runUser="GABRIEL\gaby8" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-03-05T16:25:52.8884304+00:00" queuing="2026-03-05T16:25:52.8884307+00:00" start="2026-03-05T16:25:51.8216907+00:00" finish="2026-03-05T16:25:52.8962339+00:00" />
+  <TestSettings name="default" id="5047750e-0627-45d6-9b17-4878cd73e182">
+    <Deployment runDeploymentRoot="gaby8_GABRIEL_2026-03-05_16_25_52" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b270601a-dcf9-482f-8810-c79c7b0d44f5" testId="649a1c4f-2a76-aa4f-61f8-c97b4d074abc" testName="HospitalityPlatform.Api.Tests.IntegrationTests.AdminAction_NonAdmin_AuditLogged" computerName="GABRIEL" duration="00:00:00.0992827" startTime="2026-03-05T16:25:52.8324306+00:00" endTime="2026-03-05T16:25:52.8324386+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b270601a-dcf9-482f-8810-c79c7b0d44f5">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Failed to get token for candidate@test.com</Message>
+          <StackTrace>   at HospitalityPlatform.Api.Tests.IntegrationTests.GetAuthTokenForUser(String email) in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs:line 483&#xD;
+   at HospitalityPlatform.Api.Tests.IntegrationTests.AdminAction_NonAdmin_AuditLogged() in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs:line 370&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.AdminAction_NonAdmin_AuditLogged" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="649a1c4f-2a76-aa4f-61f8-c97b4d074abc">
+      <Execution id="b270601a-dcf9-482f-8810-c79c7b0d44f5" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="AdminAction_NonAdmin_AuditLogged" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="649a1c4f-2a76-aa4f-61f8-c97b4d074abc" executionId="b270601a-dcf9-482f-8810-c79c7b0d44f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.4.1+b9eacec401 (64-bit .NET 8.0.24)&#xD;
+[xUnit.net 00:00:00.04]   Discovering: HospitalityPlatform.Api.Tests&#xD;
+[xUnit.net 00:00:00.05]   Discovered:  HospitalityPlatform.Api.Tests&#xD;
+[xUnit.net 00:00:00.05]   Starting:    HospitalityPlatform.Api.Tests&#xD;
+warn: HospitalityPlatform.Api.Controllers.AuthController[0]&#xD;
+      Login attempt with non-existent email: candidate@test.com&#xD;
+[xUnit.net 00:00:00.81]       System.InvalidOperationException : Failed to get token for candidate@test.com&#xD;
+[xUnit.net 00:00:00.81]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.81]         C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs(483,0): at HospitalityPlatform.Api.Tests.IntegrationTests.GetAuthTokenForUser(String email)&#xD;
+[xUnit.net 00:00:00.81]         C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs(370,0): at HospitalityPlatform.Api.Tests.IntegrationTests.AdminAction_NonAdmin_AuditLogged()&#xD;
+[xUnit.net 00:00:00.81]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.81]   Finished:    HospitalityPlatform.Api.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GABRIEL" outcome="Error" timestamp="2026-03-05T16:25:52.8313583+00:00">
+        <Text>[xUnit.net 00:00:00.80]     HospitalityPlatform.Api.Tests.IntegrationTests.AdminAction_NonAdmin_AuditLogged [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

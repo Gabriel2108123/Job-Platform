@@ -1,4 +1,5 @@
 using HospitalityPlatform.Core.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace HospitalityPlatform.Messaging.Entities;
 
@@ -8,6 +9,9 @@ namespace HospitalityPlatform.Messaging.Entities;
 /// </summary>
 public class Conversation : TenantEntity
 {
+    [Key]
+    public new Guid Id { get; set; }
+
     /// <summary>Conversation subject/title.</summary>
     public string Subject { get; set; } = null!;
 

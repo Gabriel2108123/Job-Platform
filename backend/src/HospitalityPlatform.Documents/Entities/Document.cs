@@ -1,4 +1,5 @@
 using HospitalityPlatform.Core.Entities;
+using HospitalityPlatform.Documents.Enums;
 
 namespace HospitalityPlatform.Documents.Entities;
 
@@ -41,6 +42,13 @@ public class Document : TenantEntity
     /// <summary>User who deleted the document.</summary>
     public string? DeletedByUserId { get; set; }
 
+    /// <summary>The explicitly declared type of the document (allowlisted).</summary>
+    public DocumentType DocumentType { get; set; }
+
+    /// <summary>Expected date when the document should be purged for compliance.</summary>
+    public DateTime? RetentionDate { get; set; }
+
     /// <summary>Navigation property for access rules.</summary>
     public ICollection<DocumentAccess> AccessRules { get; set; } = [];
 }
+

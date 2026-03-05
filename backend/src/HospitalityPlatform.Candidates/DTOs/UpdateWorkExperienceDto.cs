@@ -30,4 +30,6 @@ public class UpdateWorkExperienceDto
     public string? VisibilityLevel { get; set; }
     
     public bool? IsMapEnabled { get; set; }
+
+    public bool? AllowCoworkerDiscovery { get; set; }
 }

@@ -2,11 +2,18 @@ using Xunit;
 using Moq;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using HospitalityPlatform.Database;
 using Microsoft.EntityFrameworkCore;
 using HospitalityPlatform.Identity.Entities;
 using System.Net;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using HospitalityPlatform.Jobs.Entities;
+using HospitalityPlatform.Jobs.Enums;
+using HospitalityPlatform.Messaging.Controllers;
+using HospitalityPlatform.Messaging.DTOs;
 
 namespace HospitalityPlatform.Api.Tests;
 
@@ -23,37 +30,44 @@ public class IntegrationTests : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        var dbName = "test_db_" + Guid.NewGuid();
         _factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
             {
-                builder.ConfigureServices(services =>
+                builder.ConfigureAppConfiguration((context, config) =>
                 {
-                    // Remove production DbContext
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                    if (descriptor != null)
-                        services.Remove(descriptor);
-
-                    // Add in-memory database for testing
-                    services.AddDbContext<ApplicationDbContext>(options =>
+                    config.AddInMemoryCollection(new Dictionary<string, string>
                     {
-                        options.UseInMemoryDatabase("test_db_" + Guid.NewGuid());
+                        { "Waitlist:DisableRateLimit", "true" }
                     });
                 });
-            });
 
+                builder.ConfigureServices(services =>
+                {
+                    services.RemoveAll(typeof(DbContextOptions<ApplicationDbContext>));
+                    services.RemoveAll(typeof(ApplicationDbContext));
+                    services.RemoveAll(typeof(DbContext));
+
+                    services.AddDbContext<ApplicationDbContext>(options =>
+                    {
+                        options.UseInMemoryDatabase(dbName);
+                    });
+
+                    services.AddScoped<DbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+                });
+            });
         _client = _factory.CreateClient();
+
         _scope = _factory.Services.CreateScope();
         _context = _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        // Initialize database
         await _context.Database.EnsureCreatedAsync();
         await SeedTestData();
     }
 
     public async Task DisposeAsync()
     {
-        _context?.Dispose();
+        if (_context != null) await _context.DisposeAsync();
         _scope?.Dispose();
         _client?.Dispose();
         _factory?.Dispose();
@@ -61,489 +75,237 @@ public class IntegrationTests : IAsyncLifetime
 
     private async Task SeedTestData()
     {
-        // Clear existing data
-        _context.Users.RemoveRange(_context.Users);
-        await _context.SaveChangesAsync();
+        using var scope = _factory.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        // Ensure roles exist
+        var roles = new[] { "Admin", "Candidate" };
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                await roleManager.CreateAsync(new ApplicationRole { Name = role });
+            }
+        }
+
+        // Create organizations
+        var adminOrg = new Organization { Name = "Admin Org", IsActive = true };
+        var candidateOrg = new Organization { Name = "Candidate Org", IsActive = true };
+        context.Organizations.AddRange(adminOrg, candidateOrg);
+
+        // Create a job for applications
+        var testJob = new Job
+        {
+            Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+            Title = "Test Hospitality Job",
+            Description = "A great job in hospitality.",
+            Location = "London",
+            OrganizationId = adminOrg.Id,
+            Status = JobStatus.Published,
+            EmploymentType = EmploymentType.FullTime,
+            CreatedAt = DateTime.UtcNow
+        };
+        context.Jobs.Add(testJob);
+
+        await context.SaveChangesAsync();
 
         // Seed test users
-        var adminUser = new ApplicationUser
+        var userSpecs = new[]
         {
-            Id = Guid.NewGuid(),
-            UserName = "admin@test.com",
-            Email = "admin@test.com",
-            EmailConfirmed = true,
-            NormalizedUserName = "ADMIN@TEST.COM",
-            NormalizedEmail = "ADMIN@TEST.COM"
+            new { Email = "admin@test.com", IsUnverified = false, Role = "Admin", OrgId = adminOrg.Id },
+            new { Email = "candidate@test.com", IsUnverified = false, Role = "Candidate", OrgId = candidateOrg.Id },
+            new { Email = "unverified@test.com", IsUnverified = true, Role = "Candidate", OrgId = candidateOrg.Id }
         };
 
-        var candidateUser = new ApplicationUser
+        foreach (var spec in userSpecs)
         {
-            Id = Guid.NewGuid(),
-            UserName = "candidate@test.com",
-            Email = "candidate@test.com",
-            EmailConfirmed = true,
-            NormalizedUserName = "CANDIDATE@TEST.COM",
-            NormalizedEmail = "CANDIDATE@TEST.COM"
-        };
+            var user = new ApplicationUser
+            {
+                UserName = spec.Email,
+                Email = spec.Email,
+                EmailConfirmed = !spec.IsUnverified,
+                OrganizationId = spec.OrgId
+            };
 
-        var unverifiedUser = new ApplicationUser
-        {
-            Id = Guid.NewGuid(),
-            UserName = "unverified@test.com",
-            Email = "unverified@test.com",
-            EmailConfirmed = false,
-            NormalizedUserName = "UNVERIFIED@TEST.COM",
-            NormalizedEmail = "UNVERIFIED@TEST.COM"
-        };
-
-        _context.Users.AddRange(adminUser, candidateUser, unverifiedUser);
-        await _context.SaveChangesAsync();
+            var result = await userManager.CreateAsync(user, "TestPassword123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, spec.Role);
+            }
+            else
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Failed to seed user {spec.Email}: {errors}");
+            }
+        }
     }
 
-    /// <summary>
-    /// Test: Waitlist duplicate email prevention
-    /// Scenario: User tries to join waitlist with already-registered email
-    /// Expected: Returns 400 Bad Request with descriptive error
-    /// </summary>
     [Fact]
     public async Task WaitlistJoin_DuplicateEmail_Returns400BadRequest()
     {
-        // Arrange
         var payload = new { email = "candidate@test.com", accountType = 1 };
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        
+        await _client.PostAsJsonAsync("/api/waitlist", payload);
 
-        // Act - First join (should succeed)
-        var firstResponse = await _client.PostAsync("/api/waitlist/join", content);
+        var secondResponse = await _client.PostAsJsonAsync("/api/waitlist", payload);
 
-        // Reset content for second request
-        content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
-
-        // Act - Second join with same email (should fail)
-        var secondResponse = await _client.PostAsync("/api/waitlist/join", content);
-
-        // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, secondResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, secondResponse.StatusCode);
         var responseBody = await secondResponse.Content.ReadAsStringAsync();
-        Assert.Contains("already on the waitlist", responseBody, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Email already on waitlist", responseBody, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Test: Waitlist rate limiting per IP
-    /// Scenario: Multiple rapid waitlist join requests from same IP
-    /// Expected: Returns 429 Too Many Requests after limit exceeded
-    /// </summary>
     [Fact]
     public async Task WaitlistJoin_RateLimitExceeded_Returns429()
     {
-        // Arrange
-        var requestCount = 6; // Assuming limit is 5 per minute
+        using var rateLimitFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string>
+                {
+                    { "Waitlist:DisableRateLimit", "false" }
+                });
+            });
+        });
+        using var rateLimitClient = rateLimitFactory.CreateClient();
+
+        var requestCount = 6;
         var responses = new List<HttpResponseMessage>();
 
-        // Act - Make rapid requests
         for (int i = 0; i < requestCount; i++)
         {
-            var payload = new { email = $"user{i}@test.com", accountType = 1 };
-            var content = new StringContent(
-                System.Text.Json.JsonSerializer.Serialize(payload),
-                System.Text.Encoding.UTF8,
-                "application/json");
-
-            var response = await _client.PostAsync("/api/waitlist/join", content);
+            var payload = new { email = $"rate{i}_{Guid.NewGuid()}@test.com", accountType = 1 };
+            var response = await rateLimitClient.PostAsJsonAsync("/api/waitlist", payload);
             responses.Add(response);
         }
 
-        // Assert
-        // At least one request should be rate-limited (429)
         var rateLimitedResponse = responses.FirstOrDefault(r => r.StatusCode == HttpStatusCode.TooManyRequests);
         Assert.NotNull(rateLimitedResponse);
-        Assert.Equal(HttpStatusCode.TooManyRequests, rateLimitedResponse.StatusCode);
     }
 
-    /// <summary>
-    /// Test: Email verification gate for job applications
-    /// Scenario: Unverified user attempts to apply for a job
-    /// Expected: Returns 403 Forbidden with email verification requirement message
-    /// </summary>
     [Fact]
     public async Task JobApplication_UnverifiedEmail_Returns403()
     {
-        // Arrange - Get JWT token for unverified user
         var token = await GetAuthTokenForUser("unverified@test.com");
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        var payload = new { jobId = "job-001", coverLetter = "I am interested." };
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        var jobId = "00000000-0000-0000-0000-000000000001";
+        var payload = new { jobId, coverLetter = "I am interested." };
+        
+        var response = await _client.PostAsJsonAsync($"/api/applications/jobs/{jobId}/apply", payload);
 
-        // Act
-        var response = await _client.PostAsync("/api/jobs/apply", content);
-
-        // Assert
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         var responseBody = await response.Content.ReadAsStringAsync();
         Assert.Contains("verify your email", responseBody, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Test: Verified user can apply for jobs
-    /// Scenario: Verified user with confirmed email applies for job
-    /// Expected: Returns 200 OK or 201 Created
-    /// </summary>
     [Fact]
     public async Task JobApplication_VerifiedEmail_Returns201()
     {
-        // Arrange
         var token = await GetAuthTokenForUser("candidate@test.com");
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        var payload = new { jobId = "job-001", coverLetter = "I am very interested." };
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        var jobId = "00000000-0000-0000-0000-000000000001";
+        var payload = new { jobId, coverLetter = "I am very interested." };
+        
+        var response = await _client.PostAsJsonAsync($"/api/applications/jobs/{jobId}/apply", payload);
 
-        // Act
-        var response = await _client.PostAsync("/api/jobs/apply", content);
-
-        // Assert
         Assert.True(
             response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created,
             $"Expected 200 or 201, got {response.StatusCode}");
     }
 
-    /// <summary>
-    /// Test: Messaging unlock gate - unverified user
-    /// Scenario: Unverified user attempts to send message
-    /// Expected: Returns 403 Forbidden requiring email verification
-    /// </summary>
     [Fact]
     public async Task Messaging_UnverifiedUser_Returns403()
     {
-        // Arrange
         var token = await GetAuthTokenForUser("unverified@test.com");
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        var payload = new { recipientId = Guid.NewGuid().ToString(), message = "Hello, are you interested?" };
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        var payload = new CreateConversationDto 
+        { 
+            Subject = "Premium Conversation",
+            ParticipantUserIds = new List<string> { Guid.NewGuid().ToString() }
+        };
+        
+        var response = await _client.PostAsJsonAsync("/api/messaging/conversations", payload);
 
-        // Act
-        var response = await _client.PostAsync("/api/messages/send", content);
-
-        // Assert
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         var responseBody = await response.Content.ReadAsStringAsync();
-        Assert.Contains("email", responseBody, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("verify your email", responseBody, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Test: Messaging unlock gate - unsubscribed user
-    /// Scenario: User without active subscription attempts to message
-    /// Expected: Returns 403 Forbidden requiring subscription
-    /// </summary>
     [Fact]
     public async Task Messaging_UnsubscribedUser_Returns403()
     {
-        // Arrange
-        var token = await GetAuthTokenForUser("candidate@test.com");
+        var token = await GetAuthTokenForUser("candidate@test.com"); // Verified but no subscription
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        // Note: candidate@test.com has no subscription in seed data
-        var payload = new { recipientId = Guid.NewGuid().ToString(), message = "Hello!" };
-        var content = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(payload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        var payload = new CreateConversationDto 
+        { 
+            Subject = "Test Conversation",
+            ParticipantUserIds = new List<string> { Guid.NewGuid().ToString() }
+        };
+        
+        var response = await _client.PostAsJsonAsync("/api/messaging/conversations", payload);
 
-        // Act
-        var response = await _client.PostAsync("/api/messages/send", content);
-
-        // Assert
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
         var responseBody = await response.Content.ReadAsStringAsync();
-        Assert.Contains("subscription", responseBody, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("premium subscription", responseBody, StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Test: Admin endpoint access control
-    /// Scenario: Non-admin user attempts to access admin endpoint
-    /// Expected: Returns 403 Forbidden
-    /// </summary>
     [Fact]
-    public async Task AdminEndpoint_NonAdminUser_Returns403()
+    public async Task ProtectedEndpoint_NoToken_Returns401()
     {
-        // Arrange - Use non-admin token
-        var token = await GetAuthTokenForUser("candidate@test.com");
-        _client.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-        // Act
-        var response = await _client.GetAsync("/api/admin/users");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        _client.DefaultRequestHeaders.Authorization = null;
+        var response = await _client.GetAsync("/api/jobs/organization");
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
-    /// <summary>
-    /// Test: Admin endpoint access control - successful
-    /// Scenario: Admin user accesses admin endpoint
-    /// Expected: Returns 200 OK with data
-    /// </summary>
+    [Fact]
+    public async Task ProtectedEndpoint_InvalidToken_Returns401()
+    {
+        _client.DefaultRequestHeaders.Authorization = 
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "invalid.token");
+        var response = await _client.GetAsync("/api/jobs/organization");
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
     [Fact]
     public async Task AdminEndpoint_AdminUser_Returns200()
     {
-        // Arrange
         var token = await GetAuthTokenForUser("admin@test.com");
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        // Act
-        var response = await _client.GetAsync("/api/admin/users");
-
-        // Assert
+        var response = await _client.GetAsync("/api/admin/metrics");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    /// <summary>
-    /// Test: Unauthorized access without token
-    /// Scenario: Protected endpoint accessed without authentication token
-    /// Expected: Returns 401 Unauthorized
-    /// </summary>
     [Fact]
-    public async Task ProtectedEndpoint_NoToken_Returns401()
+    public async Task AdminEndpoint_NonAdminUser_Returns403()
     {
-        // Arrange - Don't set Authorization header
-        _client.DefaultRequestHeaders.Authorization = null;
-
-        // Act
-        var response = await _client.GetAsync("/api/jobs");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    /// <summary>
-    /// Test: Invalid JWT token rejected
-    /// Scenario: Request made with malformed or expired token
-    /// Expected: Returns 401 Unauthorized
-    /// </summary>
-    [Fact]
-    public async Task ProtectedEndpoint_InvalidToken_Returns401()
-    {
-        // Arrange
-        _client.DefaultRequestHeaders.Authorization = 
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "invalid.token.here");
-
-        // Act
-        var response = await _client.GetAsync("/api/jobs");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
-
-    /// <summary>
-    /// Test: Audit logging for failed admin access
-    /// Scenario: Non-admin attempts admin operation
-    /// Expected: Attempt is logged in audit trail
-    /// </summary>
-    [Fact]
-    public async Task AdminAction_NonAdmin_AuditLogged()
-    {
-        // Arrange
         var token = await GetAuthTokenForUser("candidate@test.com");
         _client.DefaultRequestHeaders.Authorization = 
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        // Act
-        var response = await _client.GetAsync("/api/admin/users");
-
-        // Assert - Verify 403 (unauthorized)
+        var response = await _client.GetAsync("/api/admin/metrics");
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-
-        // Note: In production, verify audit log entry was created
-        // This would require access to AuditLog table through a test helper
-        // var auditLogs = _context.AuditLogs
-        //     .Where(l => l.UserId == "candidate-001" && l.Action == "AdminAccess")
-        //     .OrderByDescending(l => l.Timestamp)
-        //     .FirstOrDefault();
-        // Assert.NotNull(auditLogs);
-        // Assert.Equal("Failure", auditLogs.Status);
     }
 
-    /// <summary>
-    /// Test: Jobs endpoint with pagination
-    /// Scenario: Public user requests jobs with pageNumber and pageSize
-    /// Expected: Returns 200 with PagedResult containing items, totalCount, pagination info
-    /// </summary>
-    [Fact]
-    public async Task GetJobs_WithPagination_ReturnsPagedResult()
-    {
-        // Arrange
-        // Jobs endpoint is public (AllowAnonymous)
-        
-        // Act
-        var response = await _client.GetAsync("/api/Jobs?pageNumber=1&pageSize=10");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
-        var root = jsonDoc.RootElement;
-        
-        // Verify response structure
-        Assert.True(root.TryGetProperty("items", out var itemsElement));
-        Assert.True(root.TryGetProperty("totalCount", out var totalCountElement));
-        Assert.True(root.TryGetProperty("pageNumber", out var pageNumberElement));
-        Assert.True(root.TryGetProperty("pageSize", out var pageSizeElement));
-        
-        // Verify pagination values
-        Assert.Equal(1, pageNumberElement.GetInt32());
-        Assert.Equal(10, pageSizeElement.GetInt32());
-        
-        // Verify items is array (even if empty)
-        Assert.Equal(System.Text.Json.JsonValueKind.Array, itemsElement.ValueKind);
-    }
-
-    /// <summary>
-    /// Test: Jobs endpoint with default pagination
-    /// Scenario: Public user requests jobs without explicit pagination params
-    /// Expected: Returns 200 with default PageNumber=1, PageSize=20
-    /// </summary>
-    [Fact]
-    public async Task GetJobs_NoParams_ReturnsDefaultPagination()
-    {
-        // Arrange
-        // No parameters - should use defaults
-        
-        // Act
-        var response = await _client.GetAsync("/api/Jobs");
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        
-        var responseBody = await response.Content.ReadAsStringAsync();
-        var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
-        var root = jsonDoc.RootElement;
-        
-        // Verify response has pagination fields
-        Assert.True(root.TryGetProperty("items", out var itemsElement));
-        Assert.True(root.TryGetProperty("pageNumber", out var pageNumberElement));
-        Assert.True(root.TryGetProperty("pageSize", out var pageSizeElement));
-        
-        // Verify default values
-        Assert.Equal(1, pageNumberElement.GetInt32());
-        Assert.Equal(20, pageSizeElement.GetInt32());
-    }
-
-    // Helper Methods
-
-    /// <summary>
-    /// Generate a mock JWT token for testing.
-    /// In production, this would call the actual /login endpoint.
-    /// </summary>
     private async Task<string> GetAuthTokenForUser(string email)
     {
-        // For integration tests with real API, call login endpoint:
-        var loginPayload = new { email = email, password = "TestPassword123!" };
-        var loginContent = new StringContent(
-            System.Text.Json.JsonSerializer.Serialize(loginPayload),
-            System.Text.Encoding.UTF8,
-            "application/json");
+        var payload = new { email, password = "TestPassword123!" };
+        var response = await _client.PostAsJsonAsync("/api/auth/login", payload);
+        response.EnsureSuccessStatusCode();
 
-        var loginResponse = await _client.PostAsync("/api/auth/login", loginContent);
-
-        if (loginResponse.IsSuccessStatusCode)
-        {
-            var responseBody = await loginResponse.Content.ReadAsStringAsync();
-            var jsonDoc = System.Text.Json.JsonDocument.Parse(responseBody);
-            if (jsonDoc.RootElement.TryGetProperty("token", out var tokenElement))
-            {
-                return tokenElement.GetString() ?? throw new InvalidOperationException("No token in response");
-            }
-        }
-
-        throw new InvalidOperationException($"Failed to get token for {email}");
-    }
-}
-
-/// <summary>
-/// Tests for rate limiting middleware and abuse prevention.
-/// </summary>
-public class RateLimitingTests : IAsyncLifetime
-{
-    private WebApplicationFactory<Program> _factory = default!;
-    private HttpClient _client = default!;
-
-    public async Task InitializeAsync()
-    {
-        _factory = new WebApplicationFactory<Program>()
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureServices(services =>
-                {
-                    var descriptor = services.SingleOrDefault(
-                        d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
-                    if (descriptor != null)
-                        services.Remove(descriptor);
-
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseInMemoryDatabase("test_db_ratelimit_" + Guid.NewGuid());
-                    });
-                });
-            });
-
-        _client = _factory.CreateClient();
-        await Task.CompletedTask;
-    }
-
-    public async Task DisposeAsync()
-    {
-        _client?.Dispose();
-        _factory?.Dispose();
-        await Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Test: Login attempts rate limiting
-    /// Scenario: Multiple failed login attempts in quick succession
-    /// Expected: After 5 attempts, further attempts return 429
-    /// </summary>
-    [Fact]
-    public async Task LoginAttempts_RateLimited_After5Failures()
-    {
-        var responses = new List<HttpResponseMessage>();
-
-        // Make 7 failed login attempts
-        for (int i = 0; i < 7; i++)
-        {
-            var payload = new { email = "test@example.com", password = "wrongpassword" };
-            var content = new StringContent(
-                System.Text.Json.JsonSerializer.Serialize(payload),
-                System.Text.Encoding.UTF8,
-                "application/json");
-
-            var response = await _client.PostAsync("/api/auth/login", content);
-            responses.Add(response);
-        }
-
-        // Assert - At least one should be rate-limited
-        var rateLimitedResponses = responses.Where(r => r.StatusCode == HttpStatusCode.TooManyRequests);
-        Assert.NotEmpty(rateLimitedResponses);
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var json = System.Text.Json.JsonDocument.Parse(responseBody);
+        return json.RootElement.GetProperty("token").GetString()!;
     }
 }

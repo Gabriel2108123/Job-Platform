@@ -14,6 +14,8 @@ public interface IMessagingDbContext
     DbSet<ConversationParticipant> ConversationParticipants { get; }
     DbSet<Message> Messages { get; }
     DbSet<Rating> Ratings { get; }
+    DbSet<UserBlock> UserBlocks { get; }
+    DbSet<UserReport> UserReports { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     Task SaveAuditLogAsync(AuditLog auditLog);

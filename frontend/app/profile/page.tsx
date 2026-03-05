@@ -216,7 +216,7 @@ export default function CandidateProfilePage() {
                       value={formData.currentStatus}
                       onChange={handleInputChange}
                       disabled={!editing}
-                      className="w-full py-3 px-4 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent appearance-none disabled:bg-gray-50 disabled:text-gray-500"
+                      className="w-full py-3 px-4 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent appearance-none disabled:bg-gray-50 disabled:text-gray-500"
                     >
                       <option value="Available">Available to Work</option>
                       <option value="Employed">Employed (Open to offers)</option>
@@ -238,7 +238,7 @@ export default function CandidateProfilePage() {
                   onChange={handleInputChange}
                   disabled={!editing}
                   placeholder="Share your hospitality journey, passions, and career goals..."
-                  className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
+                  className="w-full h-32 px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                 />
               </div>
 

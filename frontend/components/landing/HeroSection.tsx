@@ -20,22 +20,15 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
 
-                {/* Logo */}
-                <div className="flex justify-center mb-8 animate-fade-in">
-                    <img
-                        src="/images/yoke-logo-icon.jpg"
-                        alt="YokeConnect"
-                        className="h-24 w-24 md:h-32 md:w-32"
-                    />
-                </div>
+
 
                 {/* Main Headline */}
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-8 max-w-5xl mx-auto leading-[1.1]">
-                    Hospitality hiring that <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-gold)]">actually moves.</span>
+                <h1 className="text-5xl md:text-6xl lg:text-8xl font-extrabold tracking-tight text-white mb-8 max-w-5xl mx-auto leading-[1.1] drop-shadow-lg">
+                    Hospitality hiring that <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-[var(--brand-gold)]">actually moves.</span>
                 </h1>
 
                 {/* Subheadline */}
-                <p className="mt-6 text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto font-light leading-relaxed">
+                <p className="mt-6 text-xl md:text-2xl text-gray-100 max-w-3xl mx-auto font-medium leading-relaxed">
                     A global platform where hospitality employers and professionals <span className="text-white font-medium">connect directly</span>.
                     <br className="hidden md:block" />
                     No recruiters. No commission. One simple subscription.
@@ -54,7 +47,7 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
                     <Button
                         size="lg"
                         onClick={onScrollToForm}
-                        className="w-full sm:w-auto text-lg px-8 py-6 bg-white text-blue-700 hover:text-blue-800 hover:bg-gray-100 font-bold shadow-lg transition-all"
+                        className="w-full sm:w-auto text-xl px-10 py-7 bg-white !text-[var(--brand-navy)] hover:bg-gray-100 font-extrabold shadow-xl transition-all border-2 border-white"
                     >
                         Join Waitlist
                     </Button>
@@ -64,7 +57,7 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
                             <Button
                                 size="lg"
                                 variant="primary"
-                                className="w-full sm:w-80 text-lg px-8 py-6 bg-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/80 text-white font-bold shadow-lg transition-all"
+                                className="w-full sm:w-64 text-xl px-10 py-7 bg-[var(--brand-accent)] hover:bg-[var(--brand-accent)]/90 text-white font-extrabold shadow-xl transition-all border-2 border-[var(--brand-accent)]"
                             >
                                 Register Now
                             </Button>
@@ -73,7 +66,7 @@ export default function HeroSection({ onScrollToForm }: HeroSectionProps) {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="w-full sm:w-auto text-lg px-8 py-6 border-white text-white hover:bg-white/10 font-bold transition-all"
+                                className="w-full sm:w-auto text-xl px-10 py-7 border-2 border-white text-white hover:bg-white hover:text-[var(--brand-navy)] font-extrabold transition-all shadow-xl"
                             >
                                 Log In
                             </Button>

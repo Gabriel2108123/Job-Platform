@@ -8,6 +8,9 @@ using HospitalityPlatform.Candidates.Services;
 using HospitalityPlatform.Candidates.DTOs;
 using HospitalityPlatform.Applications.Enums;
 
+using HospitalityPlatform.Identity.Entities;
+using Microsoft.AspNetCore.Identity;
+
 namespace HospitalityPlatform.Api.Controllers;
 
 [ApiController]
@@ -18,17 +21,20 @@ public class ApplicationsController : ControllerBase
     private readonly IWorkExperienceService _workExperienceService;
     private readonly ICoworkerDiscoveryService _discoveryService;
     private readonly ILogger<ApplicationsController> _logger;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public ApplicationsController(
         IApplicationService applicationService, 
         IWorkExperienceService workExperienceService,
         ICoworkerDiscoveryService discoveryService,
-        ILogger<ApplicationsController> logger)
+        ILogger<ApplicationsController> logger,
+        UserManager<ApplicationUser> userManager)
     {
         _applicationService = applicationService;
         _workExperienceService = workExperienceService;
         _discoveryService = discoveryService;
         _logger = logger;
+        _userManager = userManager;
     }
 
     /// <summary>
@@ -40,9 +46,16 @@ public class ApplicationsController : ControllerBase
     {
         try
         {
-            var candidateId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
+            
+            // Check email verification gate
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.EmailConfirmed)
+            {
+                return StatusCode(403, new { error = "Please verify your email address to apply for jobs." });
+            }
 
-            var result = await _applicationService.ApplyToJobAsync(jobId, dto, candidateId);
+            var result = await _applicationService.ApplyToJobAsync(jobId, dto, userId);
             return CreatedAtAction(nameof(GetApplication), new { id = result.Id }, result);
         }
         catch (KeyNotFoundException ex)

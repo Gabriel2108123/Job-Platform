@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 using HospitalityPlatform.Messaging.DTOs;
 using HospitalityPlatform.Messaging.Services;
 using System.Security.Claims;
+using HospitalityPlatform.Billing.Services;
+using HospitalityPlatform.Identity.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace HospitalityPlatform.Messaging.Controllers;
 
@@ -18,11 +21,19 @@ public class MessagingController : ControllerBase
 {
     private readonly IMessagingService _messagingService;
     private readonly ILogger<MessagingController> _logger;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IBillingService _billingService;
 
-    public MessagingController(IMessagingService messagingService, ILogger<MessagingController> logger)
+    public MessagingController(
+        IMessagingService messagingService, 
+        ILogger<MessagingController> logger,
+        UserManager<ApplicationUser> userManager,
+        IBillingService billingService)
     {
         _messagingService = messagingService;
         _logger = logger;
+        _userManager = userManager;
+        _billingService = billingService;
     }
 
     /// <summary>Create a new conversation.</summary>
@@ -33,6 +44,23 @@ public class MessagingController : ControllerBase
         {
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
+
+            // Check email verification gate
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.EmailConfirmed)
+            {
+                return StatusCode(403, new { message = "Please verify your email address to use messaging." });
+            }
+
+            // Check subscription gate for general messaging (if no application context)
+            if (!dto.ApplicationId.HasValue)
+            {
+                var subscription = await _billingService.GetSubscriptionAsync(organizationId);
+                if (subscription == null || (subscription.Status != "Active" && subscription.Status != "Trialing"))
+                {
+                    return StatusCode(403, new { message = "A premium subscription is required for general messaging outside of active applications." });
+                }
+            }
 
             var conversation = await _messagingService.CreateConversationAsync(organizationId, dto, userId);
             return CreatedAtAction(nameof(GetConversation), new { conversationId = conversation.Id }, conversation);
@@ -90,6 +118,13 @@ public class MessagingController : ControllerBase
         {
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
+
+            // Check email verification gate
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.EmailConfirmed)
+            {
+                return StatusCode(403, new { message = "Please verify your email address to use messaging." });
+            }
 
             var message = await _messagingService.SendMessageAsync(organizationId, conversationId, dto, userId);
             return CreatedAtAction(nameof(GetMessage), new { conversationId, messageId = message.Id }, message);
@@ -288,7 +323,8 @@ public class MessagingController : ControllerBase
 
     private Guid GetOrganizationId()
     {
-        var orgIdClaim = User.FindFirst("organizationId")?.Value 
+        var orgIdClaim = User.FindFirst("org_id")?.Value 
+            ?? User.FindFirst("organizationId")?.Value 
             ?? User.FindFirst("organization_id")?.Value 
             ?? User.FindFirst(ClaimTypes.GroupSid)?.Value;
 

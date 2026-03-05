@@ -7,6 +7,8 @@ using HospitalityPlatform.Applications.Services;
 using HospitalityPlatform.Audit.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 namespace HospitalityPlatform.Messaging.Tests;
 
@@ -77,11 +79,18 @@ public class MessagingServiceTests
         };
 
         var messagesList = new List<Message>();
+        var userBlocksList = new List<UserBlock>();
+        var participantsList = new List<ConversationParticipant> { new ConversationParticipant { ConversationId = conversationId, UserId = userId } };
+
         var mockMessages = messagesList.AsQueryable().BuildMockDbSet();
         var mockConversations = new List<Conversation> { conversation }.AsQueryable().BuildMockDbSet();
+        var mockUserBlocks = userBlocksList.AsQueryable().BuildMockDbSet();
+        var mockParticipants = participantsList.AsQueryable().BuildMockDbSet();
 
         _mockDbContext.Setup(x => x.Conversations).Returns(mockConversations);
         _mockDbContext.Setup(x => x.Messages).Returns(mockMessages);
+        _mockDbContext.Setup(x => x.UserBlocks).Returns(mockUserBlocks);
+        _mockDbContext.Setup(x => x.ConversationParticipants).Returns(mockParticipants);
         _mockDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
         _mockDbContext.Setup(x => x.SaveAuditLogAsync(It.IsAny<AuditLog>())).Returns(Task.CompletedTask);
 
@@ -118,7 +127,6 @@ public class MessagingServiceTests
     }
 }
 
-/// <summary>Extension method to build mock DbSet from IQueryable</summary>
 public static class MockDbSetExtensions
 {
     public static DbSet<T> BuildMockDbSet<T>(this IQueryable<T> source) where T : class
@@ -127,11 +135,11 @@ public static class MockDbSetExtensions
 
         mockSet.As<IAsyncEnumerable<T>>()
             .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
-            .Returns(new AsyncEnumerator<T>(source.GetEnumerator()));
+            .Returns(new TestAsyncEnumerator<T>(source.GetEnumerator()));
 
         mockSet.As<IQueryable<T>>()
             .Setup(m => m.Provider)
-            .Returns(source.Provider);
+            .Returns(new TestAsyncQueryProvider<T>(source.Provider));
 
         mockSet.As<IQueryable<T>>()
             .Setup(m => m.Expression)
@@ -149,24 +157,90 @@ public static class MockDbSetExtensions
     }
 }
 
-public class AsyncEnumerator<T> : IAsyncEnumerator<T>
+internal class TestAsyncQueryProvider<TEntity> : IAsyncQueryProvider
 {
-    private readonly IEnumerator<T> _enumerator;
+    private readonly IQueryProvider _inner;
 
-    public AsyncEnumerator(IEnumerator<T> enumerator)
+    internal TestAsyncQueryProvider(IQueryProvider inner)
     {
-        _enumerator = enumerator;
+        _inner = inner;
     }
 
-    public T Current => _enumerator.Current;
-
-    public async ValueTask<bool> MoveNextAsync()
+    public IQueryable CreateQuery(Expression expression)
     {
-        return _enumerator.MoveNext();
+        return new TestAsyncEnumerable<TEntity>(expression);
     }
 
-    public async ValueTask DisposeAsync()
+    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
     {
-        _enumerator.Dispose();
+        return new TestAsyncEnumerable<TElement>(expression);
+    }
+
+    public object Execute(Expression expression)
+    {
+        return _inner.Execute(expression);
+    }
+
+    public TResult Execute<TResult>(Expression expression)
+    {
+        return _inner.Execute<TResult>(expression);
+    }
+
+    public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken = default)
+    {
+        var expectedResultType = typeof(TResult).GetGenericArguments()[0];
+        var executeMethod = typeof(IQueryProvider)
+            .GetMethods()
+            .First(method => method.Name == nameof(IQueryProvider.Execute) && method.IsGenericMethod)
+            .MakeGenericMethod(expectedResultType);
+
+        var executionResult = executeMethod.Invoke(_inner, new object[] { expression });
+
+        var fromResultMethod = typeof(Task).GetMethods()
+            .First(m => m.Name == nameof(Task.FromResult) && m.IsGenericMethod)
+            .MakeGenericMethod(expectedResultType);
+
+        return (TResult)fromResultMethod.Invoke(null, new object[] { executionResult })!;
+    }
+}
+
+internal class TestAsyncEnumerable<T> : EnumerableQuery<T>, IAsyncEnumerable<T>, IQueryable<T>
+{
+    public TestAsyncEnumerable(IEnumerable<T> enumerable)
+        : base(enumerable)
+    { }
+
+    public TestAsyncEnumerable(Expression expression)
+        : base(expression)
+    { }
+
+    public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+        return new TestAsyncEnumerator<T>(this.AsEnumerable().GetEnumerator());
+    }
+
+    IQueryProvider IQueryable.Provider => new TestAsyncQueryProvider<T>(this);
+}
+
+internal class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
+{
+    private readonly IEnumerator<T> _inner;
+
+    public TestAsyncEnumerator(IEnumerator<T> inner)
+    {
+        _inner = inner;
+    }
+
+    public T Current => _inner.Current;
+
+    public ValueTask DisposeAsync()
+    {
+        _inner.Dispose();
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask<bool> MoveNextAsync()
+    {
+        return new ValueTask<bool>(_inner.MoveNext());
     }
 }

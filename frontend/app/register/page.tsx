@@ -275,7 +275,7 @@ export default function RegisterPage() {
                         name="primaryRole"
                         value={formData.primaryRole}
                         onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                        className="w-full rounded-md bg-white text-gray-900 border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
                       >
                         <option value="">Select Role...</option>
                         <option value="Chef">Chef</option>
@@ -292,7 +292,7 @@ export default function RegisterPage() {
                         name="currentStatus"
                         value={formData.currentStatus}
                         onChange={handleInputChange}
-                        className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                        className="w-full rounded-md bg-white text-gray-900 border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
                       >
                         <option value="">Select Status...</option>
                         <option value="Available">Available</option>
@@ -335,7 +335,7 @@ export default function RegisterPage() {
                       name="businessType"
                       value={formData.businessType}
                       onChange={handleInputChange}
-                      className="w-full rounded-md border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
+                      className="w-full rounded-md bg-white text-gray-900 border border-gray-300 text-sm p-2 focus:ring-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
                     >
                       <option value="">Select Type...</option>
                       <option value="Hotel">Hotel</option>

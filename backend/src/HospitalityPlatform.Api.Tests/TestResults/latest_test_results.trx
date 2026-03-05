@@ -1,0 +1,316 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="b1702c98-dc3a-415b-8844-159dd8c0ec8f" name="gaby8@GABRIEL 2026-03-05 17:31:14" runUser="GABRIEL\gaby8" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-03-05T17:31:14.2456960+00:00" queuing="2026-03-05T17:31:14.2456963+00:00" start="2026-03-05T17:31:13.8149711+00:00" finish="2026-03-05T17:31:16.5699620+00:00" />
+  <TestSettings name="default" id="2adc3c98-b875-4f9e-8f5d-8d57f4cb0999">
+    <Deployment runDeploymentRoot="gaby8_GABRIEL_2026-03-05_17_31_14" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="57c2cf19-ca5c-452d-8c41-0088fc1f2be4" testId="1c74943e-a0d9-8204-a181-a14779af56e7" testName="HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnverifiedUser_Returns403" computerName="GABRIEL" duration="00:00:00.1168562" startTime="2026-03-05T17:31:15.0939960+00:00" endTime="2026-03-05T17:31:15.0939960+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="57c2cf19-ca5c-452d-8c41-0088fc1f2be4" />
+    <UnitTestResult executionId="f1b176aa-67df-45d6-b3e7-e6f7704e320e" testId="63356e43-3ed4-d214-dc42-82db50983dfa" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUserAsync_ReturnsNull_WhenNotFound" computerName="GABRIEL" duration="00:00:00.0006745" startTime="2026-03-05T17:31:14.6313699+00:00" endTime="2026-03-05T17:31:14.6313700+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f1b176aa-67df-45d6-b3e7-e6f7704e320e" />
+    <UnitTestResult executionId="a6b03cf1-39e0-4a64-93ba-edc3827f77e2" testId="b9a2314f-3890-f942-39ec-6a986c4de72b" testName="HospitalityPlatform.Api.Tests.IntegrationTests.ProtectedEndpoint_NoToken_Returns401" computerName="GABRIEL" duration="00:00:00.0028658" startTime="2026-03-05T17:31:15.6493895+00:00" endTime="2026-03-05T17:31:15.6493896+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a6b03cf1-39e0-4a64-93ba-edc3827f77e2" />
+    <UnitTestResult executionId="eb28bdcd-2b44-44d2-9dff-a7c1c3fe8861" testId="e52846b2-cdf5-ab34-7620-34bf3ca60f73" testName="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.GetAverageRating_NoRatings_ReturnsZero" computerName="GABRIEL" duration="00:00:00.0051106" startTime="2026-03-05T17:31:14.2238042+00:00" endTime="2026-03-05T17:31:14.2238044+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eb28bdcd-2b44-44d2-9dff-a7c1c3fe8861" />
+    <UnitTestResult executionId="87439d6a-3f01-4071-878c-7b2df516a93c" testId="1a0960a4-613d-1cba-c83f-765bf3d21fb6" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsByUserAsync_ReturnsLogsMatchingUser" computerName="GABRIEL" duration="00:00:00.0070916" startTime="2026-03-05T17:31:14.7106998+00:00" endTime="2026-03-05T17:31:14.7106999+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="87439d6a-3f01-4071-878c-7b2df516a93c" />
+    <UnitTestResult executionId="6074d575-f8aa-4aa3-bf48-a4bebb37c2e0" testId="566d6ccd-7f40-d5ee-8458-ecaa96406db1" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsByActionAsync_ReturnsLogsMatchingAction" computerName="GABRIEL" duration="00:00:00.0053857" startTime="2026-03-05T17:31:14.7161443+00:00" endTime="2026-03-05T17:31:14.7161444+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6074d575-f8aa-4aa3-bf48-a4bebb37c2e0" />
+    <UnitTestResult executionId="4b01e1e7-4fab-4a59-a2ab-a323cc089080" testId="9e57c3ea-7782-4fb9-fbeb-7dd87a3bac71" testName="HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnsubscribedUser_Returns403" computerName="GABRIEL" duration="00:00:00.0524401" startTime="2026-03-05T17:31:15.8225954+00:00" endTime="2026-03-05T17:31:15.8225955+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b01e1e7-4fab-4a59-a2ab-a323cc089080">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Contains() Failure: Sub-string not found&#xD;
+String:    "{"message":"A premium subscription is req"···&#xD;
+Not found: "active subscription"</Message>
+          <StackTrace>   at HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnsubscribedUser_Returns403() in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs:line 259&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3a2edb9c-060d-4017-a5a8-6a9d281da9ed" testId="71c180cf-c302-8d55-3c27-3cc051927268" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsAsync_ReturnsPagedAuditLogs" computerName="GABRIEL" duration="00:00:00.0085609" startTime="2026-03-05T17:31:14.6660019+00:00" endTime="2026-03-05T17:31:14.6660020+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a2edb9c-060d-4017-a5a8-6a9d281da9ed" />
+    <UnitTestResult executionId="3f4a088b-3c01-4449-8cc9-eeffaf0b8053" testId="0044cd4b-6ff8-57aa-d27b-6ea197342ad5" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUserAsync_ReturnsUser_WhenFound" computerName="GABRIEL" duration="00:00:00.0303950" startTime="2026-03-05T17:31:14.6306201+00:00" endTime="2026-03-05T17:31:14.6306202+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f4a088b-3c01-4449-8cc9-eeffaf0b8053" />
+    <UnitTestResult executionId="a3563637-a4c5-4401-a4cc-e14c6c37d6e4" testId="a7eca8b9-1c3a-9d2a-af83-f26948f9245a" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_SetIsActiveFalse_AndLogsAudit" computerName="GABRIEL" duration="00:00:00.0031402" startTime="2026-03-05T17:31:14.7037596+00:00" endTime="2026-03-05T17:31:14.7037597+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a3563637-a4c5-4401-a4cc-e14c6c37d6e4">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure&#xD;
+Expected: True&#xD;
+Actual:   False</Message>
+          <StackTrace>   at HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_SetIsActiveFalse_AndLogsAudit() in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\AdminServiceTests.cs:line 126&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6b6180d1-e3ba-4120-b763-4091a7a9c265" testId="91720449-6c81-78c5-4d16-a405d075d158" testName="HospitalityPlatform.Api.Tests.IntegrationTests.ProtectedEndpoint_InvalidToken_Returns401" computerName="GABRIEL" duration="00:00:00.0450346" startTime="2026-03-05T17:31:14.8346321+00:00" endTime="2026-03-05T17:31:14.8346323+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6b6180d1-e3ba-4120-b763-4091a7a9c265" />
+    <UnitTestResult executionId="045c0478-2d7b-41ab-a7da-3c3996414b35" testId="fd57b1bd-0235-5471-b78b-6aa562f228cc" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUsersAsync_ReturnsPagedUsers" computerName="GABRIEL" duration="00:00:00.0043529" startTime="2026-03-05T17:31:14.6897016+00:00" endTime="2026-03-05T17:31:14.6897017+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="045c0478-2d7b-41ab-a7da-3c3996414b35" />
+    <UnitTestResult executionId="910d9fdd-b1a0-477f-a09b-128d35a4003a" testId="9a2b29d6-274a-5832-c048-d97b2edcca37" testName="HospitalityPlatform.Api.Tests.IntegrationTests.JobApplication_VerifiedEmail_Returns201" computerName="GABRIEL" duration="00:00:00.0950689" startTime="2026-03-05T17:31:15.5084003+00:00" endTime="2026-03-05T17:31:15.5084003+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="910d9fdd-b1a0-477f-a09b-128d35a4003a" />
+    <UnitTestResult executionId="5c282adb-a631-4706-8e6d-41de21ca864c" testId="ecb9465a-a598-9baf-c4b1-bfb91a3b52fa" testName="HospitalityPlatform.Api.Tests.IntegrationTests.WaitlistJoin_RateLimitExceeded_Returns429" computerName="GABRIEL" duration="00:00:00.0823030" startTime="2026-03-05T17:31:15.2961991+00:00" endTime="2026-03-05T17:31:15.2961992+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5c282adb-a631-4706-8e6d-41de21ca864c" />
+    <UnitTestResult executionId="175b0fd9-9a72-46a3-840c-18f914945e69" testId="9afcbb2e-fc42-559b-1b2b-0257c6ccacf1" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit" computerName="GABRIEL" duration="00:00:00.0030770" startTime="2026-03-05T17:31:14.7014339+00:00" endTime="2026-03-05T17:31:14.7014339+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="175b0fd9-9a72-46a3-840c-18f914945e69">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.True() Failure&#xD;
+Expected: True&#xD;
+Actual:   False</Message>
+          <StackTrace>   at HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit() in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\AdminServiceTests.cs:line 155&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="aaccf17c-4c68-4bfc-a32c-3d7f0f19afba" testId="12266031-0c92-a09f-4139-d31981741f76" testName="HospitalityPlatform.Api.Tests.IntegrationTests.AdminEndpoint_AdminUser_Returns200" computerName="GABRIEL" duration="00:00:00.0568895" startTime="2026-03-05T17:31:16.3596173+00:00" endTime="2026-03-05T17:31:16.3596176+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="aaccf17c-4c68-4bfc-a32c-3d7f0f19afba" />
+    <UnitTestResult executionId="7486dd83-0f0f-4a03-9208-7c1b3235e235" testId="ff6483fd-13ff-855e-2718-de994920a223" testName="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_ValidInput_AddRatingAndSaves" computerName="GABRIEL" duration="00:00:00.0301369" startTime="2026-03-05T17:31:14.2182552+00:00" endTime="2026-03-05T17:31:14.2182555+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7486dd83-0f0f-4a03-9208-7c1b3235e235" />
+    <UnitTestResult executionId="5aff363a-0dd7-40f4-83c3-4b7b9520c27a" testId="866effb9-d0b9-aa07-f24a-19a577f0f8ce" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetSubscriptionsByStatusAsync_ReturnsSubscriptions_WithMatchingStatus" computerName="GABRIEL" duration="00:00:00.4395117" startTime="2026-03-05T17:31:14.6001688+00:00" endTime="2026-03-05T17:31:14.6001689+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5aff363a-0dd7-40f4-83c3-4b7b9520c27a" />
+    <UnitTestResult executionId="e1036949-36ea-4296-94b5-71422c4d26d8" testId="d9903d2e-c49b-937b-3a25-2d8f9aac81b7" testName="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.GetAverageRating_ReturnsCorrectAverage" computerName="GABRIEL" duration="00:00:00.0027769" startTime="2026-03-05T17:31:14.2345623+00:00" endTime="2026-03-05T17:31:14.2345623+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e1036949-36ea-4296-94b5-71422c4d26d8" />
+    <UnitTestResult executionId="6d7ff77a-e002-4a19-bc5a-cd41aeea198c" testId="e14767cc-b6df-4d83-3a5c-26ec26c9ddfc" testName="HospitalityPlatform.Api.Tests.IntegrationTests.WaitlistJoin_DuplicateEmail_Returns400BadRequest" computerName="GABRIEL" duration="00:00:00.0098573" startTime="2026-03-05T17:31:16.5282833+00:00" endTime="2026-03-05T17:31:16.5282835+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6d7ff77a-e002-4a19-bc5a-cd41aeea198c" />
+    <UnitTestResult executionId="00e2ed33-bf6a-4500-84e6-756df52d41b4" testId="08c2dce3-4477-60f1-3338-353916e39f7f" testName="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_SubscriptionDeleted_CancelsSubscription" computerName="GABRIEL" duration="00:00:00.0019412" startTime="2026-03-05T17:31:14.2346738+00:00" endTime="2026-03-05T17:31:14.2346738+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00e2ed33-bf6a-4500-84e6-756df52d41b4" />
+    <UnitTestResult executionId="63cbbe2b-9670-46a4-9576-52edabaeee06" testId="48598664-693a-14b9-595c-9dabc90f71d5" testName="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_SubscriptionUpdated_UpdatesStatus" computerName="GABRIEL" duration="00:00:00.0128545" startTime="2026-03-05T17:31:14.2346560+00:00" endTime="2026-03-05T17:31:14.2346561+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="63cbbe2b-9670-46a4-9576-52edabaeee06" />
+    <UnitTestResult executionId="df171458-0715-498d-8e7a-79c4d5b4a67d" testId="28e641b6-78ba-2278-8c00-95672660e909" testName="HospitalityPlatform.Api.Tests.IntegrationTests.AdminEndpoint_NonAdminUser_Returns403" computerName="GABRIEL" duration="00:00:00.0428754" startTime="2026-03-05T17:31:16.1787624+00:00" endTime="2026-03-05T17:31:16.1787625+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="df171458-0715-498d-8e7a-79c4d5b4a67d" />
+    <UnitTestResult executionId="b5f8c730-10c8-4bba-a6f4-bbd99b3d84a2" testId="56608ba7-ed36-463b-1e28-86aa74b75b7f" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.GetPlatformMetricsAsync_ReturnsValidMetrics" computerName="GABRIEL" duration="00:00:00.0192325" startTime="2026-03-05T17:31:14.6852956+00:00" endTime="2026-03-05T17:31:14.6852957+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b5f8c730-10c8-4bba-a6f4-bbd99b3d84a2" />
+    <UnitTestResult executionId="99b13f53-60de-476e-b501-fab2ae7204c6" testId="f5cd9d76-61a7-e0c8-03d6-8f7135ffe939" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendOrganizationAsync_SetIsActiveTrue_AndLogsAudit" computerName="GABRIEL" duration="00:00:00.0259509" startTime="2026-03-05T17:31:14.6574014+00:00" endTime="2026-03-05T17:31:14.6574015+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="99b13f53-60de-476e-b501-fab2ae7204c6" />
+    <UnitTestResult executionId="7f5e1e75-330f-4927-aaa0-b53941131080" testId="ed8cb8bb-30e3-471e-f425-d6a3eb5ce7d0" testName="HospitalityPlatform.Api.Tests.IntegrationTests.JobApplication_UnverifiedEmail_Returns403" computerName="GABRIEL" duration="00:00:00.0582352" startTime="2026-03-05T17:31:16.0085081+00:00" endTime="2026-03-05T17:31:16.0085083+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7f5e1e75-330f-4927-aaa0-b53941131080" />
+    <UnitTestResult executionId="baaa23d4-8a38-4ef6-ae51-aa31280a75e8" testId="1f16aaa5-aa12-d569-ae10-6e07ab5b54b5" testName="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_InvalidScore_ThrowsArgumentException" computerName="GABRIEL" duration="00:00:00.0003499" startTime="2026-03-05T17:31:14.2186314+00:00" endTime="2026-03-05T17:31:14.2186315+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="baaa23d4-8a38-4ef6-ae51-aa31280a75e8" />
+    <UnitTestResult executionId="2cfa2c70-7349-4cc9-bc86-0270d9064664" testId="4f650376-6628-46eb-5cf5-f4cdeed4fd01" testName="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_SelfRating_ThrowsArgumentException" computerName="GABRIEL" duration="00:00:00.0245265" startTime="2026-03-05T17:31:14.1884069+00:00" endTime="2026-03-05T17:31:14.1884152+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2cfa2c70-7349-4cc9-bc86-0270d9064664" />
+    <UnitTestResult executionId="6d61dd8c-be17-4a0b-8ef7-561c604b9763" testId="766610ba-3864-dc00-8282-095af169f4e5" testName="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_DuplicateEvent_ReturnsFalse" computerName="GABRIEL" duration="00:00:00.0592133" startTime="2026-03-05T17:31:14.2198000+00:00" endTime="2026-03-05T17:31:14.2198002+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6d61dd8c-be17-4a0b-8ef7-561c604b9763" />
+    <UnitTestResult executionId="f43e1fca-c717-4195-a092-90cfcf2578aa" testId="f636e3ce-467b-4436-54c7-0b6742c68076" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_ThrowsException_WhenUserNotFound" computerName="GABRIEL" duration="00:00:00.0010108" startTime="2026-03-05T17:31:14.7015268+00:00" endTime="2026-03-05T17:31:14.7015268+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f43e1fca-c717-4195-a092-90cfcf2578aa" />
+    <UnitTestResult executionId="80f0e00f-9310-4c38-8dd9-163784614808" testId="28b2ed7c-ebe0-e41e-5581-2bf09e2d91ce" testName="HospitalityPlatform.Api.Tests.PipelineIntegrationTests.MoveToHired_MissingConfirmation_Returns400BadRequest" computerName="GABRIEL" duration="00:00:00.0040600" startTime="2026-03-05T17:31:14.6656522+00:00" endTime="2026-03-05T17:31:14.6656522+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="80f0e00f-9310-4c38-8dd9-163784614808" />
+    <UnitTestResult executionId="82cef61d-63c8-4ed4-99a1-6cb4d3d8a0e2" testId="e52afef0-4f98-0f46-5bc7-87cd14a6f309" testName="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendOrganizationAsync_SetIsActiveFalse_AndLogsAudit" computerName="GABRIEL" duration="00:00:00.0025393" startTime="2026-03-05T17:31:14.6922868+00:00" endTime="2026-03-05T17:31:14.6922869+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="82cef61d-63c8-4ed4-99a1-6cb4d3d8a0e2" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_SubscriptionDeleted_CancelsSubscription" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="08c2dce3-4477-60f1-3338-353916e39f7f">
+      <Execution id="00e2ed33-bf6a-4500-84e6-756df52d41b4" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.BillingServiceTests" name="ProcessWebhook_SubscriptionDeleted_CancelsSubscription" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_SelfRating_ThrowsArgumentException" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="4f650376-6628-46eb-5cf5-f4cdeed4fd01">
+      <Execution id="2cfa2c70-7349-4cc9-bc86-0270d9064664" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.UserRatingsServiceTests" name="CreateRating_SelfRating_ThrowsArgumentException" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.PipelineIntegrationTests.MoveToHired_MissingConfirmation_Returns400BadRequest" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="28b2ed7c-ebe0-e41e-5581-2bf09e2d91ce">
+      <Execution id="80f0e00f-9310-4c38-8dd9-163784614808" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.PipelineIntegrationTests" name="MoveToHired_MissingConfirmation_Returns400BadRequest" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.JobApplication_VerifiedEmail_Returns201" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="9a2b29d6-274a-5832-c048-d97b2edcca37">
+      <Execution id="910d9fdd-b1a0-477f-a09b-128d35a4003a" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="JobApplication_VerifiedEmail_Returns201" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUserAsync_ReturnsNull_WhenNotFound" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="63356e43-3ed4-d214-dc42-82db50983dfa">
+      <Execution id="f1b176aa-67df-45d6-b3e7-e6f7704e320e" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetUserAsync_ReturnsNull_WhenNotFound" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendOrganizationAsync_SetIsActiveFalse_AndLogsAudit" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="e52afef0-4f98-0f46-5bc7-87cd14a6f309">
+      <Execution id="82cef61d-63c8-4ed4-99a1-6cb4d3d8a0e2" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="SuspendOrganizationAsync_SetIsActiveFalse_AndLogsAudit" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_ValidInput_AddRatingAndSaves" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="ff6483fd-13ff-855e-2718-de994920a223">
+      <Execution id="7486dd83-0f0f-4a03-9208-7c1b3235e235" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.UserRatingsServiceTests" name="CreateRating_ValidInput_AddRatingAndSaves" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.AdminEndpoint_NonAdminUser_Returns403" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="28e641b6-78ba-2278-8c00-95672660e909">
+      <Execution id="df171458-0715-498d-8e7a-79c4d5b4a67d" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="AdminEndpoint_NonAdminUser_Returns403" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetSubscriptionsByStatusAsync_ReturnsSubscriptions_WithMatchingStatus" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="866effb9-d0b9-aa07-f24a-19a577f0f8ce">
+      <Execution id="5aff363a-0dd7-40f4-83c3-4b7b9520c27a" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetSubscriptionsByStatusAsync_ReturnsSubscriptions_WithMatchingStatus" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnsubscribedUser_Returns403" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="9e57c3ea-7782-4fb9-fbeb-7dd87a3bac71">
+      <Execution id="4b01e1e7-4fab-4a59-a2ab-a323cc089080" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="Messaging_UnsubscribedUser_Returns403" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUsersAsync_ReturnsPagedUsers" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="fd57b1bd-0235-5471-b78b-6aa562f228cc">
+      <Execution id="045c0478-2d7b-41ab-a7da-3c3996414b35" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetUsersAsync_ReturnsPagedUsers" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsAsync_ReturnsPagedAuditLogs" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="71c180cf-c302-8d55-3c27-3cc051927268">
+      <Execution id="3a2edb9c-060d-4017-a5a8-6a9d281da9ed" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetAuditLogsAsync_ReturnsPagedAuditLogs" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_DuplicateEvent_ReturnsFalse" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="766610ba-3864-dc00-8282-095af169f4e5">
+      <Execution id="6d61dd8c-be17-4a0b-8ef7-561c604b9763" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.BillingServiceTests" name="ProcessWebhook_DuplicateEvent_ReturnsFalse" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.GetAverageRating_NoRatings_ReturnsZero" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="e52846b2-cdf5-ab34-7620-34bf3ca60f73">
+      <Execution id="eb28bdcd-2b44-44d2-9dff-a7c1c3fe8861" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.UserRatingsServiceTests" name="GetAverageRating_NoRatings_ReturnsZero" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.JobApplication_UnverifiedEmail_Returns403" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="ed8cb8bb-30e3-471e-f425-d6a3eb5ce7d0">
+      <Execution id="7f5e1e75-330f-4927-aaa0-b53941131080" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="JobApplication_UnverifiedEmail_Returns403" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsByActionAsync_ReturnsLogsMatchingAction" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="566d6ccd-7f40-d5ee-8458-ecaa96406db1">
+      <Execution id="6074d575-f8aa-4aa3-bf48-a4bebb37c2e0" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetAuditLogsByActionAsync_ReturnsLogsMatchingAction" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="9afcbb2e-fc42-559b-1b2b-0257c6ccacf1">
+      <Execution id="175b0fd9-9a72-46a3-840c-18f914945e69" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.WaitlistJoin_RateLimitExceeded_Returns429" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="ecb9465a-a598-9baf-c4b1-bfb91a3b52fa">
+      <Execution id="5c282adb-a631-4706-8e6d-41de21ca864c" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="WaitlistJoin_RateLimitExceeded_Returns429" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.BillingServiceTests.ProcessWebhook_SubscriptionUpdated_UpdatesStatus" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="48598664-693a-14b9-595c-9dabc90f71d5">
+      <Execution id="63cbbe2b-9670-46a4-9576-52edabaeee06" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.BillingServiceTests" name="ProcessWebhook_SubscriptionUpdated_UpdatesStatus" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.CreateRating_InvalidScore_ThrowsArgumentException" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="1f16aaa5-aa12-d569-ae10-6e07ab5b54b5">
+      <Execution id="baaa23d4-8a38-4ef6-ae51-aa31280a75e8" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.UserRatingsServiceTests" name="CreateRating_InvalidScore_ThrowsArgumentException" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.ProtectedEndpoint_NoToken_Returns401" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="b9a2314f-3890-f942-39ec-6a986c4de72b">
+      <Execution id="a6b03cf1-39e0-4a64-93ba-edc3827f77e2" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="ProtectedEndpoint_NoToken_Returns401" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.AdminEndpoint_AdminUser_Returns200" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="12266031-0c92-a09f-4139-d31981741f76">
+      <Execution id="aaccf17c-4c68-4bfc-a32c-3d7f0f19afba" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="AdminEndpoint_AdminUser_Returns200" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnverifiedUser_Returns403" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="1c74943e-a0d9-8204-a181-a14779af56e7">
+      <Execution id="57c2cf19-ca5c-452d-8c41-0088fc1f2be4" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="Messaging_UnverifiedUser_Returns403" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetPlatformMetricsAsync_ReturnsValidMetrics" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="56608ba7-ed36-463b-1e28-86aa74b75b7f">
+      <Execution id="b5f8c730-10c8-4bba-a6f4-bbd99b3d84a2" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetPlatformMetricsAsync_ReturnsValidMetrics" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.ProtectedEndpoint_InvalidToken_Returns401" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="91720449-6c81-78c5-4d16-a405d075d158">
+      <Execution id="6b6180d1-e3ba-4120-b763-4091a7a9c265" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="ProtectedEndpoint_InvalidToken_Returns401" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_SetIsActiveFalse_AndLogsAudit" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="a7eca8b9-1c3a-9d2a-af83-f26948f9245a">
+      <Execution id="a3563637-a4c5-4401-a4cc-e14c6c37d6e4" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="SuspendUserAsync_SetIsActiveFalse_AndLogsAudit" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetUserAsync_ReturnsUser_WhenFound" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="0044cd4b-6ff8-57aa-d27b-6ea197342ad5">
+      <Execution id="3f4a088b-3c01-4449-8cc9-eeffaf0b8053" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetUserAsync_ReturnsUser_WhenFound" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.GetAuditLogsByUserAsync_ReturnsLogsMatchingUser" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="1a0960a4-613d-1cba-c83f-765bf3d21fb6">
+      <Execution id="87439d6a-3f01-4071-878c-7b2df516a93c" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="GetAuditLogsByUserAsync_ReturnsLogsMatchingUser" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.IntegrationTests.WaitlistJoin_DuplicateEmail_Returns400BadRequest" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="e14767cc-b6df-4d83-3a5c-26ec26c9ddfc">
+      <Execution id="6d7ff77a-e002-4a19-bc5a-cd41aeea198c" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.IntegrationTests" name="WaitlistJoin_DuplicateEmail_Returns400BadRequest" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendOrganizationAsync_SetIsActiveTrue_AndLogsAudit" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="f5cd9d76-61a7-e0c8-03d6-8f7135ffe939">
+      <Execution id="99b13f53-60de-476e-b501-fab2ae7204c6" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="UnsuspendOrganizationAsync_SetIsActiveTrue_AndLogsAudit" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_ThrowsException_WhenUserNotFound" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="f636e3ce-467b-4436-54c7-0b6742c68076">
+      <Execution id="f43e1fca-c717-4195-a092-90cfcf2578aa" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.AdminServiceTests" name="SuspendUserAsync_ThrowsException_WhenUserNotFound" />
+    </UnitTest>
+    <UnitTest name="HospitalityPlatform.Api.Tests.UserRatingsServiceTests.GetAverageRating_ReturnsCorrectAverage" storage="c:\users\gaby8\documents\github\job-platform\backend\src\hospitalityplatform.api.tests\bin\debug\net8.0\hospitalityplatform.api.tests.dll" id="d9903d2e-c49b-937b-3a25-2d8f9aac81b7">
+      <Execution id="e1036949-36ea-4296-94b5-71422c4d26d8" />
+      <TestMethod codeBase="C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\bin\Debug\net8.0\HospitalityPlatform.Api.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="HospitalityPlatform.Api.Tests.UserRatingsServiceTests" name="GetAverageRating_ReturnsCorrectAverage" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="1c74943e-a0d9-8204-a181-a14779af56e7" executionId="57c2cf19-ca5c-452d-8c41-0088fc1f2be4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63356e43-3ed4-d214-dc42-82db50983dfa" executionId="f1b176aa-67df-45d6-b3e7-e6f7704e320e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b9a2314f-3890-f942-39ec-6a986c4de72b" executionId="a6b03cf1-39e0-4a64-93ba-edc3827f77e2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e52846b2-cdf5-ab34-7620-34bf3ca60f73" executionId="eb28bdcd-2b44-44d2-9dff-a7c1c3fe8861" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1a0960a4-613d-1cba-c83f-765bf3d21fb6" executionId="87439d6a-3f01-4071-878c-7b2df516a93c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="566d6ccd-7f40-d5ee-8458-ecaa96406db1" executionId="6074d575-f8aa-4aa3-bf48-a4bebb37c2e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9e57c3ea-7782-4fb9-fbeb-7dd87a3bac71" executionId="4b01e1e7-4fab-4a59-a2ab-a323cc089080" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="71c180cf-c302-8d55-3c27-3cc051927268" executionId="3a2edb9c-060d-4017-a5a8-6a9d281da9ed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0044cd4b-6ff8-57aa-d27b-6ea197342ad5" executionId="3f4a088b-3c01-4449-8cc9-eeffaf0b8053" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a7eca8b9-1c3a-9d2a-af83-f26948f9245a" executionId="a3563637-a4c5-4401-a4cc-e14c6c37d6e4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="91720449-6c81-78c5-4d16-a405d075d158" executionId="6b6180d1-e3ba-4120-b763-4091a7a9c265" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fd57b1bd-0235-5471-b78b-6aa562f228cc" executionId="045c0478-2d7b-41ab-a7da-3c3996414b35" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9a2b29d6-274a-5832-c048-d97b2edcca37" executionId="910d9fdd-b1a0-477f-a09b-128d35a4003a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ecb9465a-a598-9baf-c4b1-bfb91a3b52fa" executionId="5c282adb-a631-4706-8e6d-41de21ca864c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9afcbb2e-fc42-559b-1b2b-0257c6ccacf1" executionId="175b0fd9-9a72-46a3-840c-18f914945e69" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12266031-0c92-a09f-4139-d31981741f76" executionId="aaccf17c-4c68-4bfc-a32c-3d7f0f19afba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff6483fd-13ff-855e-2718-de994920a223" executionId="7486dd83-0f0f-4a03-9208-7c1b3235e235" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="866effb9-d0b9-aa07-f24a-19a577f0f8ce" executionId="5aff363a-0dd7-40f4-83c3-4b7b9520c27a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d9903d2e-c49b-937b-3a25-2d8f9aac81b7" executionId="e1036949-36ea-4296-94b5-71422c4d26d8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e14767cc-b6df-4d83-3a5c-26ec26c9ddfc" executionId="6d7ff77a-e002-4a19-bc5a-cd41aeea198c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="08c2dce3-4477-60f1-3338-353916e39f7f" executionId="00e2ed33-bf6a-4500-84e6-756df52d41b4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="48598664-693a-14b9-595c-9dabc90f71d5" executionId="63cbbe2b-9670-46a4-9576-52edabaeee06" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="28e641b6-78ba-2278-8c00-95672660e909" executionId="df171458-0715-498d-8e7a-79c4d5b4a67d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="56608ba7-ed36-463b-1e28-86aa74b75b7f" executionId="b5f8c730-10c8-4bba-a6f4-bbd99b3d84a2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f5cd9d76-61a7-e0c8-03d6-8f7135ffe939" executionId="99b13f53-60de-476e-b501-fab2ae7204c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ed8cb8bb-30e3-471e-f425-d6a3eb5ce7d0" executionId="7f5e1e75-330f-4927-aaa0-b53941131080" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1f16aaa5-aa12-d569-ae10-6e07ab5b54b5" executionId="baaa23d4-8a38-4ef6-ae51-aa31280a75e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4f650376-6628-46eb-5cf5-f4cdeed4fd01" executionId="2cfa2c70-7349-4cc9-bc86-0270d9064664" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="766610ba-3864-dc00-8282-095af169f4e5" executionId="6d61dd8c-be17-4a0b-8ef7-561c604b9763" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f636e3ce-467b-4436-54c7-0b6742c68076" executionId="f43e1fca-c717-4195-a092-90cfcf2578aa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="28b2ed7c-ebe0-e41e-5581-2bf09e2d91ce" executionId="80f0e00f-9310-4c38-8dd9-163784614808" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e52afef0-4f98-0f46-5bc7-87cd14a6f309" executionId="82cef61d-63c8-4ed4-99a1-6cb4d3d8a0e2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="32" executed="32" passed="29" failed="3" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.4.1+b9eacec401 (64-bit .NET 8.0.24)&#xD;
+[xUnit.net 00:00:00.05]   Discovering: HospitalityPlatform.Api.Tests&#xD;
+[xUnit.net 00:00:00.07]   Discovered:  HospitalityPlatform.Api.Tests&#xD;
+[xUnit.net 00:00:00.07]   Starting:    HospitalityPlatform.Api.Tests&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]&#xD;
+      Entity 'Document' has a global query filter defined and is the required end of a relationship with the entity 'DocumentAccess'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.&#xD;
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]&#xD;
+      Entity 'Conversation' has a global query filter defined and is the required end of a relationship with the entity 'ConversationParticipant'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.&#xD;
+[xUnit.net 00:00:00.63]       Assert.True() Failure&#xD;
+[xUnit.net 00:00:00.63]       Expected: True&#xD;
+[xUnit.net 00:00:00.63]       Actual:   False&#xD;
+[xUnit.net 00:00:00.63]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.63]         C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\AdminServiceTests.cs(155,0): at HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit()&#xD;
+[xUnit.net 00:00:00.63]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:00.63]       Assert.True() Failure&#xD;
+[xUnit.net 00:00:00.63]       Expected: True&#xD;
+[xUnit.net 00:00:00.63]       Actual:   False&#xD;
+[xUnit.net 00:00:00.63]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.63]         C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\AdminServiceTests.cs(126,0): at HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_SetIsActiveFalse_AndLogsAudit()&#xD;
+[xUnit.net 00:00:00.63]         --- End of stack trace from previous location ---&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: rate0_4ad5900e-3556-4ee9-9128-6263e8f11501@test.com (Business) - Sequence: 1, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: rate0_4ad5900e-3556-4ee9-9128-6263e8f11501@test.com (Business)&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: rate1_e490b342-abd0-4155-9b6b-3d80697d9a62@test.com (Business) - Sequence: 2, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: rate1_e490b342-abd0-4155-9b6b-3d80697d9a62@test.com (Business)&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: rate2_0f4993b8-592e-4753-a4b7-bf248e8e2094@test.com (Business) - Sequence: 3, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: rate2_0f4993b8-592e-4753-a4b7-bf248e8e2094@test.com (Business)&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: rate3_75d68ca9-f66a-4c96-a4b0-df7014a080ba@test.com (Business) - Sequence: 4, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: rate3_75d68ca9-f66a-4c96-a4b0-df7014a080ba@test.com (Business)&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: rate4_9c1f0418-55a9-4947-8971-34095a403396@test.com (Business) - Sequence: 5, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: rate4_9c1f0418-55a9-4947-8971-34095a403396@test.com (Business)&#xD;
+warn: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Rate limit exceeded for IP: unknown&#xD;
+info: HospitalityPlatform.Applications.Services.ApplicationService[0]&#xD;
+      Candidate 5f4f154a-7e84-4ac8-a188-1a8ba5c926ac applied to job 00000000-0000-0000-0000-000000000001&#xD;
+[xUnit.net 00:00:01.75]       Assert.Contains() Failure: Sub-string not found&#xD;
+[xUnit.net 00:00:01.75]       String:    "{"message":"A premium subscription is req"···&#xD;
+[xUnit.net 00:00:01.75]       Not found: "active subscription"&#xD;
+[xUnit.net 00:00:01.75]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.75]         C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api.Tests\IntegrationTests.cs(259,0): at HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnsubscribedUser_Returns403()&#xD;
+[xUnit.net 00:00:01.75]         --- End of stack trace from previous location ---&#xD;
+info: HospitalityPlatform.Waitlist.Services.WaitlistService[0]&#xD;
+      Waitlist entry created: candidate@test.com (Business) - Sequence: 1, Incentive: TwelveMonthsFree&#xD;
+info: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Waitlist entry created: candidate@test.com (Business)&#xD;
+warn: HospitalityPlatform.Api.Controllers.WaitlistController[0]&#xD;
+      Validation error&#xD;
+      System.InvalidOperationException: Email already on waitlist&#xD;
+         at HospitalityPlatform.Waitlist.Services.WaitlistService.CreateWaitlistEntryAsync(CreateWaitlistEntryDto dto) in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Waitlist\Services\WaitlistService.cs:line 48&#xD;
+         at HospitalityPlatform.Api.Controllers.WaitlistController.CreateWaitlistEntry(CreateWaitlistEntryDto dto) in C:\Users\gaby8\Documents\GitHub\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\WaitlistController.cs:line 61&#xD;
+[xUnit.net 00:00:02.46]   Finished:    HospitalityPlatform.Api.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GABRIEL" outcome="Error" timestamp="2026-03-05T17:31:14.7006784+00:00">
+        <Text>[xUnit.net 00:00:00.63]     HospitalityPlatform.Api.Tests.AdminServiceTests.UnsuspendUserAsync_SetIsActiveTrue_AndLogsAudit [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GABRIEL" outcome="Error" timestamp="2026-03-05T17:31:14.7037496+00:00">
+        <Text>[xUnit.net 00:00:00.63]     HospitalityPlatform.Api.Tests.AdminServiceTests.SuspendUserAsync_SetIsActiveFalse_AndLogsAudit [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GABRIEL" outcome="Error" timestamp="2026-03-05T17:31:15.8226520+00:00">
+        <Text>[xUnit.net 00:00:01.75]     HospitalityPlatform.Api.Tests.IntegrationTests.Messaging_UnsubscribedUser_Returns403 [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

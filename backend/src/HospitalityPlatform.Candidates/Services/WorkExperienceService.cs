@@ -63,6 +63,7 @@ public class WorkExperienceService : IWorkExperienceService
             EndDate = dto.EndDate,
             VisibilityLevel = dto.VisibilityLevel,
             IsMapEnabled = dto.IsMapEnabled,
+            AllowCoworkerDiscovery = dto.AllowCoworkerDiscovery,
             LatApprox = lat,
             LngApprox = lng,
             CreatedAt = DateTime.UtcNow,
@@ -103,6 +104,7 @@ public class WorkExperienceService : IWorkExperienceService
         if (dto.EndDate.HasValue) entity.EndDate = dto.EndDate;
         if (dto.VisibilityLevel != null) entity.VisibilityLevel = dto.VisibilityLevel;
         if (dto.IsMapEnabled.HasValue) entity.IsMapEnabled = dto.IsMapEnabled.Value;
+        if (dto.AllowCoworkerDiscovery.HasValue) entity.AllowCoworkerDiscovery = dto.AllowCoworkerDiscovery.Value;
         
         // Re-geocode if location changed
         if (locationChanged)
@@ -213,6 +215,7 @@ public class WorkExperienceService : IWorkExperienceService
             EndDate = entity.EndDate,
             VisibilityLevel = entity.VisibilityLevel,
             IsMapEnabled = entity.IsMapEnabled,
+            AllowCoworkerDiscovery = entity.AllowCoworkerDiscovery,
             LatApprox = entity.LatApprox,
             LngApprox = entity.LngApprox,
             CreatedAt = entity.CreatedAt,

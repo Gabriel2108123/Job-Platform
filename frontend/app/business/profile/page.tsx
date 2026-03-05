@@ -148,8 +148,8 @@ export default function BusinessProfilePage() {
                             <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
                                 <button
                                     className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'company'
-                                            ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                     onClick={() => setActiveTab('company')}
                                 >
@@ -157,8 +157,8 @@ export default function BusinessProfilePage() {
                                 </button>
                                 <button
                                     className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'contact'
-                                            ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                     onClick={() => setActiveTab('contact')}
                                 >
@@ -166,8 +166,8 @@ export default function BusinessProfilePage() {
                                 </button>
                                 <button
                                     className={`px-4 py-2 font-medium text-sm focus:outline-none whitespace-nowrap ${activeTab === 'settings'
-                                            ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-[var(--brand-primary)] border-b-2 border-[var(--brand-primary)]'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         }`}
                                     onClick={() => setActiveTab('settings')}
                                 >
@@ -217,7 +217,7 @@ export default function BusinessProfilePage() {
                                                 value={formData.industry}
                                                 onChange={handleInputChange}
                                                 disabled={!editing}
-                                                className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
+                                                className="w-full py-3 px-4 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                                             >
                                                 <option value="">Select Industry</option>
                                                 {INDUSTRY_OPTIONS.map((industry) => (
@@ -236,7 +236,7 @@ export default function BusinessProfilePage() {
                                                 value={formData.companySize}
                                                 onChange={handleInputChange}
                                                 disabled={!editing}
-                                                className="w-full py-3 px-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
+                                                className="w-full py-3 px-4 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                                             >
                                                 <option value="">Select Size</option>
                                                 {COMPANY_SIZE_OPTIONS.map((size) => (
@@ -273,7 +273,7 @@ export default function BusinessProfilePage() {
                                             onChange={handleInputChange}
                                             disabled={!editing}
                                             placeholder="Tell job seekers about your company, culture, and what makes you unique..."
-                                            className="w-full h-32 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
+                                            className="w-full h-32 px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[var(--brand-primary)] focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 outline-none transition-all"
                                         />
                                     </div>
                                 </div>

@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace HospitalityPlatform.Documents.Enums;
 
 /// <summary>
@@ -41,7 +43,16 @@ public static class BlockedDocumentTypes
     public static readonly string[] BlockedKeywords = new[]
     {
         "bank statement",
-        "utility bill"
+        "utility bill",
+        "passport",
+        "visa",
+        "id card",
+        "idcard",
+        "identity",
+        "brp",
+        "rtw",
+        "right to work",
+        "right-to-work"
     };
 
     /// <summary>

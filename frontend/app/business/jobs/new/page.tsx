@@ -274,7 +274,7 @@ export default function CreateJobPage() {
                   name="employmentType"
                   value={formData.employmentType}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]"
+                  className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]"
                 >
                   <option value="FullTime">Full-time</option>
                   <option value="PartTime">Part-time</option>
@@ -324,7 +324,7 @@ export default function CreateJobPage() {
                   onChange={handleChange}
                   placeholder="Describe the job responsibilities, requirements, and benefits..."
                   rows={8}
-                  className={`w-full px-3 py-2 border ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 bg-white text-gray-900 border ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'
                     } rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]`}
                 />
                 {fieldErrors.description && (

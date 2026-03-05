@@ -30,8 +30,8 @@ public class CandidateIdentityService : ICandidateIdentityService
         return users.ToDictionary(u => u.Id, u => new PotentialCoworkerProfileDto
         {
             UserId = u.Id,
-            FirstName = u.FirstName,
-            LastName = u.LastName
+            FirstName = u.FirstName ?? string.Empty,
+            LastName = u.LastName ?? string.Empty
         });
     }
 }

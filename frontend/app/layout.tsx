@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import { ReactQueryProvider } from "@/lib/query-provider";
+import DevTools from "@/components/dev/DevTools";
 
 // Import brand fonts
 const montserrat = Montserrat({
@@ -44,6 +45,7 @@ export default function RootLayout({
           <Navigation />
           <main className="flex-1">{children}</main>
           <Footer />
+          <DevTools />
         </ReactQueryProvider>
       </body>
     </html>

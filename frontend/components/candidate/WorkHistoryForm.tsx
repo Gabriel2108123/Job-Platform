@@ -23,6 +23,7 @@ export default function WorkHistoryForm({ initialData, onSubmit, onCancel }: Wor
         endDate: initialData?.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : '',
         visibilityLevel: initialData?.visibilityLevel || 'private',
         isMapEnabled: initialData?.isMapEnabled || false,
+        allowCoworkerDiscovery: initialData?.allowCoworkerDiscovery || false,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -149,6 +150,23 @@ export default function WorkHistoryForm({ initialData, onSubmit, onCancel }: Wor
                 </div>
                 <p className="text-xs text-gray-500 ml-7">
                     If enabled, this location (approximate) will appear on your "Worker Map" profile tab. Only visible to you unless you update your map settings.
+                </p>
+
+                <div className="flex items-center gap-3">
+                    <input
+                        type="checkbox"
+                        id="allowCoworkerDiscovery"
+                        name="allowCoworkerDiscovery"
+                        checked={formData.allowCoworkerDiscovery}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-[var(--brand-primary)] rounded border-gray-300"
+                    />
+                    <label htmlFor="allowCoworkerDiscovery" className="text-sm font-medium text-gray-900 cursor-pointer">
+                        Allow Coworker Discovery
+                    </label>
+                </div>
+                <p className="text-xs text-gray-500 ml-7">
+                    Enable this to allow colleagues who worked at the same place during the same time to discover you. Requires both parties to opt-in.
                 </p>
             </div>
 

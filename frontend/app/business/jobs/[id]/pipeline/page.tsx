@@ -7,6 +7,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { getJobPipeline, moveApplicationInPipeline, JobPipeline, PipelineApplication } from '@/lib/api/client';
 import { useParams } from 'next/navigation';
+import { PreHireChecksConfirmModal } from '@/components/business/PreHireChecksConfirmModal';
 
 const STATUS_COLORS: Record<string, string> = {
   'Applied': 'bg-blue-100 text-blue-800',
@@ -31,7 +32,7 @@ const getStatusLabel = (status: string) => {
 export default function PipelinePage() {
   const params = useParams();
   const jobId = params?.id as string;
-  
+
   const [pipeline, setPipeline] = useState<JobPipeline | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export default function PipelinePage() {
     fromStatus: string;
   } | null>(null);
   const [moving, setMoving] = useState(false);
+  const [preHireState, setPreHireState] = useState<{ open: boolean; appId: string; fromStatus: string; toStatus: string; } | null>(null);
 
   useEffect(() => {
     if (!jobId) {
@@ -82,36 +84,37 @@ export default function PipelinePage() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = async (
-    e: React.DragEvent<HTMLDivElement>,
-    toStatus: string
+  const executeMove = async (
+    applicationId: string,
+    fromStatus: string,
+    toStatus: string,
+    confirmationData?: { preHireConfirmation: boolean; preHireConfirmationText: string }
   ) => {
-    e.preventDefault();
-    
-    if (!draggedApp || draggedApp.fromStatus === toStatus || !jobId) {
-      setDraggedApp(null);
-      return;
-    }
-
     setMoving(true);
     try {
-      const response = await moveApplicationInPipeline(draggedApp.applicationId, toStatus);
+      const response = await moveApplicationInPipeline(
+        applicationId,
+        toStatus,
+        undefined,
+        confirmationData?.preHireConfirmation,
+        confirmationData?.preHireConfirmationText
+      );
       if (response.success) {
         // Update local pipeline state
         if (pipeline) {
           const newPipeline = { ...pipeline };
           // Remove from old stage
-          const fromStageIdx = newPipeline.stages.findIndex(s => s.name === draggedApp.fromStatus);
+          const fromStageIdx = newPipeline.stages.findIndex(s => s.name === fromStatus);
           if (fromStageIdx >= 0) {
-            newPipeline.stages[fromStageIdx].applicationIds = 
+            newPipeline.stages[fromStageIdx].applicationIds =
               newPipeline.stages[fromStageIdx].applicationIds.filter(
-                id => id !== draggedApp.applicationId
+                id => id !== applicationId
               );
           }
           // Add to new stage
           const toStageIdx = newPipeline.stages.findIndex(s => s.name === toStatus);
           if (toStageIdx >= 0) {
-            newPipeline.stages[toStageIdx].applicationIds.push(draggedApp.applicationId);
+            newPipeline.stages[toStageIdx].applicationIds.push(applicationId);
           }
           setPipeline(newPipeline);
         }
@@ -124,6 +127,35 @@ export default function PipelinePage() {
       setMoving(false);
       setDraggedApp(null);
     }
+  };
+
+  const handleDrop = async (
+    e: React.DragEvent<HTMLDivElement>,
+    toStatus: string
+  ) => {
+    e.preventDefault();
+
+    if (!draggedApp || draggedApp.fromStatus === toStatus || !jobId) {
+      setDraggedApp(null);
+      return;
+    }
+
+    if (toStatus === 'Hired') {
+      if (draggedApp.fromStatus !== 'PreHireChecks') {
+        alert('Candidates must be in Pre-Hire Checks stage before being Hired.');
+        setDraggedApp(null);
+        return;
+      }
+      setPreHireState({
+        open: true,
+        appId: draggedApp.applicationId,
+        fromStatus: draggedApp.fromStatus,
+        toStatus: toStatus
+      });
+      return;
+    }
+
+    await executeMove(draggedApp.applicationId, draggedApp.fromStatus, toStatus);
   };
 
   if (!jobId) {
@@ -231,6 +263,18 @@ export default function PipelinePage() {
             <strong>Tip:</strong> Drag and drop candidate cards between columns to move them through your recruitment pipeline.
           </p>
         </div>
+
+        {/* Pre-Hire Checks Modal */}
+        {preHireState && (
+          <PreHireChecksConfirmModal
+            open={preHireState.open}
+            onClose={() => setPreHireState(null)}
+            onConfirm={async (payload) => {
+              setPreHireState(null);
+              await executeMove(preHireState.appId, preHireState.fromStatus, preHireState.toStatus, payload);
+            }}
+          />
+        )}
       </div>
     </div>
   );

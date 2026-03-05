@@ -34,7 +34,7 @@ public class CoworkerDiscoveryService : ICoworkerDiscoveryService
 
         // 2. Get candidate's work experiences with PlaceKeys
         var myWorks = await _context.WorkExperiences
-            .Where(w => w.CandidateUserId == candidateId && w.PlaceKey != null)
+            .Where(w => w.CandidateUserId == candidateId && w.PlaceKey != null && w.AllowCoworkerDiscovery)
             .ToListAsync();
 
         if (!myWorks.Any()) return new List<PotentialCoworkerDto>();
@@ -51,7 +51,7 @@ public class CoworkerDiscoveryService : ICoworkerDiscoveryService
             // Ideally retrieve settings efficiently. Here assuming Join is needed or query optimization.
             // But since we can't join easily across contexts if separated (though here it is same DB),
             // we will query WorkExperiences then Settings.
-            .Where(w => placeKeys.Contains(w.PlaceKey) && w.CandidateUserId != candidateId)
+            .Where(w => placeKeys.Contains(w.PlaceKey) && w.CandidateUserId != candidateId && w.AllowCoworkerDiscovery)
             .ToListAsync();
 
         if (!matches.Any()) return new List<PotentialCoworkerDto>();
@@ -106,7 +106,12 @@ public class CoworkerDiscoveryService : ICoworkerDiscoveryService
                                  PlaceKey = match.PlaceKey!,
                                  OverlapStart = overlapStart,
                                  OverlapEnd = overlapEnd,
-                                 OverlapDays = days
+                                 OverlapDays = days,
+                                 MatchConfidence = days > 90 ? 1.0 : (days > 30 ? 0.8 : 0.6),
+                                 MatchReasons = new List<string> { 
+                                     "Same workplace", 
+                                     $"Overlapping employment ({days} days)" 
+                                 }
                              });
                          }
                      }

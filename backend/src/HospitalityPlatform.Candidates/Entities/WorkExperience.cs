@@ -66,6 +66,11 @@ public class WorkExperience
     /// </summary>
     [MaxLength(200)]
     public string? PlaceKey { get; set; }
+
+    /// <summary>
+    /// Explicit opt-in for coworker discovery features
+    /// </summary>
+    public bool AllowCoworkerDiscovery { get; set; } = false; // Default: OFF (Opt-in)
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

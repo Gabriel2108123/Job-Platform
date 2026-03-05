@@ -57,6 +57,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Message> Messages { get; set; }
     public DbSet<HospitalityPlatform.Messaging.Entities.Rating> Ratings { get; set; }
     public DbSet<UserRating> UserRatings { get; set; }
+    public DbSet<UserBlock> UserBlocks { get; set; }
+    public DbSet<UserReport> UserReports { get; set; }
     
     // Documents DbSets
     public DbSet<Document> Documents { get; set; }
@@ -300,6 +302,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(e => e.S3Key).IsRequired().HasMaxLength(1024);
             entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
             entity.Property(e => e.UploadedByUserId).IsRequired();
+            entity.Property(e => e.DocumentType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.RetentionDate);
             
             entity.HasMany(e => e.AccessRules)
                 .WithOne(a => a.Document)
@@ -309,6 +313,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.OrganizationId);
             entity.HasIndex(e => e.UploadedByUserId);
             entity.HasIndex(e => e.UploadedAt);
+            entity.HasIndex(e => e.DocumentType);
             entity.HasIndex(e => new { e.OrganizationId, e.IsDeleted });
         });
 
@@ -573,6 +578,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.CandidateUserId);
             entity.HasIndex(e => e.CreatedAt);
             entity.HasIndex(e => new { e.OrganizationId, e.CandidateUserId });
+        });
+
+        // Configure UserBlock
+        builder.Entity<UserBlock>(entity =>
+        {
+            entity.ToTable("UserBlocks");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BlockerUserId).IsRequired();
+            entity.Property(e => e.BlockedUserId).IsRequired();
+            
+            entity.HasIndex(e => e.BlockerUserId);
+            entity.HasIndex(e => e.BlockedUserId);
+            entity.HasIndex(e => new { e.BlockerUserId, e.BlockedUserId }).IsUnique();
+        });
+
+        // Configure UserReport
+        builder.Entity<UserReport>(entity =>
+        {
+            entity.ToTable("UserReports");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReporterUserId).IsRequired();
+            entity.Property(e => e.ReportedUserId).IsRequired();
+            entity.Property(e => e.Reason).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(50);
+            
+            entity.HasIndex(e => e.ReporterUserId);
+            entity.HasIndex(e => e.ReportedUserId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.CreatedAt);
         });
     }
 

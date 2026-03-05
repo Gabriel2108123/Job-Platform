@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace HospitalityPlatform.Core.Entities;
 
 /// <summary>
@@ -5,6 +7,7 @@ namespace HospitalityPlatform.Core.Entities;
 /// </summary>
 public abstract class BaseEntity
 {
+    [Key]
     public Guid Id { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;

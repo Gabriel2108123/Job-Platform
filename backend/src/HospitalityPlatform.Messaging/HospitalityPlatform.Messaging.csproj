@@ -10,6 +10,8 @@
     <ProjectReference Include="..\HospitalityPlatform.Core\HospitalityPlatform.Core.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Audit\HospitalityPlatform.Audit.csproj" />
     <ProjectReference Include="..\HospitalityPlatform.Applications\HospitalityPlatform.Applications.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Billing\HospitalityPlatform.Billing.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Identity\HospitalityPlatform.Identity.csproj" />
   </ItemGroup>
 
   <ItemGroup>

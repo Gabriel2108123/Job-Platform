@@ -14,6 +14,7 @@ public class WorkExperienceDto
     public DateTime? EndDate { get; set; }
     public string VisibilityLevel { get; set; } = "private";
     public bool IsMapEnabled { get; set; }
+    public bool AllowCoworkerDiscovery { get; set; }
     
     // Coordinates - only approximate populated
     public decimal? LatApprox { get; set; }

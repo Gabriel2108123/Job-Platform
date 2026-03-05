@@ -9,6 +9,8 @@ export interface DocumentDto {
     uploadedAt: string; // ISO date
     lastAccessedAt?: string;
     accessRuleCount: number;
+    documentType: string;
+    retentionDate?: string;
     shareGrants?: DocumentShareGrantDto[]; // Augmented in frontend often
     downloadUrl?: string; // Augmented
 }
@@ -38,10 +40,10 @@ export const documentsApi = {
         return apiRequest<DocumentDto[]>('/api/documents/my-documents?pageSize=50');
     },
 
-    createUpload: async (fileName: string, fileSize: number, contentType: string) => {
+    createUpload: async (fileName: string, fileSize: number, contentType: string, documentType: string) => {
         return apiRequest<CreateUploadResponse>('/api/documents/create-upload', {
             method: 'POST',
-            body: JSON.stringify({ fileName, fileSizeBytes: fileSize, contentType })
+            body: JSON.stringify({ fileName, fileSizeBytes: fileSize, contentType, documentType })
         });
     },
 

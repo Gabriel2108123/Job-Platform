@@ -15,7 +15,7 @@ export const Input: React.FC<InputProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'font-poppins px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed';
+  const baseStyles = 'font-poppins bg-white text-gray-900 px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed';
 
   const errorStyles = error ? 'border-[var(--error)] focus:ring-[var(--error)]' : '';
 
@@ -61,7 +61,7 @@ export const Select: React.FC<SelectProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'font-poppins px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed';
+  const baseStyles = 'font-poppins bg-white text-gray-900 px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed';
 
   const errorStyles = error ? 'border-[var(--error)] focus:ring-[var(--error)]' : '';
 
@@ -106,7 +106,7 @@ export const Textarea: React.FC<TextareaProps> = ({
   className = '',
   ...props
 }) => {
-  const baseStyles = 'font-poppins px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed resize-vertical';
+  const baseStyles = 'font-poppins bg-white text-gray-900 px-4 py-2.5 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)] focus:border-transparent transition-all duration-200 disabled:bg-[var(--gray-100)] disabled:cursor-not-allowed resize-vertical';
 
   const errorStyles = error ? 'border-[var(--error)] focus:ring-[var(--error)]' : '';
 

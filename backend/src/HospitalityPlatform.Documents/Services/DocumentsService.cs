@@ -5,6 +5,7 @@ using HospitalityPlatform.Documents.DTOs;
 using HospitalityPlatform.Documents.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HospitalityPlatform.Documents.Enums;
 
 namespace HospitalityPlatform.Documents.Services;
 
@@ -16,21 +17,47 @@ public class DocumentsService : IDocumentsService
 {
     private readonly IDocumentsDbContext _dbContext;
     private readonly IAmazonS3 _s3Client;
+    private readonly IDocumentValidationService _validationService;
     private readonly ILogger<DocumentsService> _logger;
     private const string BucketName = "hospitality-platform-documents";
     private const int PresignedUrlExpirationSeconds = 3600; // 1 hour
 
-    public DocumentsService(IDocumentsDbContext dbContext, IAmazonS3 s3Client, ILogger<DocumentsService> logger)
+    public DocumentsService(
+        IDocumentsDbContext dbContext, 
+        IAmazonS3 s3Client, 
+        IDocumentValidationService validationService,
+        ILogger<DocumentsService> logger)
     {
         _dbContext = dbContext;
         _s3Client = s3Client;
+        _validationService = validationService;
         _logger = logger;
     }
 
     public async Task<PresignedUrlDto> CreateUploadAsync(Guid organizationId, CreateDocumentUploadDto dto, string userId)
     {
+        // Enforce document guardrails via the validation service
+        var validationResult = _validationService.ValidateDocumentUpload(
+            dto.FileName,
+            dto.ContentType,
+            dto.FileSizeBytes,
+            dto.DocumentType);
+
+        if (!validationResult.IsValid)
+        {
+            throw new InvalidOperationException(validationResult.ErrorMessage ?? "Document validation failed.");
+        }
+
         var documentId = Guid.NewGuid();
         var s3Key = $"org-{organizationId}/user-{userId}/{documentId}/{dto.FileName}";
+
+        // Calculate retention date
+        DateTime? retentionDate = null;
+        if (dto.DocumentType == DocumentType.Resume)
+        {
+            // Resumes are kept for 6 months for compliance
+            retentionDate = DateTime.UtcNow.AddMonths(6);
+        }
 
         // Create placeholder document record (s3Key will be confirmed after upload)
         var document = new Document
@@ -41,12 +68,14 @@ public class DocumentsService : IDocumentsService
             S3Key = s3Key,
             FileSizeBytes = dto.FileSizeBytes,
             ContentType = dto.ContentType,
-            UploadedByUserId = userId
+            UploadedByUserId = userId,
+            DocumentType = dto.DocumentType,
+            RetentionDate = retentionDate
         };
 
         _dbContext.Documents.Add(document);
         await LogAuditAsync(organizationId, userId, "DocumentUploadInitiated", documentId.ToString(), 
-            $"Initiated upload of {dto.FileName}");
+            $"Initiated upload of {dto.FileName} (Type: {dto.DocumentType}, Retention: {retentionDate?.ToShortDateString() ?? "None"})");
         await _dbContext.SaveChangesAsync();
 
         // Generate presigned URL for upload
@@ -390,7 +419,9 @@ public class DocumentsService : IDocumentsService
             UploadedByUserId = document.UploadedByUserId,
             UploadedAt = document.UploadedAt,
             LastAccessedAt = document.LastAccessedAt,
-            AccessRuleCount = document.AccessRules.Count(a => a.IsActive)
+            AccessRuleCount = document.AccessRules.Count(a => a.IsActive),
+            DocumentType = document.DocumentType,
+            RetentionDate = document.RetentionDate
         };
     }
 
@@ -414,7 +445,7 @@ public class DocumentsService : IDocumentsService
         {
             Id = Guid.NewGuid(),
             OrganizationId = organizationId,
-            UserId = string.IsNullOrEmpty(userId) ? null : Guid.Parse(userId),
+            UserId = Guid.TryParse(userId, out var userGuid) ? userGuid : null,
             Action = action,
             EntityType = "Document",
             EntityId = entityId,

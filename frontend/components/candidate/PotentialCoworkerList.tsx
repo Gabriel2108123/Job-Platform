@@ -102,14 +102,36 @@ export function PotentialCoworkerList() {
                             </div>
                         </CardHeader>
                         <CardBody>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                <span>
-                                    Overlap: {format(new Date(coworker.overlapStart), 'MMM yyyy')} - {format(new Date(coworker.overlapEnd), 'MMM yyyy')}
-                                    <Badge variant="neutral" size="sm" className="ml-2 text-[10px] h-4">
+                            <div className="text-xs text-muted-foreground flex flex-col gap-2">
+                                <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    <span>
+                                        Overlap: {format(new Date(coworker.overlapStart), 'MMM yyyy')} - {format(new Date(coworker.overlapEnd), 'MMM yyyy')}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <Badge variant="neutral" size="sm" className="text-[10px] h-4">
                                         {coworker.overlapDays} days
                                     </Badge>
-                                </span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[10px] font-medium">Confidence:</span>
+                                        <div className="w-12 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full ${coworker.matchConfidence >= 0.8 ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                                style={{ width: `${coworker.matchConfidence * 100}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                {coworker.matchReasons && coworker.matchReasons.length > 0 && (
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                        {coworker.matchReasons.map((reason, idx) => (
+                                            <span key={idx} className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded text-[9px]">
+                                                {reason}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </CardBody>
                     </Card>

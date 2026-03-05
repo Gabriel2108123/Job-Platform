@@ -10,25 +10,40 @@ using HospitalityPlatform.Applications.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.EntityFrameworkCore;
 using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HospitalityPlatform.Api.Tests;
 
 /// <summary>
-/// Unit tests for AdminService with mocked database context
+/// Unit tests for AdminService using InMemory database
 /// </summary>
-public class AdminServiceTests
+public class AdminServiceTests : IDisposable
 {
-    private readonly Mock<ApplicationDbContext> _mockDbContext;
+    private readonly ApplicationDbContext _dbContext;
     private readonly Mock<ILogger<AdminService>> _mockLogger;
     private readonly AdminService _adminService;
+    private readonly string _databaseName;
 
     public AdminServiceTests()
     {
-        _mockDbContext = new Mock<ApplicationDbContext>(new DbContextOptions<ApplicationDbContext>());
+        _databaseName = Guid.NewGuid().ToString();
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(databaseName: _databaseName)
+            .Options;
+
+        _dbContext = new ApplicationDbContext(options);
         _mockLogger = new Mock<ILogger<AdminService>>();
-        _adminService = new AdminService(_mockDbContext.Object, _mockLogger.Object);
+        _adminService = new AdminService(_dbContext, _mockLogger.Object);
+    }
+
+    public void Dispose()
+    {
+        _dbContext.Database.EnsureDeleted();
+        _dbContext.Dispose();
     }
 
     // ==================== USER MANAGEMENT TESTS ====================
@@ -37,13 +52,12 @@ public class AdminServiceTests
     public async Task GetUsersAsync_ReturnsPagedUsers()
     {
         // Arrange
-        var users = new List<ApplicationUser>
+        _dbContext.Users.AddRange(new List<ApplicationUser>
         {
-            new() { Id = Guid.NewGuid(), Email = "user1@test.com", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Email = "user2@test.com", IsActive = true, CreatedAt = DateTime.UtcNow }
-        };
-
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(users);
+            new() { Id = Guid.NewGuid(), Email = "user1@test.com", UserName = "user1@test.com", IsActive = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Email = "user2@test.com", UserName = "user2@test.com", IsActive = true, CreatedAt = DateTime.UtcNow }
+        });
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetUsersAsync(1, 20);
@@ -63,13 +77,15 @@ public class AdminServiceTests
         {
             Id = userId,
             Email = "test@test.com",
+            UserName = "test@test.com",
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             FirstName = "John",
             LastName = "Doe"
         };
 
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(new[] { user });
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetUserAsync(userId);
@@ -83,9 +99,6 @@ public class AdminServiceTests
     [Fact]
     public async Task GetUserAsync_ReturnsNull_WhenNotFound()
     {
-        // Arrange
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(new List<ApplicationUser>());
-
         // Act
         var result = await _adminService.GetUserAsync(Guid.NewGuid());
 
@@ -99,29 +112,27 @@ public class AdminServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var adminId = Guid.NewGuid();
-        var user = new ApplicationUser { Id = userId, Email = "test@test.com", IsActive = true };
+        var user = new ApplicationUser { Id = userId, Email = "test@test.com", UserName = "test@test.com", IsActive = true };
 
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(new[] { user });
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(new List<AuditLog>());
-        _mockDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _adminService.SuspendUserAsync(userId, new SuspendUserDto { Reason = "Violation" }, adminId, "Admin");
 
         // Assert
-        Assert.False(user.IsActive);
-        _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(1));
+        var updatedUser = await _dbContext.Users.FindAsync(userId);
+        Assert.False(updatedUser.IsActive);
+        Assert.True(_dbContext.AuditLogs.Any(l => l.Action == "UserSuspended" && l.EntityId == userId.ToString()));
     }
 
     [Fact]
     public async Task SuspendUserAsync_ThrowsException_WhenUserNotFound()
     {
-        // Arrange
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(new List<ApplicationUser>());
-
         // Act & Assert
-        await Assert.ThrowsAsync<Exception>(() => 
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => 
             _adminService.SuspendUserAsync(Guid.NewGuid(), new SuspendUserDto { Reason = "Test" }, Guid.NewGuid()));
+        Assert.Equal("User not found", ex.Message);
     }
 
     [Fact]
@@ -130,18 +141,18 @@ public class AdminServiceTests
         // Arrange
         var userId = Guid.NewGuid();
         var adminId = Guid.NewGuid();
-        var user = new ApplicationUser { Id = userId, Email = "test@test.com", IsActive = false };
+        var user = new ApplicationUser { Id = userId, Email = "test@test.com", UserName = "test@test.com", IsActive = false };
 
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(new[] { user });
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(new List<AuditLog>());
-        _mockDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _adminService.UnsuspendUserAsync(userId, adminId, "Admin");
 
         // Assert
-        Assert.True(user.IsActive);
-        _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(1));
+        var updatedUser = await _dbContext.Users.FindAsync(userId);
+        Assert.True(updatedUser.IsActive);
+        Assert.True(_dbContext.AuditLogs.Any(l => l.Action == "UserUnsuspended" && l.EntityId == userId.ToString()));
     }
 
     // ==================== ORGANIZATION MANAGEMENT TESTS ====================
@@ -152,18 +163,18 @@ public class AdminServiceTests
         // Arrange
         var orgId = Guid.NewGuid();
         var adminId = Guid.NewGuid();
-        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = true, Users = new List<ApplicationUser>() };
+        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = true };
 
-        _mockDbContext.Setup(x => x.Organizations).ReturnsDbSet(new[] { org });
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(new List<AuditLog>());
-        _mockDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _dbContext.Organizations.Add(org);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _adminService.SuspendOrganizationAsync(orgId, new SuspendOrganizationDto { Reason = "Test" }, adminId, "Admin");
 
         // Assert
-        Assert.False(org.IsActive);
-        _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(1));
+        var updatedOrg = await _dbContext.Organizations.FindAsync(orgId);
+        Assert.False(updatedOrg.IsActive);
+        Assert.True(_dbContext.AuditLogs.Any(l => l.Action == "OrganizationSuspended"));
     }
 
     [Fact]
@@ -172,18 +183,18 @@ public class AdminServiceTests
         // Arrange
         var orgId = Guid.NewGuid();
         var adminId = Guid.NewGuid();
-        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = false, Users = new List<ApplicationUser>() };
+        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = false };
 
-        _mockDbContext.Setup(x => x.Organizations).ReturnsDbSet(new[] { org });
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(new List<AuditLog>());
-        _mockDbContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
+        _dbContext.Organizations.Add(org);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _adminService.UnsuspendOrganizationAsync(orgId, adminId, "Admin");
 
         // Assert
-        Assert.True(org.IsActive);
-        _mockDbContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(1));
+        var updatedOrg = await _dbContext.Organizations.FindAsync(orgId);
+        Assert.True(updatedOrg.IsActive);
+        Assert.True(_dbContext.AuditLogs.Any(l => l.Action == "OrganizationUnsuspended"));
     }
 
     // ==================== SUBSCRIPTION MANAGEMENT TESTS ====================
@@ -193,7 +204,7 @@ public class AdminServiceTests
     {
         // Arrange
         var orgId = Guid.NewGuid();
-        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = true, Users = new List<ApplicationUser>() };
+        var org = new Organization { Id = orgId, Name = "Test Org", IsActive = true };
         var subscriptions = new List<Subscription>
         {
             new()
@@ -220,8 +231,9 @@ public class AdminServiceTests
             }
         };
 
-        _mockDbContext.Setup(x => x.Subscriptions).ReturnsDbSet(subscriptions);
-        _mockDbContext.Setup(x => x.Organizations).ReturnsDbSet(new[] { org });
+        _dbContext.Organizations.Add(org);
+        _dbContext.Subscriptions.AddRange(subscriptions);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetSubscriptionsByStatusAsync("Active");
@@ -238,16 +250,19 @@ public class AdminServiceTests
     public async Task GetPlatformMetricsAsync_ReturnsValidMetrics()
     {
         // Arrange
+        var orgId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        
         var users = new List<ApplicationUser>
         {
-            new() { Id = Guid.NewGuid(), Email = "user1@test.com", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Email = "user2@test.com", IsActive = false, CreatedAt = DateTime.UtcNow }
+            new() { Id = userId, Email = "user1@test.com", UserName = "user1@test.com", IsActive = true, CreatedAt = DateTime.UtcNow },
+            new() { Id = Guid.NewGuid(), Email = "user2@test.com", UserName = "user2@test.com", IsActive = false, CreatedAt = DateTime.UtcNow }
         };
 
         var orgs = new List<Organization>
         {
-            new() { Id = Guid.NewGuid(), Name = "Org1", IsActive = true, Users = new List<ApplicationUser>() },
-            new() { Id = Guid.NewGuid(), Name = "Org2", IsActive = false, Users = new List<ApplicationUser>() }
+            new() { Id = orgId, Name = "Org1", IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Org2", IsActive = false }
         };
 
         var jobs = new List<Job>
@@ -278,12 +293,11 @@ public class AdminServiceTests
             }
         };
 
-        _mockDbContext.Setup(x => x.Users).ReturnsDbSet(users);
-        _mockDbContext.Setup(x => x.Organizations).ReturnsDbSet(orgs);
-        _mockDbContext.Setup(x => x.Jobs).ReturnsDbSet(jobs);
-        _mockDbContext.Setup(x => x.Applications).ReturnsDbSet(new List<Application>());
-        _mockDbContext.Setup(x => x.Subscriptions).ReturnsDbSet(subscriptions);
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(new List<AuditLog>());
+        _dbContext.Users.AddRange(users);
+        _dbContext.Organizations.AddRange(orgs);
+        _dbContext.Jobs.AddRange(jobs);
+        _dbContext.Subscriptions.AddRange(subscriptions);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetPlatformMetricsAsync();
@@ -310,11 +324,12 @@ public class AdminServiceTests
         // Arrange
         var auditLogs = new List<AuditLog>
         {
-            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow, Details = "{}" },
+            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow, Details = "{}" }
         };
 
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(auditLogs);
+        _dbContext.AuditLogs.AddRange(auditLogs);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetAuditLogsAsync(1, 20);
@@ -331,11 +346,12 @@ public class AdminServiceTests
         // Arrange
         var auditLogs = new List<AuditLog>
         {
-            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow, Details = "{}" },
+            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow, Details = "{}" }
         };
 
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(auditLogs);
+        _dbContext.AuditLogs.AddRange(auditLogs);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetAuditLogsByActionAsync("UserSuspended", 1, 20);
@@ -353,11 +369,12 @@ public class AdminServiceTests
         var userId = Guid.NewGuid();
         var auditLogs = new List<AuditLog>
         {
-            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = userId, Timestamp = DateTime.UtcNow },
-            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow }
+            new() { Id = Guid.NewGuid(), Action = "UserSuspended", UserId = userId, Timestamp = DateTime.UtcNow, Details = "{}" },
+            new() { Id = Guid.NewGuid(), Action = "UserCreated", UserId = Guid.NewGuid(), Timestamp = DateTime.UtcNow, Details = "{}" }
         };
 
-        _mockDbContext.Setup(x => x.AuditLogs).ReturnsDbSet(auditLogs);
+        _dbContext.AuditLogs.AddRange(auditLogs);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = await _adminService.GetAuditLogsByUserAsync(userId, 1, 20);
@@ -365,5 +382,6 @@ public class AdminServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.Single(result.Items);
-        Assert.Equal(userId, result.Items[0].UserId);    }
+        Assert.Equal(userId, result.Items[0].UserId);
+    }
 }

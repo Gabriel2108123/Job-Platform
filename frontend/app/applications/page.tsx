@@ -141,9 +141,9 @@ function ApplicationsContent() {
   };
 
   const canWithdraw = (status: ApplicationStatus) => {
-    return status !== ApplicationStatus.Withdrawn && 
-           status !== ApplicationStatus.Rejected && 
-           status !== ApplicationStatus.Hired;
+    return status !== ApplicationStatus.Withdrawn &&
+      status !== ApplicationStatus.Rejected &&
+      status !== ApplicationStatus.Hired;
   };
 
   return (
@@ -312,6 +312,12 @@ function ApplicationsContent() {
                             </div>
                             {entry.reason && (
                               <p className="text-sm text-gray-700">{entry.reason}</p>
+                            )}
+                            {entry.preHireConfirmationText && (
+                              <div className="mt-2 text-sm text-gray-700 bg-yellow-50 p-2 rounded border border-yellow-100">
+                                <strong>Pre-Hire Checks Confirmed:</strong>
+                                <p className="mt-1 whitespace-pre-wrap">{entry.preHireConfirmationText}</p>
+                              </div>
                             )}
                             {entry.changedBy && (
                               <p className="text-xs text-gray-500 mt-2">By: {entry.changedBy}</p>
