@@ -1,4 +1,7 @@
 using System.Globalization;
+using System.Net.Http;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace HospitalityPlatform.Core.Services;
 
@@ -10,6 +13,15 @@ public interface ILocationService
 
 public class LocationService : ILocationService
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<LocationService> _logger;
+
+    public LocationService(IHttpClientFactory httpClientFactory, ILogger<LocationService> logger)
+    {
+        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+    }
+
     // UK major cities centroid lookup table
     private static readonly Dictionary<string, (decimal lat, decimal lng)> UkCityCentroids = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -63,14 +75,57 @@ public class LocationService : ILocationService
         { "Newry", (54.1751m, -6.3402m) }
     };
 
-    public Task<(decimal? lat, decimal? lng)> GetApproxCoordsAsync(string? postalCode, string? city)
+    public async Task<(decimal? lat, decimal? lng)> GetApproxCoordsAsync(string? postalCode, string? city)
     {
+        // Add Nominatim query first
+        try
+        {
+            var queryParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(postalCode)) queryParts.Add(postalCode.Trim());
+            if (!string.IsNullOrWhiteSpace(city)) queryParts.Add(city.Trim());
+
+            if (queryParts.Count > 0)
+            {
+                var query = string.Join(" ", queryParts);
+                var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("HospitalityPlatform/1.0");
+
+                var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(query)}&format=json&limit=1";
+                var response = await client.GetAsync(url);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonStr = await response.Content.ReadAsStringAsync();
+                    var results = JsonSerializer.Deserialize<JsonElement>(jsonStr);
+                    
+                    if (results.ValueKind == JsonValueKind.Array && results.GetArrayLength() > 0)
+                    {
+                        var firstResult = results[0];
+                        if (firstResult.TryGetProperty("lat", out var latProp) && 
+                            firstResult.TryGetProperty("lon", out var lonProp))
+                        {
+                            if (decimal.TryParse(latProp.GetString(), CultureInfo.InvariantCulture, out var lat) &&
+                                decimal.TryParse(lonProp.GetString(), CultureInfo.InvariantCulture, out var lon))
+                            {
+                                _logger.LogInformation("Successfully geocoded '{query}' using Nominatim", query);
+                                return (lat, lon);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Nominatim geocoding failed. Falling back to centroid lookup.");
+        }
+
         // Priority 1: Use postal code outward code (if available)
         if (!string.IsNullOrWhiteSpace(postalCode))
         {
             var approxFromPostcode = GetApproxFromPostcode(postalCode);
             if (approxFromPostcode.HasValue)
-                return Task.FromResult<(decimal?, decimal?)>(approxFromPostcode.Value);
+                return approxFromPostcode.Value;
         }
 
         // Priority 2: Use city centroid - improved matching
@@ -79,12 +134,12 @@ public class LocationService : ILocationService
             var matchedCity = FindMatchingCity(city);
             if (matchedCity != null && UkCityCentroids.TryGetValue(matchedCity, out var centroid))
             {
-                return Task.FromResult<(decimal?, decimal?)>(centroid);
+                return centroid;
             }
         }
 
         // Unknown location - return null (DO NOT default to London)
-        return Task.FromResult<(decimal?, decimal?)>((null, null));
+        return (null, null);
     }
 
     /// <summary>
@@ -117,11 +172,44 @@ public class LocationService : ILocationService
         return null;
     }
 
-    public Task<(decimal? lat, decimal? lng)> GetExactCoordsAsync(string fullAddress)
+    public async Task<(decimal? lat, decimal? lng)> GetExactCoordsAsync(string fullAddress)
     {
-        // TODO: Integrate with geocoding API (Google Maps, Mapbox, etc.)
-        // For now, return null - exact coords should be provided by client or geocoded externally
-        return Task.FromResult<(decimal?, decimal?)>((null, null));
+        if (string.IsNullOrWhiteSpace(fullAddress)) return (null, null);
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("HospitalityPlatform/1.0");
+
+            var url = $"https://nominatim.openstreetmap.org/search?q={Uri.EscapeDataString(fullAddress)}&format=json&limit=1";
+            var response = await client.GetAsync(url);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonStr = await response.Content.ReadAsStringAsync();
+                var results = JsonSerializer.Deserialize<JsonElement>(jsonStr);
+                
+                if (results.ValueKind == JsonValueKind.Array && results.GetArrayLength() > 0)
+                {
+                    var firstResult = results[0];
+                    if (firstResult.TryGetProperty("lat", out var latProp) && 
+                        firstResult.TryGetProperty("lon", out var lonProp))
+                    {
+                        if (decimal.TryParse(latProp.GetString(), CultureInfo.InvariantCulture, out var lat) &&
+                            decimal.TryParse(lonProp.GetString(), CultureInfo.InvariantCulture, out var lon))
+                        {
+                            return (lat, lon);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Nominatim strict geocoding failed for exact address.");
+        }
+
+        return (null, null);
     }
 
     private (decimal lat, decimal lng)? GetApproxFromPostcode(string postalCode)

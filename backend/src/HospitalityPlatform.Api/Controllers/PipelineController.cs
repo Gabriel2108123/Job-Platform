@@ -38,7 +38,6 @@ public class PipelineController : ControllerBase
     {
         try
         {
-            // TODO: Verify user belongs to job's organization
             var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
@@ -84,7 +83,6 @@ public class PipelineController : ControllerBase
                 return Unauthorized();
             }
 
-            // TODO: Verify user belongs to job's organization
             var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {

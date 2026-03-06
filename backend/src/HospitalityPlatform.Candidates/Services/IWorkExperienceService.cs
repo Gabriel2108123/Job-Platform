@@ -11,7 +11,6 @@ public interface IWorkExperienceService
     Task<bool> DeleteWorkExperienceAsync(Guid id, Guid candidateId);
     
     // Business view support
-    Task<List<WorkExperienceDto>> GetVisibleWorkExperiencesForApplicationAsync(Guid applicationId, Guid candidateId);
     Task<List<WorkExperienceDto>> GetPublicWorkExperiencesAsync(Guid candidateId, bool isShortlisted);
 
     /// <summary>

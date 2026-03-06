@@ -105,7 +105,12 @@ public class JobsController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 20)
     {
-        // TODO: Verify user belongs to organization
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
+        if (string.IsNullOrEmpty(orgIdClaim) || orgIdClaim != organizationId.ToString())
+        {
+            return Forbid();
+        }
+
         var result = await _jobService.GetJobsByOrganizationAsync(organizationId, pageNumber, pageSize);
         return Ok(result);
     }
@@ -123,8 +128,7 @@ public class JobsController : ControllerBase
             return Unauthorized();
         }
 
-        // TODO: Get organizationId from user's current context or claims
-        // For now, we'll expect it in the request or from a claim
+        // Get organizationId from user's current context claims
         var orgIdClaim = User.FindFirst("org_id")?.Value;
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
@@ -155,7 +159,6 @@ public class JobsController : ControllerBase
 
         await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), job.OrganizationId, "jobs.create");
 
-        // TODO: Verify user has access to this job's organization
         var result = await _jobService.UpdateJobAsync(id, dto, userId);
         return Ok(result);
     }
@@ -209,7 +212,6 @@ public class JobsController : ControllerBase
         // Check entitlements before publishing
         await _entitlementGuard.MustHaveAvailableLimitAsync(jobDetails.OrganizationId, LimitType.JobsPostingLimit);
 
-        // TODO: Verify user has access to this job's organization
         var job = await _jobService.PublishJobAsync(id, userId);
 
         // Increment usage after successful publish
@@ -236,7 +238,6 @@ public class JobsController : ControllerBase
 
         await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), jobDetails.OrganizationId, "jobs.close");
 
-        // TODO: Verify user has access to this job's organization
         await _jobService.CloseJobAsync(id, userId);
         return NoContent();
     }

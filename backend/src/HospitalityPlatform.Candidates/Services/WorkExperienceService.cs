@@ -153,13 +153,6 @@ public class WorkExperienceService : IWorkExperienceService
         return true;
     }
 
-    public async Task<List<WorkExperienceDto>> GetVisibleWorkExperiencesForApplicationAsync(Guid applicationId, Guid candidateId)
-    {
-        // TODO: Implement stage gating logic here (Phase 2 integration)
-        // For now, return empty or mock implementation until Application logic is hooked up
-        return new List<WorkExperienceDto>(); 
-    }
-
     public async Task<List<WorkExperienceDto>> GetPublicWorkExperiencesAsync(Guid candidateId, bool isShortlisted)
     {
         // 1. Get global map settings
