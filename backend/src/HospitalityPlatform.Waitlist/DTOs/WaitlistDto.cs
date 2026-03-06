@@ -34,6 +34,8 @@ public class WaitlistEntryDto
     public int SequenceNumber { get; set; }
     public IncentiveType IncentiveAwarded { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool IsConverted { get; set; }
+    public DateTime? ConvertedAt { get; set; }
 }
 
 /// <summary>

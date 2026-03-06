@@ -154,6 +154,29 @@ public class WaitlistController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Mark a waitlist entry as converted (admin only)
+    /// </summary>
+    [HttpPost("admin/{id}/convert")]
+    [Authorize(Policy = "RequireAdmin")]
+    public async Task<IActionResult> ConvertToUser(Guid id)
+    {
+        try
+        {
+            await _waitlistService.MarkAsConvertedAsync(id);
+            return Ok(new { message = "Waitlist entry marked as converted" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error converting waitlist entry");
+            return StatusCode(500, new { error = "An error occurred during conversion" });
+        }
+    }
+
     // ===== Private Helpers =====
 
     /// <summary>

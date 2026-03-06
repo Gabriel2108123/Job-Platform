@@ -47,10 +47,23 @@ public class BillingService : IBillingService
         };
 
         _dbContext.Subscriptions.Add(subscription);
+        
+        // Record initial invoice (mock)
+        var invoice = new Invoice
+        {
+            OrganizationId = organizationId,
+            AmountInCents = plan.PriceInCents,
+            Currency = "GBP",
+            Status = "paid",
+            StripeInvoiceId = $"in_test_{Guid.NewGuid():N}",
+            BilledAt = DateTime.UtcNow
+        };
+        _dbContext.Invoices.Add(invoice);
+        
         await _dbContext.SaveChangesAsync();
 
-        _logger.LogInformation("Created subscription {SubscriptionId} for organization {OrganizationId}", 
-            subscription.Id, organizationId);
+        _logger.LogInformation("Created subscription {SubscriptionId} and invoice {InvoiceId} for organization {OrganizationId}", 
+            subscription.Id, invoice.Id, organizationId);
 
         return MapToDto(subscription);
     }
@@ -188,6 +201,29 @@ public class BillingService : IBillingService
                         _logger.LogWarning("Subscription {SubId} not found for deletion", stripeSubscriptionId);
                     }
                     break;
+                
+                case "invoice.paid":
+                    if (subscription != null)
+                    {
+                        var amountPaid = dataObject.GetProperty("amount_paid").GetInt64();
+                        var currency = dataObject.GetProperty("currency").GetString() ?? "GBP";
+                        var stripeInvoiceId = dataObject.GetProperty("id").GetString() ?? "";
+                        
+                        var invoice = new Invoice
+                        {
+                            OrganizationId = subscription.OrganizationId,
+                            AmountInCents = amountPaid,
+                            Currency = currency,
+                            Status = "paid",
+                            StripeInvoiceId = stripeInvoiceId,
+                            InvoiceUrl = dataObject.TryGetProperty("hosted_invoice_url", out var url) ? url.GetString() : null,
+                            ReceiptUrl = dataObject.TryGetProperty("receipt_url", out var rurl) ? rurl.GetString() : null,
+                            BilledAt = DateTime.UtcNow
+                        };
+                        _dbContext.Invoices.Add(invoice);
+                        _logger.LogInformation("Recorded invoice {InvoiceId} for organization {OrgId}", stripeInvoiceId, subscription.OrganizationId);
+                    }
+                    break;
             }
 
             webhookEvent.IsProcessed = true;
@@ -203,6 +239,25 @@ public class BillingService : IBillingService
         await _dbContext.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<List<InvoiceDto>> GetBillingHistoryAsync(Guid organizationId)
+    {
+        return await _dbContext.Invoices
+            .Where(i => i.OrganizationId == organizationId)
+            .OrderByDescending(i => i.BilledAt)
+            .Select(i => new InvoiceDto
+            {
+                Id = i.Id,
+                AmountInCents = i.AmountInCents,
+                Currency = i.Currency,
+                Status = i.Status,
+                StripeInvoiceId = i.StripeInvoiceId,
+                InvoiceUrl = i.InvoiceUrl,
+                ReceiptUrl = i.ReceiptUrl,
+                BilledAt = i.BilledAt
+            })
+            .ToListAsync();
     }
 
     private static SubscriptionDto MapToDto(Subscription subscription) => new()

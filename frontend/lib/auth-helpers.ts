@@ -14,6 +14,7 @@ export interface CurrentUser {
   name?: string;
   organizationId?: string;
   role?: string;
+  permissions?: string[];
 }
 
 /**
@@ -34,13 +35,27 @@ export function getCurrentUser(): CurrentUser | null {
 
   const organizationId = localStorage.getItem('organizationId');
   const role = localStorage.getItem('role');
+  const permissionsStr = localStorage.getItem('permissions');
+  let permissions: string[] | undefined;
+
+  if (permissionsStr) {
+    try {
+      permissions = JSON.parse(permissionsStr);
+    } catch {
+      // Ignore
+    }
+  }
 
   return {
     ...user,
     organizationId: organizationId || undefined,
     role: role || undefined,
+    permissions,
   };
 }
+
+/**
+ * Get user permissions from auth storage
 
 /**
  * Get organization ID from auth storage
@@ -56,6 +71,20 @@ export function getOrganizationId(): string | null {
 export function getUserRole(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('role');
+}
+
+/**
+ * Get user permissions from auth storage
+ */
+export function getUserPermissions(): string[] {
+  if (typeof window === 'undefined') return [];
+  const permissionsStr = localStorage.getItem('permissions');
+  if (!permissionsStr) return [];
+  try {
+    return JSON.parse(permissionsStr);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -107,6 +136,9 @@ export function setCurrentUser(
   if (user.role) {
     localStorage.setItem('role', user.role);
   }
+  if (user.permissions) {
+    localStorage.setItem('permissions', JSON.stringify(user.permissions));
+  }
 }
 
 /**
@@ -118,4 +150,5 @@ export function clearCurrentUser(): void {
   localStorage.removeItem('user');
   localStorage.removeItem('organizationId');
   localStorage.removeItem('role');
+  localStorage.removeItem('permissions');
 }

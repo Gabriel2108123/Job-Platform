@@ -16,6 +16,8 @@ public class AdminUserDto
     public bool EmailVerified { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    public HospitalityPlatform.Core.Enums.ModerationStatus ModerationStatus { get; set; }
+    public string ModerationStatusName => ModerationStatus.ToString();
 }
 
 public class AdminUsersPagedDto
@@ -42,6 +44,8 @@ public class AdminOrganizationDto
     public int JobCount { get; set; }
     public string? SubscriptionStatus { get; set; }
     public DateTime CreatedAt { get; set; }
+    public HospitalityPlatform.Core.Enums.ModerationStatus ModerationStatus { get; set; }
+    public string ModerationStatusName => ModerationStatus.ToString();
 }
 
 public class AdminOrganizationsPagedDto

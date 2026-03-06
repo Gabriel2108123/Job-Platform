@@ -15,6 +15,13 @@ public interface IPipelineService
         string? preHireConfirmationText = null);
     
     Task<PipelineViewDto> GetPipelineViewAsync(Guid jobId, Guid organizationId);
+
+    Task<IEnumerable<ApplicationDto>> MoveApplicationsBulkAsync(
+        IEnumerable<Guid> applicationIds,
+        ApplicationStatus toStatus,
+        string userId,
+        Guid organizationId,
+        string? notes = null);
 }
 
 public class PipelineViewDto

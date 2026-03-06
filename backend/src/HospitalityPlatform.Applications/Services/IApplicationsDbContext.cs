@@ -8,6 +8,8 @@ public interface IApplicationsDbContext
 {
     DbSet<HospitalityPlatform.Applications.Entities.Application> Applications { get; }
     DbSet<ApplicationStatusHistory> ApplicationStatusHistories { get; }
+    DbSet<Interview> Interviews { get; }
+    DbSet<Offer> Offers { get; }
     DbSet<Job> Jobs { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

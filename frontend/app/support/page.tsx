@@ -1,129 +1,73 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { RequireRole } from '@/components/auth/RoleBasedAccess';
+import React from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
+import { MessageSquare, LifeBuoy, Map, BookOpen, Search } from 'lucide-react';
+import { SupportTicketWidget } from '@/components/dashboard/support/SupportTicketWidget';
+import { SystemAnnouncementWidget } from '@/components/dashboard/support/SystemAnnouncementWidget';
+import { RecentActivityWidget } from '@/components/dashboard/business/RecentActivityWidget';
 import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
+import { ROUTES } from '@/config/routes';
+import { Card, CardBody } from '@/components/ui/Card';
 
 export default function SupportDashboardPage() {
-  const [stats, setStats] = useState({
-    openTickets: 0,
-    resolvedTickets: 0,
-    avgResponseTime: 0,
-    satisfaction: 0,
-  });
-
-  useEffect(() => {
-    // TODO: Fetch support stats from backend
-    setStats({
-      openTickets: 12,
-      resolvedTickets: 45,
-      avgResponseTime: 2, // hours
-      satisfaction: 4.5, // out of 5
-    });
-  }, []);
-
   return (
-    <RequireRole allowedRoles={['Support', 'Admin']}>
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Support Dashboard</h1>
-            <Link href="/support/tickets">
-              <Button variant="primary">View All Tickets</Button>
-            </Link>
+    <RoleLayout
+      pageTitle="Support Workspace"
+      pageActions={
+        <Link href={ROUTES.SUPPORT.TICKETS}>
+          <Button variant="primary" size="sm" className="flex items-center gap-2 rounded-xl font-black text-xs uppercase tracking-widest px-6 h-10">
+            <MessageSquare className="w-4 h-4" /> Open Tickets
+          </Button>
+        </Link>
+      }
+    >
+      <div className="space-y-8 pb-20 lg:pb-0">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-12 lg:col-span-8 space-y-8">
+            {/* Quick Support Navigation */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <Card className="rounded-[2rem] border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden hover:translate-y-[-2px] transition-all cursor-pointer">
+                <CardBody className="p-8 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+                    <Map className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <h4 className="font-black text-slate-900 dark:text-white mb-1">Global Map</h4>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Monitor Activity</p>
+                </CardBody>
+              </Card>
+
+              <Card className="rounded-[2rem] border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden hover:translate-y-[-2px] transition-all cursor-pointer">
+                <CardBody className="p-8 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+                    <BookOpen className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <h4 className="font-black text-slate-900 dark:text-white mb-1">Articles</h4>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Internal Help</p>
+                </CardBody>
+              </Card>
+
+              <Card className="rounded-[2rem] border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden hover:translate-y-[-2px] transition-all cursor-pointer">
+                <CardBody className="p-8 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center mx-auto mb-4">
+                    <LifeBuoy className="w-6 h-6 text-rose-600" />
+                  </div>
+                  <h4 className="font-black text-slate-900 dark:text-white mb-1">Incident</h4>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Report Issue</p>
+                </CardBody>
+              </Card>
+            </div>
+
+            <RecentActivityWidget />
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Open Tickets</div>
-              <div className="text-3xl font-bold text-[var(--brand-primary)]">{stats.openTickets}</div>
-              <div className="text-xs text-gray-500 mt-2">Awaiting response</div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Resolved</div>
-              <div className="text-3xl font-bold text-green-600">{stats.resolvedTickets}</div>
-              <div className="text-xs text-gray-500 mt-2">This month</div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Avg Response Time</div>
-              <div className="text-3xl font-bold text-blue-600">{stats.avgResponseTime}h</div>
-              <div className="text-xs text-gray-500 mt-2">Time to first response</div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="text-sm font-medium text-gray-600 mb-2">Satisfaction</div>
-              <div className="text-3xl font-bold text-yellow-600">{stats.satisfaction}/5</div>
-              <div className="text-xs text-gray-500 mt-2">Customer rating</div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="space-y-3">
-                <Link href="/support/tickets">
-                  <Button variant="outline" className="w-full justify-start">
-                    📋 Manage Tickets
-                  </Button>
-                </Link>
-                <Link href="/support/users">
-                  <Button variant="outline" className="w-full justify-start">
-                    👥 User Support
-                  </Button>
-                </Link>
-                <Link href="/support/reports">
-                  <Button variant="outline" className="w-full justify-start">
-                    📊 View Reports
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Tickets</h2>
-              <div className="space-y-3">
-                <div className="border-l-4 border-orange-500 pl-4 py-2">
-                  <p className="font-medium text-gray-900">Login Issue</p>
-                  <p className="text-sm text-gray-600">Opened 2 hours ago</p>
-                </div>
-                <div className="border-l-4 border-blue-500 pl-4 py-2">
-                  <p className="font-medium text-gray-900">Feature Question</p>
-                  <p className="text-sm text-gray-600">Opened 5 hours ago</p>
-                </div>
-                <div className="border-l-4 border-green-500 pl-4 py-2">
-                  <p className="font-medium text-gray-900">Bug Report</p>
-                  <p className="text-sm text-gray-600">Opened 1 day ago</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Knowledge Base */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Knowledge Base</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">Getting Started</h3>
-                <p className="text-sm text-gray-600">Learn the basics of the platform</p>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">Common Issues</h3>
-                <p className="text-sm text-gray-600">Find solutions to frequently asked problems</p>
-              </div>
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">API Documentation</h3>
-                <p className="text-sm text-gray-600">Integrate with YokeConnect</p>
-              </div>
-            </div>
+          <div className="md:col-span-12 lg:col-span-4 space-y-8">
+            <SystemAnnouncementWidget />
+            <SupportTicketWidget />
           </div>
         </div>
       </div>
-    </RequireRole>
+    </RoleLayout>
   );
 }

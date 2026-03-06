@@ -1,4 +1,5 @@
 using HospitalityPlatform.Core.Entities;
+using HospitalityPlatform.Core.Enums;
 using HospitalityPlatform.Jobs.Enums;
 
 namespace HospitalityPlatform.Jobs.Entities;
@@ -48,6 +49,8 @@ public class Job : BaseEntity
     public DateTime? ExpiresAt { get; set; }
     
     public JobVisibility Visibility { get; set; } = JobVisibility.Public;
+    
+    public ModerationStatus ModerationStatus { get; set; } = ModerationStatus.Approved;
 
     public int ViewsCount { get; set; } = 0;
 }

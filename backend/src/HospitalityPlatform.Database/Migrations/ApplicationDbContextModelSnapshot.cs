@@ -152,6 +152,132 @@ namespace HospitalityPlatform.Database.Migrations
                     b.ToTable("ApplicationStatusHistories", (string)null);
                 });
 
+            modelBuilder.Entity("HospitalityPlatform.Applications.Entities.Interview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("MeetingLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("ScheduledAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("ScheduledAt");
+
+                    b.ToTable("Interviews", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Applications.Entities.Offer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DecidedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("ProposedStartDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("SalaryAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("SalaryCurrency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Offers", (string)null);
+                });
+
             modelBuilder.Entity("HospitalityPlatform.Audit.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -633,6 +759,9 @@ namespace HospitalityPlatform.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AllowCoworkerDiscovery")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("CandidateUserId")
                         .HasColumnType("uuid");
 
@@ -711,6 +840,68 @@ namespace HospitalityPlatform.Database.Migrations
                     b.ToTable("WorkExperiences", (string)null);
                 });
 
+            modelBuilder.Entity("HospitalityPlatform.Core.Entities.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ReporterUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ResolutionNotes")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("ResolvedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Reports");
+                });
+
             modelBuilder.Entity("HospitalityPlatform.Documents.Entities.Document", b =>
                 {
                     b.Property<Guid>("Id")
@@ -737,6 +928,10 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Property<string>("DeletedByUserId")
                         .HasColumnType("text");
 
+                    b.Property<int>("DocumentType")
+                        .HasMaxLength(50)
+                        .HasColumnType("integer");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -753,6 +948,9 @@ namespace HospitalityPlatform.Database.Migrations
 
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("RetentionDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("S3Key")
                         .IsRequired()
@@ -773,6 +971,8 @@ namespace HospitalityPlatform.Database.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DocumentType");
 
                     b.HasIndex("OrganizationId");
 
@@ -1145,6 +1345,9 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("ModerationStatus")
+                        .HasColumnType("integer");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -1233,11 +1436,20 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastActiveAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<Guid[]>("PreferredJobRoleIds")
                         .HasColumnType("uuid[]");
 
                     b.Property<string>("ResumeJson")
                         .HasColumnType("text");
+
+                    b.Property<string[]>("Skills")
+                        .HasColumnType("text[]");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
@@ -1256,6 +1468,140 @@ namespace HospitalityPlatform.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("CandidateProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgMemberRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrgRoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrgRoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganizationId", "UserId", "OrgRoleId")
+                        .IsUnique();
+
+                    b.ToTable("OrgMemberRoles", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("OrgRoles", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgRolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrgRoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("PermissionKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrgRoleId", "PermissionKey")
+                        .IsUnique();
+
+                    b.ToTable("OrgRolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("HospitalityPlatform.Identity.Entities.Organization", b =>
@@ -1316,6 +1662,9 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Property<string>("LogoUrl")
                         .HasColumnType("text");
 
+                    b.Property<int>("ModerationStatus")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1350,6 +1699,60 @@ namespace HospitalityPlatform.Database.Migrations
                     b.HasIndex("Name");
 
                     b.ToTable("Organizations", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.SavedSearch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("EnableEmailAlerts")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("SearchParamsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SavedSearches", (string)null);
                 });
 
             modelBuilder.Entity("HospitalityPlatform.Identity.Entities.Verification.EmailVerificationToken", b =>
@@ -1477,6 +1880,9 @@ namespace HospitalityPlatform.Database.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<int>("LocationVisibility")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ModerationStatus")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("OrganizationId")
@@ -1787,6 +2193,62 @@ namespace HospitalityPlatform.Database.Migrations
                     b.ToTable("Messages", (string)null);
                 });
 
+            modelBuilder.Entity("HospitalityPlatform.Messaging.Entities.MessageTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CreatorUserId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.ToTable("MessageTemplates", (string)null);
+                });
+
             modelBuilder.Entity("HospitalityPlatform.Messaging.Entities.Rating", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1838,6 +2300,85 @@ namespace HospitalityPlatform.Database.Migrations
                     b.HasIndex("CreatedAt");
 
                     b.ToTable("Ratings", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Messaging.Entities.UserBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlockedUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BlockerUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockedUserId");
+
+                    b.HasIndex("BlockerUserId");
+
+                    b.HasIndex("BlockerUserId", "BlockedUserId")
+                        .IsUnique();
+
+                    b.ToTable("UserBlocks", (string)null);
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Messaging.Entities.UserReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("ReportedUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReporterUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ResolvedByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("ReportedUserId");
+
+                    b.HasIndex("ReporterUserId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("UserReports", (string)null);
                 });
 
             modelBuilder.Entity("HospitalityPlatform.Ratings.Entities.UserRating", b =>
@@ -1906,6 +2447,9 @@ namespace HospitalityPlatform.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<DateTime?>("ConvertedAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -1925,6 +2469,9 @@ namespace HospitalityPlatform.Database.Migrations
 
                     b.Property<int>("IncentiveAwarded")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsConverted")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2125,6 +2672,74 @@ namespace HospitalityPlatform.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgMemberRole", b =>
+                {
+                    b.HasOne("HospitalityPlatform.Identity.Entities.OrgRole", "OrgRole")
+                        .WithMany("MemberRoles")
+                        .HasForeignKey("OrgRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HospitalityPlatform.Identity.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HospitalityPlatform.Identity.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("OrgRole");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgRole", b =>
+                {
+                    b.HasOne("HospitalityPlatform.Identity.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgRolePermission", b =>
+                {
+                    b.HasOne("HospitalityPlatform.Identity.Entities.OrgRole", "OrgRole")
+                        .WithMany("Permissions")
+                        .HasForeignKey("OrgRoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrgRole");
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.SavedSearch", b =>
+                {
+                    b.HasOne("HospitalityPlatform.Identity.Entities.Organization", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HospitalityPlatform.Identity.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HospitalityPlatform.Identity.Entities.Verification.EmailVerificationToken", b =>
                 {
                     b.HasOne("HospitalityPlatform.Identity.Entities.ApplicationUser", "User")
@@ -2232,6 +2847,13 @@ namespace HospitalityPlatform.Database.Migrations
             modelBuilder.Entity("HospitalityPlatform.Documents.Entities.Document", b =>
                 {
                     b.Navigation("AccessRules");
+                });
+
+            modelBuilder.Entity("HospitalityPlatform.Identity.Entities.OrgRole", b =>
+                {
+                    b.Navigation("MemberRoles");
+
+                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("HospitalityPlatform.Identity.Entities.Organization", b =>

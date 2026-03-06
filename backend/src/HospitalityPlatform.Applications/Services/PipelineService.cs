@@ -21,11 +21,15 @@ public class PipelineService : IPipelineService
         "Screening->Interview",
         "Screening->Rejected",
         "Interview->PreHireChecks",
+        "Interview->OfferSent",
         "Interview->Rejected",
         "PreHireChecks->Hired",
         "PreHireChecks->Rejected",
         "PreHireChecks->Screening",
-        "Hired->Rejected", // Can reject even after hiring if needed
+        "OfferSent->Hired",
+        "OfferSent->Rejected",
+        "OfferSent->Interview",
+        "Hired->Rejected",
     };
 
     public PipelineService(
@@ -136,6 +140,30 @@ public class PipelineService : IPipelineService
             applicationId, previousStatus, toStatus, userId);
 
         return MapToDto(application, null);
+    }
+
+    public async Task<IEnumerable<ApplicationDto>> MoveApplicationsBulkAsync(
+        IEnumerable<Guid> applicationIds,
+        ApplicationStatus toStatus,
+        string userId,
+        Guid organizationId,
+        string? notes = null)
+    {
+        var results = new List<ApplicationDto>();
+        foreach (var id in applicationIds)
+        {
+            try
+            {
+                var result = await MoveApplicationAsync(id, toStatus, userId, organizationId, notes);
+                results.Add(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to move application {AppId} in bulk", id);
+                // Continue with others
+            }
+        }
+        return results;
     }
 
     public async Task<PipelineViewDto> GetPipelineViewAsync(Guid jobId, Guid organizationId)

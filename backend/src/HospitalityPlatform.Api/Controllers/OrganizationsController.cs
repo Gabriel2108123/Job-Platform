@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using HospitalityPlatform.Entitlements.Guards;
+using HospitalityPlatform.Entitlements.Services;
+using HospitalityPlatform.Entitlements.Enums;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -15,15 +18,24 @@ public class OrganizationsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService _orgAuthService;
+    private readonly IEntitlementGuard _entitlementGuard;
+    private readonly IEntitlementsService _entitlementsService;
     private readonly ILogger<OrganizationsController> _logger;
 
     public OrganizationsController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
+        HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService orgAuthService,
+        IEntitlementGuard entitlementGuard,
+        IEntitlementsService entitlementsService,
         ILogger<OrganizationsController> logger)
     {
         _context = context;
         _userManager = userManager;
+        _orgAuthService = orgAuthService;
+        _entitlementGuard = entitlementGuard;
+        _entitlementsService = entitlementsService;
         _logger = logger;
     }
 
@@ -40,7 +52,7 @@ public class OrganizationsController : ControllerBase
 
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new { error = "User not found" });
@@ -77,6 +89,9 @@ public class OrganizationsController : ControllerBase
                 await _userManager.AddToRoleAsync(user, "BusinessOwner");
             }
 
+            // Seed default org roles
+            await _context.SeedDefaultOrgRolesAsync(organization.Id, user.Id);
+
             return Ok(new OrganizationDto
             {
                 Id = organization.Id.ToString(),
@@ -100,7 +115,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized(new { error = "User not found" });
@@ -147,7 +162,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -185,19 +200,61 @@ public class OrganizationsController : ControllerBase
     }
 
     /// <summary>
+    /// Get current user's permissions within their organization
+    /// </summary>
+    [HttpGet("my-permissions")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<IEnumerable<string>>> GetMyPermissions()
+    {
+        try
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId) || string.IsNullOrEmpty(userIdStr))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            var userId = Guid.Parse(userIdStr);
+
+            var permissions = await _context.OrgMemberRoles
+                .Include(mr => mr.OrgRole)
+                .ThenInclude(r => r.Permissions)
+                .Where(mr => mr.UserId == userId && mr.OrganizationId == organizationId)
+                .SelectMany(mr => mr.OrgRole.Permissions)
+                .Select(p => p.PermissionKey)
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(permissions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving user permissions");
+            return StatusCode(500, new { error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
     /// Create a new team member directly
     /// </summary>
     [HttpPost("members")]
-    [Authorize(Roles = "BusinessOwner")]
+    [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<TeamMemberDto>> AddMember([FromBody] CreateTeamMemberDto request)
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
-            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId) || string.IsNullOrEmpty(userIdStr))
             {
                 return BadRequest(new { error = "Organization context required" });
             }
+
+            await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userIdStr), organizationId, "org.members.manage");
+
+            // Check entitlements for staff seats
+            await _entitlementGuard.MustHaveAvailableLimitAsync(organizationId, LimitType.StaffSeats);
 
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
@@ -226,6 +283,9 @@ public class OrganizationsController : ControllerBase
 
             await _userManager.AddToRoleAsync(newUser, "Staff");
 
+            // Increment usage
+            await _entitlementsService.IncrementUsageAsync(organizationId, LimitType.StaffSeats);
+
             return Ok(new TeamMemberDto
             {
                 Id = newUser.Id.ToString(),
@@ -249,16 +309,19 @@ public class OrganizationsController : ControllerBase
     /// Update a team member's position
     /// </summary>
     [HttpPatch("members/{userId}")]
-    [Authorize(Roles = "BusinessOwner")]
+    [Authorize(Policy = "RequireBusinessRole")]
     public async Task<IActionResult> UpdateMemberPosition(string userId, [FromBody] UpdateTeamMemberDto request)
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
-            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            var currentUserIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId) || string.IsNullOrEmpty(currentUserIdStr))
             {
                 return BadRequest(new { error = "Organization context required" });
             }
+
+            await _orgAuthService.EnsurePermissionAsync(Guid.Parse(currentUserIdStr), organizationId, "org.members.manage");
 
             var member = await _userManager.FindByIdAsync(userId);
             if (member == null || member.OrganizationId != organizationId)
@@ -283,18 +346,20 @@ public class OrganizationsController : ControllerBase
     /// Remove a team member
     /// </summary>
     [HttpDelete("members/{userId}")]
-    [Authorize(Roles = "BusinessOwner")]
+    [Authorize(Policy = "RequireBusinessRole")]
     public async Task<IActionResult> RemoveMember(string userId)
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
-            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId) || string.IsNullOrEmpty(currentUserId))
             {
                 return BadRequest(new { error = "Organization context required" });
             }
+            
+            await _orgAuthService.EnsurePermissionAsync(Guid.Parse(currentUserId), organizationId, "org.members.manage");
 
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == currentUserId)
             {
                 return BadRequest(new { error = "You cannot remove yourself" });
@@ -328,7 +393,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -374,7 +439,7 @@ public class OrganizationsController : ControllerBase
     {
         try
         {
-            var orgIdClaim = User.FindFirstValue("org_id");
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });

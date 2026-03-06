@@ -149,9 +149,10 @@ export default function CandidateApplicationView({ applicationId, candidateName,
                     )}
                 </div>
 
-                {/* Footer */}
-                <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-                    <Button onClick={onClose}>Close</Button>
+                <div className="p-4 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
+                    <Button variant="outline" onClick={onClose}>Close</Button>
+                    <Button variant="primary" className="bg-indigo-600">Schedule Interview</Button>
+                    <Button variant="primary" className="bg-green-600">Make Offer</Button>
                 </div>
             </div>
         </div>

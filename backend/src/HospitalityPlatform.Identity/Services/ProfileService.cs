@@ -49,7 +49,8 @@ public class ProfileService : IProfileService
             Address = user.Address,
             PrimaryRole = user.PrimaryRole,
             CurrentStatus = user.CurrentStatus,
-            IsOver16 = user.IsOver16
+            IsOver16 = user.IsOver16,
+            IsVisible = profile?.IsVisible ?? false
         };
     }
 
@@ -93,6 +94,7 @@ public class ProfileService : IProfileService
                 if (dto.Bio != null) profile.Bio = dto.Bio;
                 if (dto.ResumeJson != null) profile.ResumeJson = dto.ResumeJson;
                 if (dto.PreferredJobRoleIds != null) profile.PreferredJobRoleIds = dto.PreferredJobRoleIds.ToArray();
+                if (dto.IsVisible.HasValue) profile.IsVisible = dto.IsVisible.Value;
                 profile.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
@@ -107,6 +109,7 @@ public class ProfileService : IProfileService
                     Bio = dto.Bio,
                     ResumeJson = dto.ResumeJson,
                     PreferredJobRoleIds = dto.PreferredJobRoleIds?.ToArray(),
+                    IsVisible = dto.IsVisible ?? false,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };

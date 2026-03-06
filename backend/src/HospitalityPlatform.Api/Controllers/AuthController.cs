@@ -59,7 +59,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var userGuid))
             {
                 return Unauthorized(new { error = "User not found in token" });
@@ -282,6 +282,8 @@ public class AuthController : ControllerBase
 
                     user.OrganizationId = organization.Id;
                     await _userManager.UpdateAsync(user);
+
+                    await _context.SeedDefaultOrgRolesAsync(organization.Id, user.Id);
                     
                     _logger.LogInformation("Organization created for user {Email}: {OrgName}", request.Email, request.OrganizationName);
                 }

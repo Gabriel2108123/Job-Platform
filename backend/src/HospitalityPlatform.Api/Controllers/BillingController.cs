@@ -130,6 +130,22 @@ public class BillingController : ControllerBase
             return StatusCode(500, new { error = "Failed to process webhook" });
         }
     }
+
+    [HttpGet("history/{organizationId}")]
+    [Authorize(Policy = "RequireOrganizationAccess")]
+    public async Task<ActionResult<List<InvoiceDto>>> GetBillingHistory(Guid organizationId)
+    {
+        try
+        {
+            var history = await _billingService.GetBillingHistoryAsync(organizationId);
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching billing history for organization {OrganizationId}", organizationId);
+            return StatusCode(500, new { error = "Failed to fetch billing history" });
+        }
+    }
 }
 
 /// <summary>

@@ -1,170 +1,65 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import React from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
+import { Shield, Settings, Users, Building2, Bell } from 'lucide-react';
+import { AdminStatsWidget } from '@/components/dashboard/admin/AdminStatsWidget';
+import { PlatformHealthWidget } from '@/components/dashboard/admin/PlatformHealthWidget';
+import { RecentActivityWidget } from '@/components/dashboard/business/RecentActivityWidget';
 import { Button } from '@/components/ui/Button';
-import { RequireAuth } from '@/components/auth/RequireAuth';
-import { RequireRole } from '@/components/auth/RoleBasedAccess';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { StatCard } from '@/components/layout/StatCard';
-import { apiRequest } from '@/lib/api/client';
+import { Card } from '@/components/ui/Card';
 
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
   return (
-    <RequireAuth>
-      <RequireRole allowedRoles={['Admin']}>
-        <AdminDashboardContent />
-      </RequireRole>
-    </RequireAuth>
-  );
-}
-
-function AdminDashboardContent() {
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalOrgs: 0,
-    activeSubscriptions: 0,
-    waitlistCount: 0
-  });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchAdminStats = async () => {
-      setLoading(true);
-      try {
-        // Fetch users count
-        const usersResponse = await apiRequest<any>('/api/admin/users?pageNumber=1&pageSize=1');
-        if (usersResponse.success && usersResponse.data) {
-          const totalCount = usersResponse.data.totalCount || usersResponse.data.items?.length || 0;
-          setStats(prev => ({ ...prev, totalUsers: totalCount }));
-        }
-
-        // Fetch organizations count
-        const orgsResponse = await apiRequest<any>('/api/admin/organizations?pageNumber=1&pageSize=1');
-        if (orgsResponse.success && orgsResponse.data) {
-          const totalCount = orgsResponse.data.totalCount || orgsResponse.data.items?.length || 0;
-          setStats(prev => ({ ...prev, totalOrgs: totalCount }));
-        }
-
-        // Fetch subscriptions
-        const subsResponse = await apiRequest<any>('/api/admin/subscriptions');
-        if (subsResponse.success && subsResponse.data) {
-          const subs = subsResponse.data.items || subsResponse.data || [];
-          const active = subs.filter((s: any) => s.status === 'Active').length;
-          setStats(prev => ({ ...prev, activeSubscriptions: active }));
-        }
-
-        // Fetch waitlist count
-        const waitlistResponse = await apiRequest<any>('/api/waitlist/admin?pageNumber=1&pageSize=1');
-        if (waitlistResponse.success && waitlistResponse.data) {
-          const totalCount = waitlistResponse.data.totalCount || 0;
-          setStats(prev => ({ ...prev, waitlistCount: totalCount }));
-        }
-      } catch (error) {
-        console.error('Failed to fetch admin stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAdminStats();
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Admin Dashboard"
-          description="Platform administration and management"
-        />
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard
-            title="Total Users"
-            value={loading ? '—' : stats.totalUsers.toString()}
-            icon="👤"
-            color="blue"
-          />
-          <StatCard
-            title="Organizations"
-            value={loading ? '—' : stats.totalOrgs.toString()}
-            icon="🏢"
-            color="purple"
-          />
-          <StatCard
-            title="Active Subscriptions"
-            value={loading ? '—' : stats.activeSubscriptions.toString()}
-            icon="💳"
-            color="green"
-          />
-          <StatCard
-            title="Waitlist"
-            value={loading ? '—' : stats.waitlistCount.toString()}
-            icon="📋"
-            color="yellow"
-          />
+    <RoleLayout
+      pageTitle="System Command"
+      pageActions={
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="rounded-xl font-black text-xs uppercase tracking-widest gap-2">
+            <Settings className="w-4 h-4" /> System Config
+          </Button>
+          <Button variant="primary" size="sm" className="rounded-xl font-black text-xs uppercase tracking-widest gap-2">
+            <Shield className="w-4 h-4" /> Security Audit
+          </Button>
         </div>
+      }
+    >
+      <div className="space-y-8 pb-20 lg:pb-0">
+        <AdminStatsWidget />
 
-        {/* Quick Actions */}
-        <h3 className="text-xl font-bold text-[var(--brand-navy)] mb-6">Admin Tools</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/admin/users" className="block group">
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-4xl mb-3">👥</div>
-              <h4 className="text-lg font-bold text-[var(--brand-navy)] mb-2">User Management</h4>
-              <p className="text-sm text-gray-600 mb-4">View, search, and manage all platform users</p>
-              <Button variant="primary" className="w-full bg-[var(--brand-primary)]">
-                Manage Users
-              </Button>
-            </div>
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-12 lg:col-span-8 space-y-8">
+            <RecentActivityWidget />
 
-          <Link href="/admin/organizations" className="block group">
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-4xl mb-3">🏢</div>
-              <h4 className="text-lg font-bold text-[var(--brand-navy)] mb-2">Organizations</h4>
-              <p className="text-sm text-gray-600 mb-4">View and manage business organizations</p>
-              <Button variant="secondary" className="w-full">
-                View Organizations
-              </Button>
-            </div>
-          </Link>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Card className="rounded-[2.5rem] bg-indigo-600 text-white p-8 border-none overflow-hidden relative">
+                <h4 className="text-xl font-black mb-2 relative z-10">Verification Queue</h4>
+                <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-6 relative z-10">Pending Approval</p>
+                <p className="text-3xl font-black mb-1 relative z-10">24 <span className="text-indigo-900/50">/ 128</span></p>
+                <p className="text-xs font-bold text-indigo-100 mb-8 relative z-10">Businesses waiting for manual review.</p>
+                <Button className="w-full bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest relative z-10">
+                  Open Queue
+                </Button>
+                <Shield className="absolute right-[-20px] bottom-[-20px] w-48 h-48 text-white/5 rotate-12" />
+              </Card>
 
-          <Link href="/admin/subscriptions" className="block group">
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-4xl mb-3">💳</div>
-              <h4 className="text-lg font-bold text-[var(--brand-navy)] mb-2">Subscriptions</h4>
-              <p className="text-sm text-gray-600 mb-4">Monitor subscription status and billing</p>
-              <Button variant="secondary" className="w-full">
-                View Subscriptions
-              </Button>
+              <Card className="rounded-[2.5rem] bg-slate-100 dark:bg-slate-900 p-8 border-none overflow-hidden relative border border-slate-200 dark:border-slate-800">
+                <h4 className="text-xl font-black mb-2 relative z-10 text-slate-900 dark:text-white">Active Reports</h4>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 relative z-10">Support Required</p>
+                <p className="text-3xl font-black mb-1 relative z-10 text-rose-600">8</p>
+                <p className="text-xs font-bold text-slate-500 mb-8 relative z-10">High priority system alerts flagged.</p>
+                <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800 rounded-2xl font-black text-[10px] uppercase tracking-widest relative z-10">
+                  Review Alerts
+                </Button>
+              </Card>
             </div>
-          </Link>
+          </div>
 
-          <Link href="/admin/audit-logs" className="block group">
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-4xl mb-3">📜</div>
-              <h4 className="text-lg font-bold text-[var(--brand-navy)] mb-2">Audit Logs</h4>
-              <p className="text-sm text-gray-600 mb-4">Track system activity and changes</p>
-              <Button variant="secondary" className="w-full">
-                View Logs
-              </Button>
-            </div>
-          </Link>
-
-          <Link href="/admin/waitlist" className="block group">
-            <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="text-4xl mb-3">📋</div>
-              <h4 className="text-lg font-bold text-[var(--brand-navy)] mb-2">Waitlist</h4>
-              <p className="text-sm text-gray-600 mb-4">Manage pre-launch waitlist entries</p>
-              <Button variant="secondary" className="w-full">
-                View Waitlist
-              </Button>
-            </div>
-          </Link>
+          <div className="md:col-span-12 lg:col-span-4">
+            <PlatformHealthWidget />
+          </div>
         </div>
       </div>
-    </div>
+    </RoleLayout>
   );
 }

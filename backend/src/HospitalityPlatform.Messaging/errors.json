@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Microsoft (R) Visual C# Compiler",
+        "version": "4.14.0.0",
+        "fileVersion": "4.14.0-3.26064.1 (450493a9)",
+        "semanticVersion": "4.14.0",
+        "language": "en-US"
+      },
+      "results": [
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "'Message.IsDeleted' hides inherited member 'BaseEntity.IsDeleted'. Use the new keyword if hiding was intended.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/projects/antigravity/Job-Platform/backend/src/HospitalityPlatform.Messaging/Entities/Message.cs",
+                "region": {
+                  "startLine": 30,
+                  "startColumn": 17,
+                  "endLine": 30,
+                  "endColumn": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0108",
+          "level": "warning",
+          "message": "'Message.DeletedAt' hides inherited member 'BaseEntity.DeletedAt'. Use the new keyword if hiding was intended.",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/projects/antigravity/Job-Platform/backend/src/HospitalityPlatform.Messaging/Entities/Message.cs",
+                "region": {
+                  "startLine": 33,
+                  "startColumn": 22,
+                  "endLine": 33,
+                  "endColumn": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "warningLevel": 2
+          }
+        },
+        {
+          "ruleId": "CS0246",
+          "level": "error",
+          "message": "The type or namespace name 'AuthorizeAttribute' could not be found (are you missing a using directive or an assembly reference?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/projects/antigravity/Job-Platform/backend/src/HospitalityPlatform.Messaging/Controllers/MessagingController.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 2,
+                  "endLine": 20,
+                  "endColumn": 11
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS0246",
+          "level": "error",
+          "message": "The type or namespace name 'Authorize' could not be found (are you missing a using directive or an assembly reference?)",
+          "locations": [
+            {
+              "resultFile": {
+                "uri": "file:///D:/projects/antigravity/Job-Platform/backend/src/HospitalityPlatform.Messaging/Controllers/MessagingController.cs",
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 2,
+                  "endLine": 20,
+                  "endColumn": 11
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "rules": {
+        "CS0108": {
+          "id": "CS0108",
+          "shortDescription": "Member hides inherited member; missing new keyword",
+          "fullDescription": "A variable was declared with the same name as a variable in a base type. However, the new keyword was not used. This warning informs you that you should use new; the variable is declared as if new had been used in the declaration.",
+          "defaultLevel": "warning",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0108)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry"
+            ]
+          }
+        },
+        "CS0246": {
+          "id": "CS0246",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0246)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

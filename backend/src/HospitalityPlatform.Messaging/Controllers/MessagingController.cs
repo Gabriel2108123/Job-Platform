@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using HospitalityPlatform.Messaging.DTOs;
 using HospitalityPlatform.Messaging.Services;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 using HospitalityPlatform.Billing.Services;
 using HospitalityPlatform.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using HospitalityPlatform.Identity.Security;
 
 namespace HospitalityPlatform.Messaging.Controllers;
 
@@ -17,6 +19,7 @@ namespace HospitalityPlatform.Messaging.Controllers;
 [ApiController]
 [Route("api/messaging")]
 [Authorize]
+[EnableRateLimiting("messaging")]
 public class MessagingController : ControllerBase
 {
     private readonly IMessagingService _messagingService;
@@ -38,6 +41,7 @@ public class MessagingController : ControllerBase
 
     /// <summary>Create a new conversation.</summary>
     [HttpPost("conversations")]
+    [RequireVerifiedEmail]
     public async Task<ActionResult<ConversationDto>> CreateConversation([FromBody] CreateConversationDto dto)
     {
         try
@@ -45,12 +49,6 @@ public class MessagingController : ControllerBase
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
 
-            // Check email verification gate
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null || !user.EmailConfirmed)
-            {
-                return StatusCode(403, new { message = "Please verify your email address to use messaging." });
-            }
 
             // Check subscription gate for general messaging (if no application context)
             if (!dto.ApplicationId.HasValue)
@@ -112,6 +110,7 @@ public class MessagingController : ControllerBase
 
     /// <summary>Send a message in a conversation.</summary>
     [HttpPost("conversations/{conversationId}/messages")]
+    [RequireVerifiedEmail]
     public async Task<ActionResult<MessageDto>> SendMessage(Guid conversationId, [FromBody] SendMessageDto dto)
     {
         try
@@ -119,12 +118,6 @@ public class MessagingController : ControllerBase
             var organizationId = GetOrganizationId();
             var userId = GetUserId();
 
-            // Check email verification gate
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null || !user.EmailConfirmed)
-            {
-                return StatusCode(403, new { message = "Please verify your email address to use messaging." });
-            }
 
             var message = await _messagingService.SendMessageAsync(organizationId, conversationId, dto, userId);
             return CreatedAtAction(nameof(GetMessage), new { conversationId, messageId = message.Id }, message);

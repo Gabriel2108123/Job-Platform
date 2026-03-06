@@ -40,6 +40,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Application> Applications { get; set; }
     public DbSet<ApplicationStatusHistory> ApplicationStatusHistories { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<Report> Reports { get; set; }
+    public DbSet<Interview> Interviews { get; set; }
+    public DbSet<Offer> Offers { get; set; }
+    
+    // Org Roles & Permissions DbSets
+    public DbSet<OrgRole> OrgRoles { get; set; }
+    public DbSet<OrgRolePermission> OrgRolePermissions { get; set; }
+    public DbSet<OrgMemberRole> OrgMemberRoles { get; set; }
     
     // Billing DbSets
     public DbSet<Subscription> Subscriptions { get; set; }
@@ -47,6 +55,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<Plan> Plans { get; set; }
     public DbSet<OrganizationCredit> OrganizationCredits { get; set; }
     public DbSet<OutreachActivity> OutreachActivities { get; set; }
+    public DbSet<Invoice> Invoices { get; set; }
     
     // Entitlements DbSets
     public DbSet<EntitlementLimit> EntitlementLimits { get; set; }
@@ -59,6 +68,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     public DbSet<UserRating> UserRatings { get; set; }
     public DbSet<UserBlock> UserBlocks { get; set; }
     public DbSet<UserReport> UserReports { get; set; }
+    public DbSet<MessageTemplate> MessageTemplates { get; set; }
     
     // Documents DbSets
     public DbSet<Document> Documents { get; set; }
@@ -80,6 +90,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     
     // Job Roles DbSet
     public DbSet<JobRole> JobRoles { get; set; }
+    
+    // Search DbSets
+    public DbSet<SavedSearch> SavedSearches { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -94,6 +107,61 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.HasIndex(e => e.Name);
+        });
+
+        // Configure OrgRole
+        builder.Entity<OrgRole>(entity =>
+        {
+            entity.ToTable("OrgRoles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            
+            entity.HasOne(e => e.Organization)
+                .WithMany()
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => new { e.OrganizationId, e.Name }).IsUnique();
+        });
+
+        // Configure OrgRolePermission
+        builder.Entity<OrgRolePermission>(entity =>
+        {
+            entity.ToTable("OrgRolePermissions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PermissionKey).IsRequired().HasMaxLength(100);
+            
+            entity.HasOne(e => e.OrgRole)
+                .WithMany(r => r.Permissions)
+                .HasForeignKey(e => e.OrgRoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => new { e.OrgRoleId, e.PermissionKey }).IsUnique();
+        });
+
+        // Configure OrgMemberRole
+        builder.Entity<OrgMemberRole>(entity =>
+        {
+            entity.ToTable("OrgMemberRoles");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            
+            entity.HasOne(e => e.Organization)
+                .WithMany()
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.OrgRole)
+                .WithMany(r => r.MemberRoles)
+                .HasForeignKey(e => e.OrgRoleId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasIndex(e => new { e.OrganizationId, e.UserId, e.OrgRoleId }).IsUnique();
         });
 
         // Configure ApplicationUser
@@ -608,6 +676,92 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.CreatedAt);
         });
+
+        // Configure Interview
+        builder.Entity<Interview>(entity =>
+        {
+            entity.ToTable("Interviews");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.MeetingLink).HasMaxLength(500);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.Notes).HasMaxLength(2000);
+            entity.Property(e => e.Feedback).HasMaxLength(5000);
+            
+            entity.HasIndex(e => e.ApplicationId);
+            entity.HasIndex(e => e.ScheduledAt);
+        });
+
+        // Configure Offer
+        builder.Entity<Offer>(entity =>
+        {
+            entity.ToTable("Offers");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SalaryCurrency).HasMaxLength(3);
+            entity.Property(e => e.Notes).HasMaxLength(2000);
+            
+            entity.HasIndex(e => e.ApplicationId);
+            entity.HasIndex(e => e.Status);
+        });
+
+        // Configure MessageTemplate
+        builder.Entity<MessageTemplate>(entity =>
+        {
+            entity.ToTable("MessageTemplates");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Subject).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Content).IsRequired();
+            
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.Name);
+        });
+        
+        // Configure SavedSearch
+        builder.Entity<SavedSearch>(entity =>
+        {
+            entity.ToTable("SavedSearches");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SearchParamsJson).IsRequired();
+            
+            entity.HasOne(e => e.Organization)
+                .WithMany()
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.UserId);
+        });
+
+        // Configure Invoice
+        builder.Entity<Invoice>(entity =>
+        {
+            entity.ToTable("Invoices");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.StripeInvoiceId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Currency).IsRequired().HasMaxLength(10);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            
+            entity.HasOne(e => e.Organization)
+                .WithMany()
+                .HasForeignKey(e => e.OrganizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasIndex(e => e.OrganizationId);
+            entity.HasIndex(e => e.StripeInvoiceId).IsUnique();
+            entity.HasIndex(e => e.BilledAt);
+        });
+
+        // Global Query Filters for Moderation
+        builder.Entity<Job>().HasQueryFilter(e => e.ModerationStatus != HospitalityPlatform.Core.Enums.ModerationStatus.Blocked);
+        builder.Entity<Organization>().HasQueryFilter(e => e.ModerationStatus != HospitalityPlatform.Core.Enums.ModerationStatus.Blocked);
+        builder.Entity<ApplicationUser>().HasQueryFilter(e => e.ModerationStatus != HospitalityPlatform.Core.Enums.ModerationStatus.Blocked);
     }
 
     public async Task SaveAuditLogAsync(AuditLog auditLog)
@@ -623,6 +777,54 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     void SetGlobalQueryFilter<T>(ModelBuilder builder) where T : BaseEntity
     {
         builder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
+    }
+
+    /// <summary>
+    /// Seeds default organization roles when a new organization is created
+    /// </summary>
+    public async Task SeedDefaultOrgRolesAsync(Guid organizationId, Guid ownerUserId)
+    {
+        var ownerRole = new OrgRole { OrganizationId = organizationId, Name = "Owner" };
+        var managerRole = new OrgRole { OrganizationId = organizationId, Name = "Manager" };
+        var staffRole = new OrgRole { OrganizationId = organizationId, Name = "Staff" };
+        var viewerRole = new OrgRole { OrganizationId = organizationId, Name = "Viewer" };
+        
+        OrgRoles.AddRange(ownerRole, managerRole, staffRole, viewerRole);
+        await SaveChangesAsync();
+
+        var permissions = new List<OrgRolePermission>
+        {
+            // Owner gets everything (handled via admin.all in authorization service)
+            new OrgRolePermission { OrgRoleId = ownerRole.Id, PermissionKey = "admin.all" },
+            new OrgRolePermission { OrgRoleId = ownerRole.Id, PermissionKey = "org.billing" },
+
+            // Manager gets most operational roles
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "jobs.create" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "jobs.publish" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "jobs.close" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "applications.move" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "applications.withdraw" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "messaging.send" },
+            new OrgRolePermission { OrgRoleId = managerRole.Id, PermissionKey = "org.members.manage" },
+
+            // Staff gets basic roles
+            new OrgRolePermission { OrgRoleId = staffRole.Id, PermissionKey = "messaging.send" },
+            new OrgRolePermission { OrgRoleId = staffRole.Id, PermissionKey = "applications.move" },
+            
+            // Viewer is read-only, no explicit permissions needed
+        };
+        
+        OrgRolePermissions.AddRange(permissions);
+        
+        var memberRole = new OrgMemberRole
+        {
+            OrganizationId = organizationId,
+            UserId = ownerUserId,
+            OrgRoleId = ownerRole.Id
+        };
+        OrgMemberRoles.Add(memberRole);
+        
+        await SaveChangesAsync();
     }
 }
 

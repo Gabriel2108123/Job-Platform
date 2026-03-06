@@ -1,4 +1,5 @@
 using HospitalityPlatform.Core.Entities;
+using HospitalityPlatform.Core.Enums;
 
 namespace HospitalityPlatform.Identity.Entities;
 
@@ -37,6 +38,8 @@ public class Organization : BaseEntity
     public bool AgreedToTerms { get; set; }
     public bool AgreedToPrivacy { get; set; }
     
+    public ModerationStatus ModerationStatus { get; set; } = ModerationStatus.Approved;
+
     // Navigation properties
     public ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
 }

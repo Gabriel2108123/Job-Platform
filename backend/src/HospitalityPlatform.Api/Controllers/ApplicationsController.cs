@@ -10,6 +10,7 @@ using HospitalityPlatform.Applications.Enums;
 
 using HospitalityPlatform.Identity.Entities;
 using Microsoft.AspNetCore.Identity;
+using HospitalityPlatform.Identity.Security;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -42,19 +43,13 @@ public class ApplicationsController : ControllerBase
     /// </summary>
     [HttpPost("jobs/{jobId}/apply")]
     [Authorize(Policy = PolicyNames.RequireCandidate)]
+    [RequireVerifiedEmail]
     public async Task<ActionResult<ApplicationDto>> ApplyToJob(Guid jobId, [FromBody] CreateApplicationDto dto)
     {
         try
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException();
             
-            // Check email verification gate
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null || !user.EmailConfirmed)
-            {
-                return StatusCode(403, new { error = "Please verify your email address to apply for jobs." });
-            }
-
             var result = await _applicationService.ApplyToJobAsync(jobId, dto, userId);
             return CreatedAtAction(nameof(GetApplication), new { id = result.Id }, result);
         }

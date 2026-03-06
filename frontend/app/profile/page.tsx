@@ -36,6 +36,7 @@ export default function CandidateProfilePage() {
     primaryRole: '',
     currentStatus: 'Available',
     isOver16: false,
+    isVisible: true,
   });
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function CandidateProfilePage() {
           primaryRole: res.data.primaryRole || '',
           currentStatus: res.data.currentStatus || 'Available',
           isOver16: res.data.isOver16 || false,
+          isVisible: res.data.isVisible ?? true,
         });
       }
       setLoading(false);
@@ -278,6 +280,23 @@ export default function CandidateProfilePage() {
                     className="h-5 w-5 text-[var(--brand-primary)] focus:ring-[var(--brand-primary)] border-gray-300 rounded"
                   />
                   <span className="text-gray-700 font-medium">I confirm that I am over 16 years of age</span>
+                </label>
+              </div>
+
+              <div className="mt-4 mb-8">
+                <label className="flex items-center space-x-3 p-4 border border-indigo-100 rounded-xl bg-indigo-50/30 group hover:bg-indigo-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    name="isVisible"
+                    checked={formData.isVisible}
+                    onChange={handleInputChange}
+                    disabled={!editing}
+                    className="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <div>
+                    <span className="text-gray-900 font-bold block">Discoverable by Businesses</span>
+                    <span className="text-xs text-gray-500">Allow hospitality businesses to find and reach out to you based on your skills and location.</span>
+                  </div>
                 </label>
               </div>
 

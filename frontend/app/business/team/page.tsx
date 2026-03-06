@@ -1,286 +1,67 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { RequireRole } from '@/components/auth/RoleBasedAccess';
-import { Button } from '@/components/ui/Button';
-import { apiRequest } from '@/lib/api/client';
-import { getUser, isLoggedIn } from '@/lib/auth';
-import { useUserRole } from '@/lib/hooks/useUserRole';
+import React from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 
-interface TeamMember {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string;
-  position?: string;
-  status: string;
-  createdAt: string;
-}
+import { TeamMemberCard } from '@/components/business/TeamMemberCard';
+import { Shield, UserPlus, Search, Info } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 
 export default function BusinessTeamPage() {
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    position: ''
-  });
-  const [actionLoading, setActionLoading] = useState(false);
-  const { role, isBusinessOwner: isOwner } = useUserRole();
-  const currUser = getUser();
-
-  const fetchTeam = async () => {
-    setLoading(true);
-    try {
-      const res = await apiRequest<TeamMember[]>('/api/organizations/members');
-      if (res.success && res.data) {
-        setTeam(res.data);
-      }
-    } catch (err) {
-      console.error('Fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTeam();
-  }, []);
-
-  const handleAddMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setActionLoading(true);
-    try {
-      const res = await apiRequest<TeamMember>('/api/organizations/members', {
-        method: 'POST',
-        body: JSON.stringify(formData)
-      });
-      if (res.success) {
-        setShowAddModal(false);
-        setFormData({ firstName: '', lastName: '', email: '', password: '', position: '' });
-        fetchTeam();
-      } else {
-        alert(res.error || 'Failed to add member');
-      }
-    } catch (err) {
-      alert('Internal error adding member');
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  const handleRemoveMember = async (memberId: string) => {
-    if (!confirm('Are you sure you want to remove this team member? they will lose access to the company account.')) return;
-
-    setActionLoading(true);
-    try {
-      const res = await apiRequest(`/api/organizations/members/${memberId}`, {
-        method: 'DELETE'
-      });
-      if (res.success) {
-        fetchTeam();
-      } else {
-        alert(res.error || 'Failed to remove member');
-      }
-    } catch (err) {
-      alert('Internal error removing member');
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  const team = [
+    { id: 'owners-1', name: 'Gabriel Owners', email: 'owner@example.com', role: 'Business Owner', access: 'Admin' as const, status: 'Active' as const },
+    { id: 'staff-1', name: 'James Wilson', email: 'james@example.com', role: 'Staff Manager', access: 'Admin' as const, status: 'Active' as const },
+    { id: 'staff-2', name: 'Sarah Blake', email: 'sarah@example.com', role: 'Supervisor', access: 'Staff' as const, status: 'Active' as const },
+    { id: 'staff-3', name: 'Michael Ross', email: 'michael@example.com', role: 'Recruiter', access: 'Staff' as const, status: 'Invited' as const },
+  ];
 
   return (
-    <RequireRole allowedRoles={['BusinessOwner', 'Staff', 'Admin']}>
-      <div className="min-h-screen bg-[#fcfcfd] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
-            <div>
-              <h1 className="text-4xl font-black text-[var(--brand-navy)] tracking-tight">Your Recruitment Team</h1>
-              <p className="text-gray-500 mt-2 text-lg italic">Built for {currUser?.organizationId ? 'Your Organization' : 'The Riverside'}</p>
-            </div>
-            {isOwner && (
-              <Button
-                variant="primary"
-                onClick={() => setShowAddModal(true)}
-                className="bg-indigo-600 rounded-2xl px-8 shadow-xl shadow-indigo-100 font-bold"
-              >
-                + Add New Member
-              </Button>
-            )}
+    <RoleLayout
+      pageTitle="Team Management"
+      pageActions={
+        <Button variant="primary" className="rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2">
+          <UserPlus className="w-4 h-4" /> Invite Member
+        </Button>
+      }
+    >
+      <div className="max-w-5xl">
+        {/* Permission Info Box */}
+        <div className="bg-indigo-600 rounded-[2rem] p-8 text-white mb-12 shadow-xl shadow-indigo-600/10 flex items-center gap-8 relative overflow-hidden">
+          <div className="p-4 bg-white/10 rounded-[2rem] shrink-0">
+            <Shield className="w-12 h-12 text-indigo-100" />
           </div>
-
-          {/* Stats Bar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Active Seat</p>
-              <p className="text-3xl font-black text-indigo-600">{team.length}</p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Access Level</p>
-              <p className="text-3xl font-black text-teal-600 capitalize">{currUser?.role === 'BusinessOwner' ? 'Admin' : 'Recruitment'}</p>
-            </div>
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Isolation</p>
-              <p className="text-xl font-black text-amber-600">Company Restricted ✓</p>
+          <div className="relative z-10">
+            <h3 className="text-xl font-black mb-2">Manage access with precision</h3>
+            <p className="text-indigo-100 text-sm max-w-lg mb-4">
+              Add staff to help with hiring, but keep control. Admin access allows billing and team management, while Staff access is limited to recruitment activity.
+            </p>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-300">
+              <Info className="w-3.5 h-3.5" /> Read about permission levels
             </div>
           </div>
-
-          {/* Member Table */}
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-gray-50/50">
-                  <tr>
-                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Team Member</th>
-                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Position</th>
-                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Access</th>
-                    <th className="px-8 py-5 text-xs font-bold text-gray-400 uppercase tracking-widest">Joined</th>
-                    <th className="px-8 py-5 text-right font-bold text-gray-400 uppercase tracking-widest"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {loading ? (
-                    <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">Loading your crew...</td></tr>
-                  ) : team.length === 0 ? (
-                    <tr><td colSpan={5} className="p-20 text-center text-gray-400 font-bold italic">No team members yet. Add your first recruiter!</td></tr>
-                  ) : team.map((member) => (
-                    <tr key={member.id} className="hover:bg-gray-50/30 transition-colors">
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
-                            {member.firstName[0]}{member.lastName[0]}
-                          </div>
-                          <div>
-                            <p className="font-bold text-gray-900">{member.firstName} {member.lastName}</p>
-                            <p className="text-xs text-gray-400">{member.email}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="font-bold text-gray-600 italic">{member.position || 'N/A'}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${member.role === 'BusinessOwner' ? 'bg-indigo-100 text-indigo-700' : 'bg-teal-100 text-teal-700'
-                          }`}>
-                          {member.role === 'BusinessOwner' ? 'Owner' : 'Recruitment'}
-                        </span>
-                      </td>
-                      <td className="px-8 py-6 text-sm text-gray-500 font-medium">
-                        {new Date(member.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        {isOwner && member.id !== currUser?.id && (
-                          <button
-                            onClick={() => handleRemoveMember(member.id)}
-                            className="text-red-400 hover:text-red-600 font-bold text-xs transition-colors"
-                          >
-                            Terminate Access
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
         </div>
 
-        {/* Add Member Modal */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <form onSubmit={handleAddMember} className="bg-white rounded-[2rem] shadow-2xl max-w-lg w-full p-10 space-y-6">
-              <div>
-                <h2 className="text-3xl font-black text-gray-900">Add Recruiter</h2>
-                <p className="text-gray-500 font-medium italic mt-1">Grant team access to your company account</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">First Name</label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Last Name</label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Position / Job Title</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="e.g. HR Manager, Senior Recruiter"
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold italic"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Company Email Address</label>
-                <input
-                  required
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Initial Password</label>
-                <input
-                  required
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full px-5 py-3 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-bold"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="flex-1 bg-indigo-600 rounded-2xl font-black py-4 shadow-lg shadow-indigo-100"
-                  disabled={actionLoading}
-                >
-                  {actionLoading ? 'Creating User...' : 'Establish Team Seat'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 rounded-2xl font-bold py-4"
-                >
-                  Discard
-                </Button>
-              </div>
-            </form>
+        <div className="flex items-center justify-between mb-8">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search team members..."
+              className="w-full md:w-64 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-11 pr-4 text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            />
           </div>
-        )}
+          <p className="text-xs font-bold text-slate-500">
+            Showing <span className="text-slate-900 dark:text-white">{team.length} members</span>
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          {team.map(member => (
+            <TeamMemberCard key={member.id} member={member} />
+          ))}
+        </div>
       </div>
-    </RequireRole>
+    </RoleLayout>
   );
 }
-

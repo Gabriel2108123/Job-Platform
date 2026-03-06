@@ -1,3 +1,4 @@
+using System;
 namespace HospitalityPlatform.Messaging.Entities;
 
 /// <summary>

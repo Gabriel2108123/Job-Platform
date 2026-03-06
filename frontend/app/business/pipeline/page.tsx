@@ -10,8 +10,12 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { apiRequest } from '@/lib/api/client';
 import { Badge } from '@/components/ui/Badge';
 import CandidateApplicationView from '@/components/business/CandidateApplicationView';
+import { InterviewModal } from '@/components/business/InterviewModal';
+import { OfferModal } from '@/components/business/OfferModal';
+import { Checkbox } from '@/components/ui';
+import { Loader2, Send, Calendar, Banknote } from 'lucide-react';
 
-type ApplicationStatus = 'Applied' | 'Screening' | 'Interview' | 'PreHireChecks' | 'Hired' | 'Rejected';
+type ApplicationStatus = 'Applied' | 'Screening' | 'Interview' | 'OfferSent' | 'PreHireChecks' | 'Hired' | 'Rejected';
 
 interface PipelineApplication {
   id: string;
@@ -51,7 +55,16 @@ function PipelineContent() {
   const [preHireConfirmed, setPreHireConfirmed] = useState(false);
   const [confirmText, setConfirmText] = useState('');
 
-  const statuses: ApplicationStatus[] = ['Applied', 'Screening', 'Interview', 'PreHireChecks', 'Hired', 'Rejected'];
+  // Stage 3 states
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [selectedAppForInterview, setSelectedAppForInterview] = useState<PipelineApplication | null>(null);
+  const [showOfferModal, setShowOfferModal] = useState(false);
+  const [selectedAppForOffer, setSelectedAppForOffer] = useState<PipelineApplication | null>(null);
+
+  // Bulk selection
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([]);
+
+  const statuses: ApplicationStatus[] = ['Applied', 'Screening', 'Interview', 'OfferSent', 'PreHireChecks', 'Hired', 'Rejected'];
 
   // Fetch jobs on mount
   useEffect(() => {
@@ -104,6 +117,20 @@ function PipelineContent() {
     const app = applications.find(a => a.id === appId);
     if (!app) return;
 
+    // If moving to Interview, show interview modal
+    if (newStatus === 'Interview') {
+      setSelectedAppForInterview(app);
+      setShowInterviewModal(true);
+      return;
+    }
+
+    // If moving to OfferSent, show offer modal
+    if (newStatus === 'OfferSent') {
+      setSelectedAppForOffer(app);
+      setShowOfferModal(true);
+      return;
+    }
+
     // If moving to Hired, show pre-hire modal
     if (newStatus === 'Hired') {
       setSelectedAppToHire(app);
@@ -113,6 +140,86 @@ function PipelineContent() {
 
     // Otherwise, move directly
     await moveApplication(appId, newStatus);
+  };
+
+  const handleScheduleInterview = async (data: any) => {
+    if (!selectedAppForInterview) return;
+
+    // 1. Create interview record
+    const interviewRes = await apiRequest('/api/interviews/schedule', {
+      method: 'POST',
+      body: JSON.stringify({
+        ApplicationId: selectedAppForInterview.id,
+        ...data
+      })
+    });
+
+    if (interviewRes.success) {
+      // 2. Move application to Interview status
+      await moveApplication(selectedAppForInterview.id, 'Interview');
+    } else {
+      alert('Failed to schedule interview');
+    }
+  };
+
+  const handleSendOffer = async (data: any) => {
+    if (!selectedAppForOffer) return;
+
+    // 1. Create offer record
+    const offerRes = await apiRequest('/api/offers', {
+      method: 'POST',
+      body: JSON.stringify({
+        ApplicationId: selectedAppForOffer.id,
+        ...data
+      })
+    });
+
+    if (offerRes.success) {
+      // 2. Move application to OfferSent status
+      await moveApplication(selectedAppForOffer.id, 'OfferSent');
+    } else {
+      alert('Failed to send offer');
+    }
+  };
+
+  const toggleAppSelection = (appId: string) => {
+    setSelectedAppIds(prev =>
+      prev.includes(appId) ? prev.filter(id => id !== appId) : [...prev, appId]
+    );
+  };
+
+  const handleBulkMove = async (toStatus: ApplicationStatus) => {
+    if (selectedAppIds.length === 0) return;
+
+    if (confirm(`Are you sure you want to move ${selectedAppIds.length} candidates to ${toStatus}?`)) {
+      setLoading(true);
+      try {
+        const res = await apiRequest('/api/pipeline/move-bulk', {
+          method: 'POST',
+          body: JSON.stringify({
+            ApplicationIds: selectedAppIds,
+            ToStatus: toStatus
+          })
+        });
+
+        if (res.success) {
+          // Refresh
+          setSelectedAppIds([]);
+          if (selectedJobId) {
+            const refreshRes = await apiRequest<{ stages: { [key: string]: PipelineApplication[] } }>(`/api/pipeline/jobs/${selectedJobId}`);
+            if (refreshRes.success && refreshRes.data) {
+              const allApps: PipelineApplication[] = [];
+              Object.values(refreshRes.data.stages).forEach(stageApps => allApps.push(...stageApps));
+              setApplications(allApps);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Bulk move failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const moveApplication = async (appId: string, newStatus: ApplicationStatus, notes?: string, preHireCheckConfirmation?: boolean) => {
@@ -172,10 +279,11 @@ function PipelineContent() {
     switch (status) {
       case 'Applied': return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'Screening': return 'bg-purple-50 text-purple-700 border-purple-200';
-      case 'Interview': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+      case 'Interview': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case 'OfferSent': return 'bg-green-50 text-green-700 border-green-200';
       case 'PreHireChecks': return 'bg-orange-50 text-orange-700 border-orange-200';
-      case 'Hired': return 'bg-green-50 text-green-700 border-green-200';
-      case 'Rejected': return 'bg-gray-50 text-gray-700 border-gray-200';
+      case 'Hired': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'Rejected': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
@@ -229,6 +337,47 @@ function PipelineContent() {
           </select>
         </div>
 
+        {/* Bulk Action Toolbar */}
+        {selectedAppIds.length > 0 && (
+          <div className="mb-6 bg-[var(--brand-navy)] text-white p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 animate-in slide-in-from-top duration-300">
+            <div className="flex items-center gap-3">
+              <Badge variant="info" className="bg-white/10 text-white border-white/20">
+                {selectedAppIds.length} Selected
+              </Badge>
+              <p className="text-sm font-medium">Bulk Actions:</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {statuses.filter(s => s !== 'Rejected' && s !== 'Applied').map(status => (
+                <Button
+                  key={status}
+                  size="sm"
+                  variant="secondary"
+                  className="text-xs py-1"
+                  onClick={() => handleBulkMove(status)}
+                >
+                  Move to {status}
+                </Button>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs py-1 border-red-400 text-red-400 hover:bg-red-400 hover:text-white"
+                onClick={() => handleBulkMove('Rejected')}
+              >
+                Reject All
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-xs py-1 text-white/60 hover:text-white"
+                onClick={() => setSelectedAppIds([])}
+              >
+                Clear
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Pipeline Columns */}
         {applications.length === 0 ? (
           <EmptyState
@@ -251,12 +400,23 @@ function PipelineContent() {
 
                   <div className="space-y-3">
                     {appsInStatus.map(app => (
-                      <div key={app.id} className={`p-4 rounded-lg border-2 ${getStatusColor(app.status)}`}>
-                        <p className="font-semibold text-gray-900">{app.candidateName}</p>
-                        <p className="text-sm text-gray-600 mb-2">{app.candidateEmail}</p>
-                        <p className="text-xs text-gray-500 mb-3">
+                      <div key={app.id} className={`p-4 rounded-2xl border-2 transition-all hover:shadow-md ${getStatusColor(app.status)}`}>
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900 leading-tight">{app.candidateName}</p>
+                            <p className="text-xs opacity-70 mt-0.5">{app.candidateEmail}</p>
+                          </div>
+                          <Checkbox
+                            checked={selectedAppIds.includes(app.id)}
+                            onChange={() => toggleAppSelection(app.id)}
+                            className="mt-0.5"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[10px] opacity-60 font-medium mb-3">
+                          <Calendar className="h-3 w-3" />
                           Applied: {new Date(app.appliedDate).toLocaleDateString()}
-                        </p>
+                        </div>
 
                         {/* Move Actions */}
                         {movingAppId === app.id ? (
@@ -395,6 +555,27 @@ function PipelineContent() {
             onClose={() => setSelectedAppToView(null)}
           />
         )}
+
+        {/* Stage 3 Modals */}
+        <InterviewModal
+          open={showInterviewModal}
+          candidateName={selectedAppForInterview?.candidateName || ''}
+          onClose={() => {
+            setShowInterviewModal(false);
+            setSelectedAppForInterview(null);
+          }}
+          onConfirm={handleScheduleInterview}
+        />
+
+        <OfferModal
+          open={showOfferModal}
+          candidateName={selectedAppForOffer?.candidateName || ''}
+          onClose={() => {
+            setShowOfferModal(false);
+            setSelectedAppForOffer(null);
+          }}
+          onConfirm={handleSendOffer}
+        />
       </div>
     </div>
   );

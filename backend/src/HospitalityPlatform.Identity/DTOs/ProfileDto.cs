@@ -18,6 +18,7 @@ public class ProfileDto
     public string? PrimaryRole { get; set; }
     public string? CurrentStatus { get; set; }
     public bool IsOver16 { get; set; }
+    public bool IsVisible { get; set; }
 }
 
 public class UpdateProfileDto
@@ -35,4 +36,5 @@ public class UpdateProfileDto
     public string? Address { get; set; }
     public string? PrimaryRole { get; set; }
     public string? CurrentStatus { get; set; }
+    public bool? IsVisible { get; set; }
 }

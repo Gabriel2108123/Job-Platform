@@ -27,6 +27,11 @@ public interface IWaitlistService
     /// Delete a waitlist entry (admin only)
     /// </summary>
     Task DeleteWaitlistEntryAsync(Guid id);
+
+    /// <summary>
+    /// Mark a waitlist entry as converted to a real user
+    /// </summary>
+    Task MarkAsConvertedAsync(Guid id);
 }
 
 /// <summary>

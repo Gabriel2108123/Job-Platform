@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { sendOutreach, OutreachRequestDto, OutreachResultDto } from '@/lib/api/client';
-import { ShieldCheck, MessageSquare, AlertCircle } from 'lucide-react';
+import { ShieldCheck, MessageSquare, AlertCircle, FileText } from 'lucide-react';
+import { apiRequest } from '@/lib/api/client';
+import { useEffect } from 'react';
 
 interface CandidateOutreachModalProps {
     candidateId: string;
@@ -26,6 +28,37 @@ export function CandidateOutreachModal({
     const [message, setMessage] = useState(`Hi ${candidateName.split(' ')[0]}, I saw your profile on the Worker Map and think you'd be a great fit for our role!`);
     const [sending, setSending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [templates, setTemplates] = useState<any[]>([]);
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
+
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            try {
+                const res = await apiRequest<any[]>('/api/messagetemplates');
+                if (res.success && res.data) {
+                    setTemplates(res.data);
+                }
+            } catch (err) {
+                console.error('Failed to fetch templates:', err);
+            }
+        };
+        fetchTemplates();
+    }, []);
+
+    const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const templateId = e.target.value;
+        setSelectedTemplateId(templateId);
+        if (templateId === '') return;
+
+        const template = templates.find(t => t.id === templateId);
+        if (template) {
+            // Simple string replacement for basic placeholder support
+            let newContent = template.content;
+            newContent = newContent.replace(/{name}/g, candidateName.split(' ')[0]);
+            newContent = newContent.replace(/{candidateName}/g, candidateName);
+            setMessage(newContent);
+        }
+    };
 
     const handleSend = async () => {
         if (!message.trim()) return;
@@ -74,9 +107,23 @@ export function CandidateOutreachModal({
                     </div>
 
                     <div className="mb-6">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Your Message
-                        </label>
+                        <div className="flex justify-between items-center mb-2">
+                            <label className="block text-sm font-semibold text-gray-700">
+                                Your Message
+                            </label>
+                            {templates.length > 0 && (
+                                <select
+                                    className="text-xs border-none bg-gray-100 rounded-lg px-2 py-1 outline-none text-[var(--brand-navy)] font-medium"
+                                    value={selectedTemplateId}
+                                    onChange={handleTemplateChange}
+                                >
+                                    <option value="">Use Template...</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
                         <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}

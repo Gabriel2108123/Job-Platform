@@ -288,7 +288,8 @@ export function CVBuilder() {
                             // Maintain existing settings
                             locationText: exp.locationText,
                             visibilityLevel: exp.visibilityLevel as any,
-                            isMapEnabled: exp.isMapEnabled
+                            isMapEnabled: exp.isMapEnabled,
+                            allowCoworkerDiscovery: (exp as any).allowCoworkerDiscovery ?? true
                         });
                     }
                 } else {
@@ -302,7 +303,8 @@ export function CVBuilder() {
                         locationText: exp.city || exp.locationText || 'Unknown Location',
                         startDate: exp.startDate ? new Date(exp.startDate).toISOString() : undefined,
                         visibilityLevel: 'private', // Default
-                        isMapEnabled: true // Enable map by default
+                        isMapEnabled: true, // Enable map by default
+                        allowCoworkerDiscovery: true
                     });
                 }
             }

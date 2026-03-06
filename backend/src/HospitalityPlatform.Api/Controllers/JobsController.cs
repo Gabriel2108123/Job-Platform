@@ -3,6 +3,10 @@ using HospitalityPlatform.Jobs.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using HospitalityPlatform.Entitlements.Guards;
+using HospitalityPlatform.Entitlements.Services;
+using HospitalityPlatform.Entitlements.Enums;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -15,16 +19,28 @@ namespace HospitalityPlatform.Api.Controllers;
 public class JobsController : ControllerBase
 {
     private readonly IJobService _jobService;
+    private readonly HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService _orgAuthService;
+    private readonly IEntitlementGuard _entitlementGuard;
+    private readonly IEntitlementsService _entitlementsService;
     private readonly ILogger<JobsController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the JobsController.
     /// </summary>
     /// <param name="jobService">The service handling job business logic.</param>
+    /// <param name="orgAuthService">The service handling organizational authorization.</param>
     /// <param name="logger">The logger for capturing diagnostic information.</param>
-    public JobsController(IJobService jobService, ILogger<JobsController> logger)
+    public JobsController(
+        IJobService jobService, 
+        HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService orgAuthService, 
+        IEntitlementGuard entitlementGuard,
+        IEntitlementsService entitlementsService,
+        ILogger<JobsController> logger)
     {
         _jobService = jobService;
+        _orgAuthService = orgAuthService;
+        _entitlementGuard = entitlementGuard;
+        _entitlementsService = entitlementsService;
         _logger = logger;
     }
 
@@ -53,7 +69,7 @@ public class JobsController : ControllerBase
         }
 
         // If job is not published, only organization members can see it
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (job.Status != Jobs.Enums.JobStatus.Published && userId == null)
         {
             return NotFound(new { error = "Job not found" });
@@ -69,7 +85,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<IEnumerable<JobDto>>> GetMyOrganizationJobs()
     {
-        var orgIdClaim = User.FindFirstValue("org_id");
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
@@ -101,7 +117,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<JobDto>> CreateJob([FromBody] CreateJobDto dto)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized();
@@ -109,11 +125,13 @@ public class JobsController : ControllerBase
 
         // TODO: Get organizationId from user's current context or claims
         // For now, we'll expect it in the request or from a claim
-        var orgIdClaim = User.FindFirstValue("org_id");
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
         }
+
+        await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), organizationId, "jobs.create");
 
         var job = await _jobService.CreateJobAsync(dto, userId, organizationId);
         return CreatedAtAction(nameof(GetJob), new { id = job.Id }, job);
@@ -126,11 +144,16 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<JobDto>> UpdateJob(Guid id, [FromBody] UpdateJobDto dto)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized();
         }
+
+        var job = await _jobService.GetJobByIdAsync(id);
+        if (job == null) return NotFound(new { error = "Job not found" });
+
+        await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), job.OrganizationId, "jobs.create");
 
         // TODO: Verify user has access to this job's organization
         var result = await _jobService.UpdateJobAsync(id, dto, userId);
@@ -155,7 +178,7 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<OrganizationAnalyticsDto>> GetAnalytics()
     {
-        var orgIdClaim = User.FindFirstValue("org_id");
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
@@ -172,14 +195,26 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<ActionResult<JobDto>> PublishJob(Guid id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized();
         }
 
+        var jobDetails = await _jobService.GetJobByIdAsync(id);
+        if (jobDetails == null) return NotFound(new { error = "Job not found" });
+
+        await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), jobDetails.OrganizationId, "jobs.publish");
+
+        // Check entitlements before publishing
+        await _entitlementGuard.MustHaveAvailableLimitAsync(jobDetails.OrganizationId, LimitType.JobsPostingLimit);
+
         // TODO: Verify user has access to this job's organization
         var job = await _jobService.PublishJobAsync(id, userId);
+
+        // Increment usage after successful publish
+        await _entitlementsService.IncrementUsageAsync(jobDetails.OrganizationId, LimitType.JobsPostingLimit);
+
         return Ok(job);
     }
 
@@ -190,11 +225,16 @@ public class JobsController : ControllerBase
     [Authorize(Policy = "RequireBusinessRole")]
     public async Task<IActionResult> CloseJob(Guid id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized();
         }
+
+        var jobDetails = await _jobService.GetJobByIdAsync(id);
+        if (jobDetails == null) return NotFound(new { error = "Job not found" });
+
+        await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), jobDetails.OrganizationId, "jobs.close");
 
         // TODO: Verify user has access to this job's organization
         await _jobService.CloseJobAsync(id, userId);

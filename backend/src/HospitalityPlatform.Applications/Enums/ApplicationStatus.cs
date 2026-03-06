@@ -8,5 +8,6 @@ public enum ApplicationStatus
     PreHireChecks = 4,
     Hired = 5,
     Rejected = 6,
-    Withdrawn = 7
+    Withdrawn = 7,
+    OfferSent = 8
 }

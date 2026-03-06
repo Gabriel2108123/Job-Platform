@@ -1,0 +1,103 @@
+﻿Using project 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj'.
+Using startup project 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj'.
+Writing 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\obj\HospitalityPlatform.Database.csproj.EntityFrameworkCore.targets'...
+dotnet msbuild /target:GetEFProjectMetadata /property:EFProjectMetadataFile=C:\Users\gaby89\AppData\Local\Temp\tmpydcgi1.tmp /verbosity:quiet /nologo D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj
+Writing 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\obj\HospitalityPlatform.Api.csproj.EntityFrameworkCore.targets'...
+dotnet msbuild /target:GetEFProjectMetadata /property:EFProjectMetadataFile=C:\Users\gaby89\AppData\Local\Temp\tmplbwmnw.tmp /verbosity:quiet /nologo D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj
+Build started...
+dotnet build D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj /verbosity:quiet /nologo /p:PublishAot=false
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\SafetyController.cs(118,35): warning CS8603: Possible null reference return. [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+
+Build succeeded.
+
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Controllers\SafetyController.cs(118,35): warning CS8603: Possible null reference return. [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+    3 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.56
+
+Workload updates are available. Run `dotnet workload list` for more information.
+Build succeeded.
+dotnet exec --depsfile D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\bin\Debug\net8.0\HospitalityPlatform.Api.deps.json --additionalprobingpath C:\Users\gaby89\.nuget\packages --additionalprobingpath "C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages" --runtimeconfig D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\bin\Debug\net8.0\HospitalityPlatform.Api.runtimeconfig.json C:\Users\gaby89\.nuget\packages\dotnet-ef\8.0.0\tools\net8.0\any\tools\netcoreapp2.0\any\ef.dll migrations add AddOrgRolesPermissions --context ApplicationDbContext --assembly D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\bin\Debug\net8.0\HospitalityPlatform.Database.dll --project D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\HospitalityPlatform.Database.csproj --startup-assembly D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\bin\Debug\net8.0\HospitalityPlatform.Api.dll --startup-project D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj --project-dir D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\ --root-namespace HospitalityPlatform.Database --language C# --framework net8.0 --nullable --working-dir D:\projects\antigravity\Job-Platform\backend --verbose
+Using assembly 'HospitalityPlatform.Database'.
+Using startup assembly 'HospitalityPlatform.Api'.
+Using application base 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\bin\Debug\net8.0'.
+Using working directory 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api'.
+Using root namespace 'HospitalityPlatform.Database'.
+Using project directory 'D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\'.
+Remaining arguments: .
+Finding DbContext classes...
+Finding IDesignTimeDbContextFactory implementations...
+Finding application service provider in assembly 'HospitalityPlatform.Api'...
+Finding Microsoft.Extensions.Hosting service provider...
+Using environment 'Development'.
+Using application service provider from Microsoft.Extensions.Hosting.
+Found DbContext 'ApplicationDbContext'.
+Finding DbContext classes in the project...
+Using context 'ApplicationDbContext'.
+Microsoft.EntityFrameworkCore.Design.OperationException: Unable to create a 'DbContext' of type 'ApplicationDbContext'. The exception 'The relationship from 'OrgMemberRole.User' to 'ApplicationUser' with foreign key properties {'UserId' : string} cannot target the primary key {'Id' : Guid} because it is not compatible. Configure a principal key or a set of foreign key properties with compatible types for this relationship.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+ ---> System.InvalidOperationException: The relationship from 'OrgMemberRole.User' to 'ApplicationUser' with foreign key properties {'UserId' : string} cannot target the primary key {'Id' : Guid} because it is not compatible. Configure a principal key or a set of foreign key properties with compatible types for this relationship.
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelValidator.ValidateNoShadowKeys(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure.Internal.NpgsqlModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.get_InternalServiceProvider()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService[TService](IInfrastructure`1 accessor)
+   at Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService[TService](IInfrastructure`1 accessor)
+   at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(String contextType)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(String contextType)
+   at Microsoft.EntityFrameworkCore.Design.Internal.MigrationsOperations.AddMigration(String name, String outputDir, String contextType, String namespace)
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigrationImpl(String name, String outputDir, String contextType, String namespace)
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.AddMigration.<>c__DisplayClass0_0.<.ctor>b__0()
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.<>c__DisplayClass3_0`1.<Execute>b__0()
+   at Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute(Action action)
+Unable to create a 'DbContext' of type 'ApplicationDbContext'. The exception 'The relationship from 'OrgMemberRole.User' to 'ApplicationUser' with foreign key properties {'UserId' : string} cannot target the primary key {'Id' : Guid} because it is not compatible. Configure a principal key or a set of foreign key properties with compatible types for this relationship.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728

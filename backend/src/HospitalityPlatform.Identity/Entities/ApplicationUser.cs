@@ -1,3 +1,4 @@
+using HospitalityPlatform.Core.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace HospitalityPlatform.Identity.Entities;
@@ -47,6 +48,8 @@ public class ApplicationUser : IdentityUser<Guid>
     public bool AgreedToTerms { get; set; }
     public bool AgreedToPrivacy { get; set; }
     public bool IsOver16 { get; set; }
+    
+    public ModerationStatus ModerationStatus { get; set; } = ModerationStatus.Approved;
     
     // Navigation properties
     public Organization? Organization { get; set; }

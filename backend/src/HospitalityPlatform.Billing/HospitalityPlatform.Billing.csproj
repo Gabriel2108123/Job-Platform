@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HospitalityPlatform.Core\HospitalityPlatform.Core.csproj" />
+    <ProjectReference Include="..\HospitalityPlatform.Identity\HospitalityPlatform.Identity.csproj" />
   </ItemGroup>
 
   <ItemGroup>

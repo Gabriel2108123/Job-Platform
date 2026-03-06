@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { RequireVerifiedEmail } from '@/components/auth/RequireVerifiedEmail';
 import { apiRequest } from '@/lib/api/client';
+import { ReportModal } from '@/components/modals/ReportModal';
 
 interface Conversation {
   id: string;
@@ -49,6 +50,7 @@ function MessagesContent() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [safetyActionLoading, setSafetyActionLoading] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   useEffect(() => {
     fetchConversations();
@@ -140,33 +142,9 @@ function MessagesContent() {
     }
   };
 
-  const handleReportUser = async () => {
+  const handleReportUser = () => {
     if (!selectedConvData) return;
-    const reason = prompt(`Why are you reporting ${selectedConvData.otherUserName}?\n(e.g., Harassment, Spam, Inappropriate behavior)`);
-    if (!reason) return;
-
-    setSafetyActionLoading(true);
-    try {
-      const response = await apiRequest('/api/safety/report', {
-        method: 'POST',
-        body: JSON.stringify({
-          reportedUserId: selectedConvData.otherUserId,
-          reason,
-          description: `Reported via messaging interface for: ${reason}`
-        })
-      });
-
-      if (response.success) {
-        alert('Report submitted. Our safety team will review this. You may also want to block the user.');
-      } else {
-        alert(response.error || 'Failed to submit report. You might be rate limited.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Failed to submit report.');
-    } finally {
-      setSafetyActionLoading(false);
-    }
+    setReportModalOpen(true);
   };
 
   if (loading) {
@@ -327,6 +305,16 @@ function MessagesContent() {
           </div>
         )}
       </div>
+
+      {selectedConvData && (
+        <ReportModal
+          isOpen={reportModalOpen}
+          onClose={() => setReportModalOpen(false)}
+          targetType="User"
+          targetId={selectedConvData.otherUserId}
+          targetName={selectedConvData.otherUserName}
+        />
+      )}
     </div>
   );
 }

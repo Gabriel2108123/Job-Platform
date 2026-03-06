@@ -1,8 +1,10 @@
 using HospitalityPlatform.Applications.DTOs;
+using HospitalityPlatform.Applications.Enums;
 using HospitalityPlatform.Applications.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -12,15 +14,18 @@ public class PipelineController : ControllerBase
 {
     private readonly IPipelineService _pipelineService;
     private readonly IApplicationService _applicationService;
+    private readonly HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService _orgAuthService;
     private readonly ILogger<PipelineController> _logger;
 
     public PipelineController(
         IPipelineService pipelineService,
         IApplicationService applicationService,
+        HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService orgAuthService,
         ILogger<PipelineController> logger)
     {
         _pipelineService = pipelineService;
         _applicationService = applicationService;
+        _orgAuthService = orgAuthService;
         _logger = logger;
     }
 
@@ -34,7 +39,7 @@ public class PipelineController : ControllerBase
         try
         {
             // TODO: Verify user belongs to job's organization
-            var orgIdClaim = User.FindFirstValue("org_id");
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
@@ -73,18 +78,20 @@ public class PipelineController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized();
             }
 
             // TODO: Verify user belongs to job's organization
-            var orgIdClaim = User.FindFirstValue("org_id");
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
             if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
             {
                 return BadRequest(new { error = "Organization context required" });
             }
+
+            await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), organizationId, "applications.move");
 
             var application = await _pipelineService.MoveApplicationAsync(
                 applicationId,
@@ -116,4 +123,41 @@ public class PipelineController : ControllerBase
             return StatusCode(500, new { error = "An error occurred while moving the application" });
         }
     }
+
+    /// <summary>
+    /// Move multiple applications in bulk
+    /// </summary>
+    [HttpPost("move-bulk")]
+    [Authorize(Policy = "RequireBusinessRole")]
+    public async Task<ActionResult<IEnumerable<ApplicationDto>>> MoveApplicationsBulk([FromBody] BulkMoveRequest dto)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var orgIdClaim = User.FindFirst("org_id")?.Value;
+            if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+            {
+                return BadRequest(new { error = "Organization context required" });
+            }
+
+            await _orgAuthService.EnsurePermissionAsync(Guid.Parse(userId), organizationId, "applications.move");
+
+            var result = await _pipelineService.MoveApplicationsBulkAsync(dto.ApplicationIds, dto.ToStatus, userId, organizationId, dto.Notes);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error bulk moving applications");
+            return StatusCode(500, new { error = "An error occurred during bulk move" });
+        }
+    }
+}
+
+public class BulkMoveRequest
+{
+    public List<Guid> ApplicationIds { get; set; } = new();
+    public ApplicationStatus ToStatus { get; set; }
+    public string? Notes { get; set; }
 }

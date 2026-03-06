@@ -53,3 +53,14 @@ export async function updateOrganizationProfile(
     if (!response.data) throw new Error('No data returned');
     return response.data;
 }
+
+/**
+ * Get current user's permissions within their organization
+ */
+export async function getOrganizationPermissions(): Promise<string[]> {
+    const response = await apiRequest<string[]>('/api/organizations/my-permissions', {
+        method: 'GET',
+    });
+    if (response.error) throw new Error(response.error);
+    return response.data || [];
+}

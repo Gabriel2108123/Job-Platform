@@ -45,7 +45,8 @@ public class AdminService : IAdminService
                     IsActive = u.IsActive,
                     EmailVerified = u.EmailVerified,
                     CreatedAt = u.CreatedAt,
-                    UpdatedAt = u.UpdatedAt
+                    UpdatedAt = u.UpdatedAt,
+                    ModerationStatus = u.ModerationStatus
                 })
                 .ToListAsync();
 
@@ -82,7 +83,8 @@ public class AdminService : IAdminService
                 IsActive = user.IsActive,
                 EmailVerified = user.EmailVerified,
                 CreatedAt = user.CreatedAt,
-                UpdatedAt = user.UpdatedAt
+                UpdatedAt = user.UpdatedAt,
+                ModerationStatus = user.ModerationStatus
             };
         }
         catch (Exception ex)
@@ -196,7 +198,8 @@ public class AdminService : IAdminService
                         .Where(s => s.OrganizationId == o.Id)
                         .Select(s => s.Status.ToString())
                         .FirstOrDefault(),
-                    CreatedAt = o.CreatedAt
+                    CreatedAt = o.CreatedAt,
+                    ModerationStatus = o.ModerationStatus
                 })
                 .ToListAsync();
 
@@ -238,7 +241,8 @@ public class AdminService : IAdminService
                     .Where(s => s.OrganizationId == org.Id)
                     .Select(s => s.Status.ToString())
                     .FirstOrDefaultAsync(),
-                CreatedAt = org.CreatedAt
+                CreatedAt = org.CreatedAt,
+                ModerationStatus = org.ModerationStatus
             };
         }
         catch (Exception ex)

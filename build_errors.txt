@@ -1,0 +1,31 @@
+  Determining projects to restore...
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+  All projects are up-to-date for restore.
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx
+  HospitalityPlatform.Core -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Core\bin\Debug\net8.0\HospitalityPlatform.Core.dll
+  HospitalityPlatform.Audit -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Audit\bin\Debug\net8.0\HospitalityPlatform.Audit.dll
+  HospitalityPlatform.Auth -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Auth\bin\Debug\net8.0\HospitalityPlatform.Auth.dll
+  HospitalityPlatform.Entitlements -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Entitlements\bin\Debug\net8.0\HospitalityPlatform.Entitlements.dll
+  HospitalityPlatform.Ratings -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Ratings\bin\Debug\net8.0\HospitalityPlatform.Ratings.dll
+  HospitalityPlatform.Jobs -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Jobs\bin\Debug\net8.0\HospitalityPlatform.Jobs.dll
+  HospitalityPlatform.Waitlist -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Waitlist\bin\Debug\net8.0\HospitalityPlatform.Waitlist.dll
+  HospitalityPlatform.Identity -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Identity\bin\Debug\net8.0\HospitalityPlatform.Identity.dll
+  HospitalityPlatform.Applications -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Applications\bin\Debug\net8.0\HospitalityPlatform.Applications.dll
+  HospitalityPlatform.Candidates -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Candidates\bin\Debug\net8.0\HospitalityPlatform.Candidates.dll
+  HospitalityPlatform.Documents -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\bin\Debug\net8.0\HospitalityPlatform.Documents.dll
+  HospitalityPlatform.Billing -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Billing\bin\Debug\net8.0\HospitalityPlatform.Billing.dll
+  HospitalityPlatform.Messaging -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Messaging\bin\Debug\net8.0\HospitalityPlatform.Messaging.dll
+  HospitalityPlatform.Database -> D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Database\bin\Debug\net8.0\HospitalityPlatform.Database.dll
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Program.cs(132,54): error CS0103: The name 'ClaimTypes' does not exist in the current context [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+
+Build FAILED.
+
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Documents\HospitalityPlatform.Documents.csproj : warning NU1902: Package 'Amazon.Extensions.S3.Encryption' 2.0.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-4v42-65r3-3gjx
+D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\Program.cs(132,54): error CS0103: The name 'ClaimTypes' does not exist in the current context [D:\projects\antigravity\Job-Platform\backend\src\HospitalityPlatform.Api\HospitalityPlatform.Api.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:02.45
+
+Workload updates are available. Run `dotnet workload list` for more information.

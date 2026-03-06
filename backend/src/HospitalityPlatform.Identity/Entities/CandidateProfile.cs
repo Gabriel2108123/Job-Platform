@@ -33,6 +33,21 @@ public class CandidateProfile : BaseEntity
     /// </summary>
     public Guid[]? PreferredJobRoleIds { get; set; }
 
+    /// <summary>
+    /// Standardized skills for matching
+    /// </summary>
+    public string[]? Skills { get; set; }
+
+    /// <summary>
+    /// Whether the candidate is discoverable by businesses
+    /// </summary>
+    public bool IsVisible { get; set; } = true;
+
+    /// <summary>
+    /// Last activity to prioritize search results
+    /// </summary>
+    public DateTime? LastActiveAt { get; set; } = DateTime.UtcNow;
+
     // Navigation properties
     public ApplicationUser? User { get; set; }
 }

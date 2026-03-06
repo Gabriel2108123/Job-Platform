@@ -11,6 +11,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using System.Security.Claims;
+using HospitalityPlatform.Messaging.Services;
 
 // Enable legacy timestamp behavior for Npgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -102,6 +106,40 @@ builder.Services.AddAuthorization(options =>
         policy.Requirements.Add(new OrganizationRequirement()));
 });
 
+// Configure Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    // Outreach Rate Limit: 10 requests per minute per user
+    options.AddFixedWindowLimiter("outreach", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 10;
+        opt.QueueLimit = 2;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    // General Messaging Rate Limit: 30 requests per minute per user
+    options.AddFixedWindowLimiter("messaging", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.PermitLimit = 30;
+        opt.QueueLimit = 5;
+    });
+
+    // Global policy based on User Identity
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100, // High global limit
+                Window = TimeSpan.FromMinutes(1)
+            }));
+});
+
 // Register authorization handlers
 builder.Services.AddScoped<IAuthorizationHandler, RoleRequirementHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, OrganizationRequirementHandler>();
@@ -122,18 +160,26 @@ builder.Services.AddScoped<HospitalityPlatform.Audit.Services.IAuditService, Hos
 // Core Services
 builder.Services.AddScoped<HospitalityPlatform.Core.Services.ILocationService, 
                            HospitalityPlatform.Core.Services.LocationService>();
+builder.Services.AddScoped<HospitalityPlatform.Core.Interfaces.IOrgAuthorizationService, 
+                           HospitalityPlatform.Api.Services.OrgAuthorizationService>();
 
 // Candidate Services
 builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IWorkExperienceService, 
                            HospitalityPlatform.Candidates.Services.WorkExperienceService>();
 builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidateMapService, 
                            HospitalityPlatform.Candidates.Services.CandidateMapService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidateSearchService, 
+                           HospitalityPlatform.Candidates.Services.CandidateSearchService>();
+builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ISavedSearchService, 
+                           HospitalityPlatform.Candidates.Services.SavedSearchService>();
 
 // Jobs
 builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobService, HospitalityPlatform.Jobs.Services.JobService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IApplicationService, HospitalityPlatform.Applications.Services.ApplicationService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IPipelineService, HospitalityPlatform.Applications.Services.PipelineService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IApplicationsReadService, HospitalityPlatform.Applications.Services.ApplicationsReadService>();
+builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IInterviewService, HospitalityPlatform.Applications.Services.InterviewService>();
+builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IOfferService, HospitalityPlatform.Applications.Services.OfferService>();
 builder.Services.AddScoped<HospitalityPlatform.Applications.Services.IApplicationsDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 builder.Services.AddScoped<HospitalityPlatform.Jobs.Services.IJobsDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
@@ -144,6 +190,7 @@ builder.Services.AddScoped<HospitalityPlatform.Billing.Services.IOutreachService
 
 // Register Entitlements services
 builder.Services.AddScoped<HospitalityPlatform.Entitlements.Services.IEntitlementsService, HospitalityPlatform.Entitlements.Services.EntitlementsService>();
+builder.Services.AddScoped<HospitalityPlatform.Entitlements.Guards.IEntitlementGuard, HospitalityPlatform.Entitlements.Guards.EntitlementGuard>();
 builder.Services.AddScoped<HospitalityPlatform.Entitlements.Services.IEntitlementsDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
 // Register Admin services
@@ -151,7 +198,8 @@ builder.Services.AddScoped<HospitalityPlatform.Api.Services.IAdminService, Hospi
 
 // Register Messaging services
 builder.Services.AddScoped<HospitalityPlatform.Messaging.Services.IMessagingService, HospitalityPlatform.Messaging.Services.MessagingService>();
-builder.Services.AddScoped<HospitalityPlatform.Messaging.Services.IMessagingDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
+builder.Services.AddScoped<HospitalityPlatform.Messaging.Services.IMessageTemplateService, HospitalityPlatform.Messaging.Services.MessageTemplateService>();
+builder.Services.AddScoped<global::HospitalityPlatform.Messaging.Services.IMessagingDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICandidatesDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.IPlaceKeyGenerator, HospitalityPlatform.Candidates.Services.PlaceKeyGenerator>();
 builder.Services.AddScoped<HospitalityPlatform.Candidates.Services.ICoworkerDiscoveryService, HospitalityPlatform.Candidates.Services.CoworkerDiscoveryService>();
@@ -281,7 +329,6 @@ using (var scope = app.Services.CreateScope())
 
 // Configure the HTTP request pipeline
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseMiddleware<RateLimitMiddleware>();
 
 // Always enable CORS for frontend
 app.UseCors("AllowFrontend");
@@ -296,6 +343,7 @@ try
 {
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
 }
 catch (Exception ex)
 {

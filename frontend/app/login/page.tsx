@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { authApi } from '@/lib/api/auth';
+import { getOrganizationPermissions } from '@/lib/api/organization';
 import { setCurrentUser } from '@/lib/auth-helpers';
 import type { CurrentUser } from '@/lib/auth-helpers';
 
@@ -59,6 +60,7 @@ export default function LoginPage() {
       if (response.success && response.data) {
         // Store token and user info
         const { token, user } = response.data;
+        if (!token) throw new Error('Token missing from response');
 
         // Map API response to CurrentUser format and store
         const currentUser: CurrentUser = {
@@ -70,7 +72,19 @@ export default function LoginPage() {
           role: user.role || 'Candidate', // Use backend role if available, default to Candidate
         };
 
-        setCurrentUser(currentUser, token);
+        // Fetch permissions if business user
+        if (currentUser.organizationId && ['BusinessOwner', 'Staff', 'Admin'].includes(currentUser.role as string)) {
+          try {
+            // Need to set token temporarily for API call to work
+            localStorage.setItem('token', token as string);
+            const permissions = await getOrganizationPermissions();
+            currentUser.permissions = permissions;
+          } catch (err) {
+            console.error('Failed to fetch permissions', err);
+          }
+        }
+
+        setCurrentUser(currentUser, token as string);
 
         // Redirect based on role
         if (currentUser.role === 'BusinessOwner') {

@@ -8,6 +8,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { getJob, applyToJob, sendEmailVerification, JobDto, EmploymentType, incrementJobView } from '@/lib/api/client';
 import { isLoggedIn, isEmailVerified, getUser } from '@/lib/auth';
+import { ReportModal } from '@/components/modals/ReportModal';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,6 +25,7 @@ export default function JobDetailsPage({ params }: PageProps) {
   const [applySuccess, setApplySuccess] = useState(false);
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
 
   // Get job ID from params
   useEffect(() => {
@@ -309,11 +311,30 @@ export default function JobDetailsPage({ params }: PageProps) {
                     </Button>
                   </div>
                 )}
+
+                {/* Report Section */}
+                <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-3">Safety & Trust</p>
+                  <button
+                    onClick={() => setReportModalOpen(true)}
+                    className="text-xs font-black text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center justify-center gap-2 mx-auto"
+                  >
+                    <span className="text-sm">🚩</span> Report this Job
+                  </button>
+                </div>
               </CardBody>
             </Card>
           </div>
         </div>
       </div>
+
+      <ReportModal
+        isOpen={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        targetType="Job"
+        targetId={jobId}
+        targetName={job.title}
+      />
     </div>
   );
 }

@@ -195,6 +195,32 @@ public class WaitlistService : IWaitlistService
         _logger.LogInformation("Waitlist entry deleted: {Id} ({Email})", id, email);
     }
 
+    /// <summary>
+    /// Mark a waitlist entry as converted
+    /// </summary>
+    public async Task MarkAsConvertedAsync(Guid id)
+    {
+        var entry = await _context.WaitlistEntries.FindAsync(id)
+            ?? throw new KeyNotFoundException($"Waitlist entry {id} not found");
+
+        entry.IsConverted = true;
+        entry.ConvertedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        // Audit log
+        await _auditService.LogAsync(
+            action: "WaitlistEntryConverted",
+            entityType: "WaitlistEntry",
+            entityId: id.ToString(),
+            details: new { Email = entry.Email, AccountType = entry.AccountType.ToString() },
+            userId: null!,
+            organizationId: Guid.Empty
+        );
+
+        _logger.LogInformation("Waitlist entry converted: {Id} ({Email})", id, entry.Email);
+    }
+
     // ===== Private Helpers =====
 
     /// <summary>
@@ -237,7 +263,9 @@ public class WaitlistService : IWaitlistService
             Location = entry.Location,
             SequenceNumber = entry.SequenceNumber,
             IncentiveAwarded = entry.IncentiveAwarded,
-            CreatedAt = entry.CreatedAt
+            CreatedAt = entry.CreatedAt,
+            IsConverted = entry.IsConverted,
+            ConvertedAt = entry.ConvertedAt
         };
     }
 

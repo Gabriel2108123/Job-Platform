@@ -44,4 +44,7 @@ public class WaitlistEntry : BaseEntity
     /// Source of signup (e.g. "landing_page")
     /// </summary>
     public string? Source { get; set; }
+
+    public bool IsConverted { get; set; } = false;
+    public DateTime? ConvertedAt { get; set; }
 }

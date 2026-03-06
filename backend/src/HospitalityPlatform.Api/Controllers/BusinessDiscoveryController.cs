@@ -5,6 +5,10 @@ using HospitalityPlatform.Candidates.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using HospitalityPlatform.Entitlements.Guards;
+using HospitalityPlatform.Entitlements.Services;
+using HospitalityPlatform.Entitlements.Enums;
 
 namespace HospitalityPlatform.Api.Controllers;
 
@@ -15,15 +19,21 @@ public class BusinessDiscoveryController : ControllerBase
 {
     private readonly IBusinessDiscoveryService _discoveryService;
     private readonly IOutreachService _outreachService;
+    private readonly IEntitlementGuard _entitlementGuard;
+    private readonly IEntitlementsService _entitlementsService;
     private readonly ILogger<BusinessDiscoveryController> _logger;
 
     public BusinessDiscoveryController(
         IBusinessDiscoveryService discoveryService,
         IOutreachService outreachService,
+        IEntitlementGuard entitlementGuard,
+        IEntitlementsService entitlementsService,
         ILogger<BusinessDiscoveryController> logger)
     {
         _discoveryService = discoveryService;
         _outreachService = outreachService;
+        _entitlementGuard = entitlementGuard;
+        _entitlementsService = entitlementsService;
         _logger = logger;
     }
 
@@ -33,7 +43,20 @@ public class BusinessDiscoveryController : ControllerBase
     [HttpGet("nearby/{jobId}")]
     public async Task<ActionResult<List<NearbyCandidateDto>>> GetNearbyCandidates(Guid jobId, [FromQuery] double radiusKm = 10)
     {
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
+        if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
+        {
+            return BadRequest(new { error = "Organization context required" });
+        }
+
+        // Check entitlements
+        await _entitlementGuard.MustHaveAvailableLimitAsync(organizationId, LimitType.CandidateSearchLimit);
+
         var candidates = await _discoveryService.GetNearbyCandidatesAsync(jobId, radiusKm);
+
+        // Increment usage
+        await _entitlementsService.IncrementUsageAsync(organizationId, LimitType.CandidateSearchLimit);
+
         return Ok(candidates);
     }
 
@@ -43,7 +66,7 @@ public class BusinessDiscoveryController : ControllerBase
     [HttpGet("credits")]
     public async Task<ActionResult<int>> GetCreditBalance()
     {
-        var orgIdClaim = User.FindFirstValue("org_id");
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
         if (string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {
             return BadRequest(new { error = "Organization context required" });
@@ -59,8 +82,8 @@ public class BusinessDiscoveryController : ControllerBase
     [HttpPost("outreach")]
     public async Task<ActionResult<OutreachResultDto>> SendOutreach([FromBody] OutreachRequestDto request)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var orgIdClaim = User.FindFirstValue("org_id");
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var orgIdClaim = User.FindFirst("org_id")?.Value;
 
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(orgIdClaim) || !Guid.TryParse(orgIdClaim, out var organizationId))
         {

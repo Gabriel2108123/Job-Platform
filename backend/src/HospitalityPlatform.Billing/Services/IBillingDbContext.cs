@@ -13,5 +13,6 @@ public interface IBillingDbContext
     DbSet<Plan> Plans { get; }
     DbSet<OrganizationCredit> OrganizationCredits { get; }
     DbSet<OutreachActivity> OutreachActivities { get; }
+    DbSet<Invoice> Invoices { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

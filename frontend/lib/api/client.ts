@@ -137,6 +137,13 @@ export interface JobDto {
   approxRadiusMeters?: number;
 }
 
+export interface JobRoleDto {
+  id: string;
+  name: string;
+  department: string;
+  displayOrder: number;
+}
+
 export interface JobPagedResult {
   items: JobDto[];
   totalCount: number;
@@ -205,6 +212,13 @@ export async function getJobs(
  */
 export async function getJob(id: string): Promise<ApiResponse<JobDto>> {
   return apiRequest<JobDto>(`/api/jobs/${id}`);
+}
+
+/**
+ * Fetch all job roles
+ */
+export async function getJobRoles(): Promise<ApiResponse<JobRoleDto[]>> {
+  return apiRequest<JobRoleDto[]>('/api/job-roles');
 }
 
 /**
@@ -440,6 +454,7 @@ export interface ProfileDto {
   primaryRole?: string;
   currentStatus?: string;
   isOver16?: boolean;
+  isVisible?: boolean;
 }
 
 export interface UpdateProfileDto {
@@ -453,6 +468,7 @@ export interface UpdateProfileDto {
   address?: string;
   primaryRole?: string;
   currentStatus?: string;
+  isVisible?: boolean;
 }
 
 /**
@@ -729,6 +745,105 @@ export async function declineConnection(id: string): Promise<void> {
 }
 
 // ============================================================================
+// Candidate Search & Discovery DTOs & Functions (Stage 4)
+// ============================================================================
+
+export interface CandidateSearchFilter {
+  jobRoleId?: string;
+  skills?: string[];
+  query?: string;
+  city?: string;
+  lat?: number;
+  lng?: number;
+  radiusKm?: number;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface CandidateSearchResult {
+  userId: string;
+  firstName: string;
+  lastName?: string;
+  bio?: string;
+  primaryRole?: string;
+  skills?: string[];
+  profilePictureUrl?: string;
+  city?: string;
+  lastActiveAt?: string;
+  distanceKm?: number;
+  matchScore: number;
+}
+
+export interface CandidatePagedSearchResult {
+  items: CandidateSearchResult[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface SavedSearchDto {
+  id: string;
+  name: string;
+  searchParamsJson: string;
+  enableEmailAlerts: boolean;
+  createdAt: string;
+}
+
+/**
+ * Search candidates with advanced filters
+ */
+export async function searchCandidates(filter: CandidateSearchFilter): Promise<ApiResponse<CandidatePagedSearchResult>> {
+  const queryParams = new URLSearchParams();
+  if (filter.jobRoleId) queryParams.set('jobRoleId', filter.jobRoleId);
+  if (filter.query) queryParams.set('query', filter.query);
+  if (filter.city) queryParams.set('city', filter.city);
+  if (filter.lat) queryParams.set('lat', filter.lat.toString());
+  if (filter.lng) queryParams.set('lng', filter.lng.toString());
+  if (filter.radiusKm) queryParams.set('radiusKm', filter.radiusKm.toString());
+  if (filter.page) queryParams.set('page', filter.page.toString());
+  if (filter.pageSize) queryParams.set('pageSize', filter.pageSize.toString());
+
+  if (filter.skills && filter.skills.length > 0) {
+    filter.skills.forEach(skill => queryParams.append('skills', skill));
+  }
+
+  return apiRequest<CandidatePagedSearchResult>(`/api/search/candidates?${queryParams.toString()}`);
+}
+
+/**
+ * Get matches for a specific job
+ */
+export async function getMatchesForJob(jobId: string, limit: number = 5): Promise<ApiResponse<CandidateSearchResult[]>> {
+  return apiRequest<CandidateSearchResult[]>(`/api/search/candidates/matches/job/${jobId}?limit=${limit}`);
+}
+
+/**
+ * Get saved searches for current user
+ */
+export async function getSavedSearches(): Promise<ApiResponse<SavedSearchDto[]>> {
+  return apiRequest<SavedSearchDto[]>('/api/saved-searches');
+}
+
+/**
+ * Create a new saved search
+ */
+export async function createSavedSearch(dto: { name: string; searchParamsJson: string; enableEmailAlerts?: boolean }): Promise<ApiResponse<SavedSearchDto>> {
+  return apiRequest<SavedSearchDto>('/api/saved-searches', {
+    method: 'POST',
+    body: JSON.stringify(dto)
+  });
+}
+
+/**
+ * Delete a saved search
+ */
+export async function deleteSavedSearch(id: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/saved-searches/${id}`, {
+    method: 'DELETE'
+  });
+}
+
+// ============================================================================
 // Business Discovery DTOs & Functions
 // ============================================================================
 
@@ -783,4 +898,61 @@ export async function sendOutreach(dto: OutreachRequestDto): Promise<OutreachRes
   });
   if (response.error) throw new Error(response.error);
   return response.data || { success: false, remainingBalance: 0 };
+}
+/**
+ * Submit a report for safety/moderation
+ */
+export interface SubmitReportDto {
+  targetType: string;
+  targetId: string;
+  reason: string;
+  details?: string;
+}
+
+export async function submitReport(dto: SubmitReportDto): Promise<ApiResponse<{ success: boolean }>> {
+  return apiRequest<{ success: boolean }>(
+    '/api/safety/reports',
+    {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    }
+  );
+}
+
+/**
+ * Admin Moderation API
+ */
+export interface ReportDto {
+  id: string;
+  reporterUserId: string;
+  targetType: string;
+  targetId: string;
+  reason: string;
+  details?: string;
+  status: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolutionNotes?: string;
+}
+
+export async function getPendingReports(): Promise<ApiResponse<ReportDto[]>> {
+  return apiRequest<ReportDto[]>('/api/moderation/reports/pending');
+}
+
+export async function resolveReport(reportId: string, status: 'Resolved' | 'Dismissed', notes?: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/moderation/reports/${reportId}/resolve`, {
+    method: 'PUT',
+    body: JSON.stringify({ status, resolutionNotes: notes }),
+  });
+}
+
+export async function updateModerationStatus(
+  type: 'jobs' | 'organizations' | 'users',
+  id: string,
+  status: number // 0: Pending, 1: Approved, 2: Flagged, 3: Blocked
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/moderation/${type}/${id}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status }),
+  });
 }

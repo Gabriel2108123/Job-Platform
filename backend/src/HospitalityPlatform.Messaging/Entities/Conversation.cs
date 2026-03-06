@@ -1,3 +1,4 @@
+using System;
 using HospitalityPlatform.Core.Entities;
 using System.ComponentModel.DataAnnotations;
 

@@ -3,20 +3,25 @@ using HospitalityPlatform.Messaging.Entities;
 using HospitalityPlatform.Messaging.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using HospitalityPlatform.Database;
+using HospitalityPlatform.Core.Entities;
 
 namespace HospitalityPlatform.Api.Controllers;
 
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("outreach")]
 public class SafetyController : ControllerBase
 {
-    private readonly IMessagingDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<SafetyController> _logger;
 
-    public SafetyController(IMessagingDbContext dbContext, ILogger<SafetyController> logger)
+    public SafetyController(ApplicationDbContext dbContext, ILogger<SafetyController> logger)
     {
         _dbContext = dbContext;
         _logger = logger;
@@ -115,5 +120,47 @@ public class SafetyController : ControllerBase
         return Ok(new { success = true });
     }
 
-    private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
+    [HttpPost("reports")]
+    public async Task<IActionResult> SubmitGenericReport([FromBody] SubmitReportDto dto)
+    {
+        var userId = GetUserId();
+        if (!Guid.TryParse(userId, out var reporterId)) return Unauthorized();
+
+        var report = new Report
+        {
+            Id = Guid.NewGuid(),
+            ReporterUserId = reporterId,
+            TargetType = dto.TargetType,
+            TargetId = dto.TargetId,
+            Reason = dto.Reason,
+            Details = dto.Details,
+            Status = "Open",
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _dbContext.Reports.Add(report);
+
+        // Auto-flagging logic for Jobs
+        if (dto.TargetType.Equals("Job", StringComparison.OrdinalIgnoreCase))
+        {
+             var job = await _dbContext.Jobs.FindAsync(dto.TargetId);
+             if (job != null && job.ModerationStatus == HospitalityPlatform.Core.Enums.ModerationStatus.Approved)
+             {
+                 job.ModerationStatus = HospitalityPlatform.Core.Enums.ModerationStatus.Flagged;
+             }
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return Ok(new { success = true });
+    }
+
+    private string GetUserId() => User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+}
+
+public class SubmitReportDto
+{
+    public string TargetType { get; set; } = string.Empty;
+    public Guid TargetId { get; set; }
+    public string Reason { get; set; } = string.Empty;
+    public string? Details { get; set; }
 }

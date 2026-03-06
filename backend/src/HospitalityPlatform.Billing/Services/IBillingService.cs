@@ -29,4 +29,9 @@ public interface IBillingService
     /// Process Stripe webhook event idempotently
     /// </summary>
     Task<bool> ProcessWebhookEventAsync(string stripeEventId, string eventType, string payload);
+
+    /// <summary>
+    /// Get billing history for an organization
+    /// </summary>
+    Task<List<InvoiceDto>> GetBillingHistoryAsync(Guid organizationId);
 }

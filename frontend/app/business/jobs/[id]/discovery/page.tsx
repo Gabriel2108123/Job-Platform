@@ -8,13 +8,17 @@ import {
     JobDto,
     getNearbyCandidates,
     NearbyCandidateDto,
-    getOutreachCreditBalance
+    getOutreachCreditBalance,
+    getMatchesForJob,
+    CandidateSearchResult
 } from '@/lib/api/client';
 import BusinessDiscoveryMap from '@/components/business/BusinessDiscoveryMap';
 import { NearbyCandidateList } from '@/components/business/NearbyCandidateList';
 import { CandidateOutreachModal } from '@/components/business/CandidateOutreachModal';
 import { Button } from '@/components/ui/Button';
-import { ChevronLeft, Filter, Navigation, CreditCard, Sparkles, Map as MapIcon, List as ListIcon } from 'lucide-react';
+import { ReportModal } from '@/components/modals/ReportModal';
+import { ChevronLeft, Filter, Navigation, CreditCard, Sparkles, Map as MapIcon, List as ListIcon, Flag } from 'lucide-react';
+import UpgradePrompt from '@/components/billing/UpgradePrompt';
 
 export default function JobDiscoveryPage() {
     const params = useParams();
@@ -26,9 +30,13 @@ export default function JobDiscoveryPage() {
     const [loading, setLoading] = useState(true);
     const [radiusKm, setRadiusKm] = useState(10);
     const [credits, setCredits] = useState(0);
-    const [selectedCandidate, setSelectedCandidate] = useState<NearbyCandidateDto | null>(null);
-    const [showOutreach, setShowOutreach] = useState<NearbyCandidateDto | null>(null);
+    const [selectedCandidate, setSelectedCandidate] = useState<NearbyCandidateDto | CandidateSearchResult | null>(null);
+    const [showOutreach, setShowOutreach] = useState<NearbyCandidateDto | CandidateSearchResult | null>(null);
+    const [reportCandidate, setReportCandidate] = useState<NearbyCandidateDto | CandidateSearchResult | null>(null);
+    const [matches, setMatches] = useState<CandidateSearchResult[]>([]);
     const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+    const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+    const [limitInfo, setLimitInfo] = useState({ current: 0, max: 0 });
 
     useEffect(() => {
         if (!jobId) return;
@@ -43,12 +51,24 @@ export default function JobDiscoveryPage() {
 
                 if (jobRes.success && jobRes.data) {
                     setJob(jobRes.data);
-                    const candRes = await getNearbyCandidates(jobId, radiusKm);
+                    const [candRes, matchRes] = await Promise.all([
+                        getNearbyCandidates(jobId, radiusKm),
+                        getMatchesForJob(jobId)
+                    ]);
                     setCandidates(candRes);
+                    if (matchRes.success && matchRes.data) {
+                        setMatches(matchRes.data);
+                    }
                 }
                 setCredits(creditRes);
-            } catch (err) {
+            } catch (err: any) {
                 console.error('Failed to fetch discovery data', err);
+                if (err.message?.includes('Limit for CandidateSearchLimit')) {
+                    // Usually the backend error message contains current/max if formatted as string
+                    // For now we use sensible defaults for the prompt
+                    setLimitInfo({ current: 20, max: 20 });
+                    setShowUpgradePrompt(true);
+                }
             } finally {
                 setLoading(false);
             }
@@ -140,6 +160,33 @@ export default function JobDiscoveryPage() {
                                 <Sparkles size={14} className="text-[var(--brand-primary)] shrink-0" />
                                 Showing workers who have opted-in to discoverability.
                             </div>
+
+                            {matches.length > 0 && (
+                                <div className="space-y-4 pt-4 border-t">
+                                    <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                                        <Sparkles size={14} /> Top AI Matches
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {matches.map(match => (
+                                            <div
+                                                key={match.userId}
+                                                className="p-3 bg-white rounded-xl border border-indigo-50 shadow-sm hover:border-indigo-200 transition-all cursor-pointer group"
+                                                onClick={() => setSelectedCandidate(match as any)}
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <p className="text-sm font-black text-slate-800 leading-tight">{match.firstName}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase">{match.primaryRole}</p>
+                                                    </div>
+                                                    <div className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-1.5 py-0.5 rounded">
+                                                        {Math.round(match.matchScore)}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -147,7 +194,7 @@ export default function JobDiscoveryPage() {
                         <NearbyCandidateList
                             candidates={candidates}
                             loading={loading}
-                            selectedCandidateId={selectedCandidate?.candidateUserId || null}
+                            selectedCandidateId={selectedCandidate ? ('candidateUserId' in selectedCandidate ? selectedCandidate.candidateUserId : selectedCandidate.userId) : null}
                             onCandidateClick={(c) => setSelectedCandidate(c)}
                             onContactClick={(c) => setShowOutreach(c)}
                         />
@@ -202,6 +249,12 @@ export default function JobDiscoveryPage() {
                                             >
                                                 Invite to Apply
                                             </Button>
+                                            <button
+                                                onClick={() => setReportCandidate(c)}
+                                                className="w-full mt-3 text-xs font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center justify-center gap-1"
+                                            >
+                                                <Flag size={12} /> Report Candidate
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
@@ -214,17 +267,37 @@ export default function JobDiscoveryPage() {
             {/* Outreach Modal */}
             {showOutreach && (
                 <CandidateOutreachModal
-                    candidateId={showOutreach.candidateUserId}
-                    candidateName={showOutreach.name}
+                    candidateId={'candidateUserId' in showOutreach ? showOutreach.candidateUserId : showOutreach.userId}
+                    candidateName={'name' in showOutreach ? showOutreach.name : `${showOutreach.firstName} ${showOutreach.lastName || ''}`}
                     jobId={jobId}
                     creditBalance={credits}
                     onClose={() => setShowOutreach(null)}
                     onSuccess={(newBalance) => {
                         setCredits(newBalance);
-                        alert(`Successfully contacted ${showOutreach.name}!`);
+                        const name = 'name' in showOutreach ? showOutreach.name : showOutreach.firstName;
+                        alert(`Successfully contacted ${name}!`);
                     }}
                 />
             )}
+
+            {/* Report Modal */}
+            {reportCandidate && (
+                <ReportModal
+                    isOpen={!!reportCandidate}
+                    onClose={() => setReportCandidate(null)}
+                    targetType="User"
+                    targetId={'candidateUserId' in reportCandidate ? reportCandidate.candidateUserId : reportCandidate.userId}
+                    targetName={'name' in reportCandidate ? reportCandidate.name : reportCandidate.firstName}
+                />
+            )}
+
+            <UpgradePrompt
+                isOpen={showUpgradePrompt}
+                onClose={() => setShowUpgradePrompt(false)}
+                limitType="CandidateSearchLimit"
+                currentUsage={limitInfo.current}
+                maxLimit={limitInfo.max}
+            />
         </div>
     );
 }
