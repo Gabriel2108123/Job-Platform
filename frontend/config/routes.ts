@@ -15,6 +15,7 @@ export const ROUTES = {
         JOBS: '/candidate/jobs',
         APPLICATIONS: '/candidate/applications',
         MESSAGES: '/candidate/messages',
+        DOCUMENTS: '/candidate/documents',
         NETWORK: '/candidate/network',
         PROFILE: '/candidate/profile',
         SETTINGS: '/candidate/settings',

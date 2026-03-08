@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import { ReactQueryProvider } from "@/lib/query-provider";
+import { AppLayoutWrapper } from "@/components/layout/AppLayoutWrapper";
 import DevTools from "@/components/dev/DevTools";
 import { EnvironmentBanner } from "@/components/system/EnvironmentBanner";
 
@@ -44,9 +45,9 @@ export default function RootLayout({
       <body className="antialiased flex flex-col min-h-screen">
         <ReactQueryProvider>
           <EnvironmentBanner />
-          <Navigation />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <AppLayoutWrapper>
+            {children}
+          </AppLayoutWrapper>
           <DevTools />
         </ReactQueryProvider>
       </body>

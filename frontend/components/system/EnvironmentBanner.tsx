@@ -8,7 +8,10 @@ export function EnvironmentBanner() {
   useEffect(() => {
     // In dev/staging, verification might be turned off based on backend config
     fetch('/api/system/config')
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) throw new Error('System config route unavailable');
+        return res.json();
+      })
       .then((data) => {
         if (data?.featureFlags?.RequireEmailVerification === false) {
           setShowBanner(true);

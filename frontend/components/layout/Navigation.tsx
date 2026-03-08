@@ -50,72 +50,76 @@ export function Navigation() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === link.href
-                  ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
-                  : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
-                  }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {pathname !== '/' && (
+            <>
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${pathname === link.href
+                      ? 'text-[var(--brand-primary)] bg-[var(--brand-primary)]/10'
+                      : 'text-gray-700 hover:text-[var(--brand-primary)] hover:bg-gray-50'
+                      }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
 
-          {/* User Info & Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
-            {!loggedIn ? (
-              <>
-                <Link href="/login">
-                  <Button variant="outline" size="sm">
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button variant="primary" size="sm">
-                    Register
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <>
-                {!loading && role && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-md text-sm">
-                    <span className="text-gray-600">{displayName}</span>
-                  </div>
-                )}
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  Logout
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-700 hover:text-[var(--brand-primary)] p-2"
-              aria-label="Toggle menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              {/* User Info & Auth Buttons */}
+              <div className="hidden md:flex items-center space-x-3">
+                {!loggedIn ? (
+                  <>
+                    <Link href="/login">
+                      <Button variant="outline" size="sm">
+                        Login
+                      </Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button variant="primary" size="sm">
+                        Register
+                      </Button>
+                    </Link>
+                  </>
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <>
+                    {!loading && role && (
+                      <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-md text-sm">
+                        <span className="text-gray-600">{displayName}</span>
+                      </div>
+                    )}
+                    <Button variant="outline" size="sm" onClick={handleLogout}>
+                      Logout
+                    </Button>
+                  </>
                 )}
-              </svg>
-            </button>
-          </div>
+              </div>
+
+              {/* Mobile menu button */}
+              <div className="md:hidden flex items-center">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="text-gray-700 hover:text-[var(--brand-primary)] p-2"
+                  aria-label="Toggle menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {mobileMenuOpen ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    )}
+                  </svg>
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       {/* Mobile menu */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen && pathname !== '/' && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-4 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (

@@ -4,14 +4,15 @@ import React from 'react';
 import { RoleLayout } from '@/components/layout/RoleLayout';
 
 import { NetworkCoworkerCard } from '@/components/candidate/NetworkCoworkerCard';
+import { NetworkMap } from '@/components/candidate/NetworkMap';
 import { Network, MapPin, Users, Globe } from 'lucide-react';
 
 export default function CandidateNetworkPage() {
     const coworkers = [
-        { id: '1', name: 'Alex Rivera', role: 'Bartender', distance: '0.4 miles away', commonPlaces: ['The Alchemist', 'Soho'] },
-        { id: '2', name: 'James Chen', role: 'Head Chef', distance: '1.2 miles away', commonPlaces: ['Dishoom'] },
-        { id: '3', name: 'Sarah Miller', role: 'Wait Staff', distance: '0.8 miles away', commonPlaces: ['Breakfast Club'] },
-        { id: '4', name: 'Elena Petrova', role: 'Events Manager', distance: '2.5 miles away', commonPlaces: ['The Savoy'] },
+        { id: '1', name: 'Alex Rivera', role: 'Bartender', distance: '0.4 miles away', commonPlaces: ['The Alchemist', 'Soho'], lat: 51.5136, lng: -0.1365 },
+        { id: '2', name: 'James Chen', role: 'Head Chef', distance: '1.2 miles away', commonPlaces: ['Dishoom'], lat: 51.5284, lng: -0.1246 },
+        { id: '3', name: 'Sarah Miller', role: 'Wait Staff', distance: '0.8 miles away', commonPlaces: ['Breakfast Club'], lat: 51.5098, lng: -0.1180 },
+        { id: '4', name: 'Elena Petrova', role: 'Events Manager', distance: '2.5 miles away', commonPlaces: ['The Savoy'], lat: 51.5106, lng: -0.1203 },
     ];
 
     return (
@@ -40,13 +41,11 @@ export default function CandidateNetworkPage() {
                         <Network className="absolute right-12 top-1/2 -translate-y-1/2 w-48 h-48 text-white/5" />
                     </div>
 
-                    <div className="bg-indigo-600 rounded-[2.5rem] p-8 text-white flex flex-col justify-center items-center text-center">
-                        <Globe className="w-10 h-10 mb-4 text-indigo-200" />
-                        <p className="text-xs font-bold uppercase tracking-widest mb-1 text-indigo-200">World View</p>
-                        <h3 className="text-xl font-black mb-4">View Career Map</h3>
-                        <button className="px-6 py-2 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest">
-                            Explore
-                        </button>
+                    <div className="h-[240px]">
+                        <NetworkMap
+                            center={{ lat: 51.5100, lng: -0.1250 }}
+                            coworkers={coworkers}
+                        />
                     </div>
                 </div>
 

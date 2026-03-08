@@ -235,18 +235,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-[var(--brand-navy)] border-t border-white/10 py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex justify-center items-center gap-8 mb-8">
-            <span className="text-2xl font-bold text-white">YokeConnect</span>
-          </div>
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} YokeConnect. All rights reserved. <br />
-            Hospitality hiring that actually moves.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

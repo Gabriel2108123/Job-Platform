@@ -34,16 +34,22 @@ export function AppShell({
     rightPanel
 }: AppShellProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex text-slate-900 dark:text-slate-100">
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex w-64 flex-col fixed inset-y-0 z-50">
-                <Sidebar items={navItems} role={role} />
+            <aside className={`hidden lg:flex flex-col fixed inset-y-0 z-50 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+                <Sidebar
+                    items={navItems}
+                    role={role}
+                    isCollapsed={isCollapsed}
+                    onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+                />
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col lg:pl-64 min-h-screen">
+            <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${isCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
                 <TopBar
                     role={role}
                     pageTitle={pageTitle}
