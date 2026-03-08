@@ -171,33 +171,23 @@ export default function RegisterPage() {
 
   // Theme helpers
   const isCandidate = accountType === 'candidate';
-  const themeClasses = isCandidate
-    ? 'bg-neutral-950 text-white'
-    : 'bg-gray-50 text-gray-900';
+  const themeClasses = 'bg-white text-slate-900';
 
-  const cardClasses = isCandidate
-    ? 'bg-neutral-900 border-neutral-800 text-white shadow-xl'
-    : 'bg-white shadow-md border-gray-100';
+  const cardClasses = 'bg-white border-slate-100 shadow-xl rounded-[2rem]';
 
-  const inputLabelClasses = isCandidate
-    ? 'text-gray-300'
-    : 'text-gray-700';
+  const inputLabelClasses = 'text-slate-700 font-bold';
 
   return (
     <div className={`min-h-screen py-12 transition-colors duration-500 ${themeClasses}`}>
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="flex justify-center mb-6">
-            <img
-              src="/images/yoke-logo-full.jpg"
-              alt="YokeConnect Logo"
-              className="h-20"
-            />
-          </div>
-          <h1 className={`text-3xl font-bold mb-2 ${isCandidate ? 'text-[var(--brand-gold)]' : 'text-[var(--brand-navy)]'}`}>
+          <Link href="/" className="flex justify-center mb-6 hover:opacity-80 transition-opacity translate-x-[-12px]">
+            <BrandLogo width={120} height={40} />
+          </Link>
+          <h1 className={`text-3xl font-black mb-2 text-slate-900`}>
             Create Account
           </h1>
-          <p className={isCandidate ? 'text-gray-400' : 'text-gray-600'}>
+          <p className="text-slate-500 font-bold">
             Join the hospitality community
           </p>
         </div>
@@ -210,13 +200,13 @@ export default function RegisterPage() {
 
         {/* Account Type Toggle */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white p-1 rounded-lg shadow-sm border border-gray-200 inline-flex">
+          <div className="bg-slate-100 p-1.5 rounded-2xl inline-flex">
             <button
               type="button"
               onClick={() => handleAccountTypeChange('candidate')}
-              className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${accountType === 'candidate'
-                ? 'bg-[var(--brand-primary)] text-white'
-                : 'text-gray-500 hover:text-gray-900'
+              className={`px-6 py-3 rounded-xl text-sm font-black transition-all ${accountType === 'candidate'
+                ? 'bg-[var(--brand-primary)] text-white shadow-lg'
+                : 'text-slate-500 hover:text-slate-900'
                 }`}
             >
               I want to Work
@@ -224,9 +214,9 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => handleAccountTypeChange('business')}
-              className={`px-6 py-2 rounded-md text-sm font-medium transition-colors ${accountType === 'business'
-                ? 'bg-[var(--brand-primary)] text-white'
-                : 'text-gray-500 hover:text-gray-900'
+              className={`px-6 py-3 rounded-xl text-sm font-black transition-all ${accountType === 'business'
+                ? 'bg-[var(--brand-primary)] text-white shadow-lg'
+                : 'text-slate-500 hover:text-slate-900'
                 }`}
             >
               I want to Hire
@@ -235,12 +225,12 @@ export default function RegisterPage() {
         </div>
 
         <Card className={`${cardClasses} transition-colors duration-300`}>
-          <CardBody>
+          <CardBody className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
 
               {/* --- Account Basics --- */}
               <div className="space-y-4">
-                <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Account Basics</h3>
+                <h3 className={`text-lg font-black border-b pb-2 text-slate-900 border-slate-100`}>Account Basics</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -281,7 +271,7 @@ export default function RegisterPage() {
 
               {accountType === 'candidate' && (
                 <div className="space-y-4">
-                  <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Profile Details</h3>
+                  <h3 className={`text-lg font-black border-b pb-2 text-slate-900 border-slate-100`}>Profile Details</h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -333,7 +323,7 @@ export default function RegisterPage() {
 
               {accountType === 'business' && (
                 <div className="space-y-4">
-                  <h3 className={`text-lg font-medium border-b pb-2 ${isCandidate ? 'text-white border-neutral-700' : 'text-gray-900 border-gray-100'}`}>Company Details</h3>
+                  <h3 className={`text-lg font-black border-b pb-2 text-slate-900 border-slate-100`}>Company Details</h3>
 
                   <div>
                     <label className={`block text-sm font-medium mb-1 ${inputLabelClasses}`}>Registered Company Name *</label>
@@ -431,17 +421,17 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 variant="primary"
-                className="w-full mt-6"
+                className="w-full mt-6 py-6 text-lg font-black rounded-2xl shadow-lg shadow-amber-500/20"
                 disabled={loading}
               >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-8 text-center">
+              <p className="text-sm text-slate-500 font-bold">
                 Already have an account?{' '}
-                <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-medium">
+                <Link href="/login" className="text-[var(--brand-primary)] hover:underline font-black">
                   Log in here
                 </Link>
               </p>
@@ -451,7 +441,7 @@ export default function RegisterPage() {
 
         {/* Footer Link */}
         <div className="mt-8 text-center">
-          <Link href="/jobs" className="text-[var(--brand-primary)] hover:underline text-sm">
+          <Link href="/jobs" className="text-slate-400 hover:text-slate-600 font-bold text-sm transition-colors">
             Browse jobs as guest
           </Link>
         </div>

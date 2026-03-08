@@ -105,18 +105,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         {/* Page Header */}
-        <div className="mb-8 text-center">
-          <div className="flex justify-center mb-4">
-            <img
-              src="/images/yoke-logo-full.jpg"
-              alt="YokeConnect Logo"
-              className="h-20"
-            />
-          </div>
-          <p className="text-gray-400">Sign in to your account</p>
+        <div className="mb-8 text-center flex flex-col items-center">
+          <Link href="/" className="flex justify-center mb-4 hover:opacity-80 transition-opacity translate-x-[-12px]">
+            <BrandLogo width={120} height={40} />
+          </Link>
+          <p className="text-slate-500 font-medium">Sign in to your account</p>
         </div>
 
         {/* Error Message */}
@@ -127,12 +123,12 @@ export default function LoginPage() {
         )}
 
         {/* Login Form Card */}
-        <Card className="bg-neutral-900 border-neutral-800 text-white shadow-xl">
-          <CardBody>
+        <Card className="bg-white border-slate-100 shadow-xl rounded-[2rem]">
+          <CardBody className="p-8">
             <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">
                   Email Address
                 </label>
                 <Input
@@ -145,13 +141,13 @@ export default function LoginPage() {
                   disabled={loading}
                   required
                   autoComplete="new-email"
-                  className="w-full"
+                  className="w-full bg-slate-50 border-slate-100 focus:bg-white transition-all"
                 />
               </div>
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="password" className="block text-sm font-bold text-slate-700 mb-2">
                   Password
                 </label>
                 <Input
@@ -164,7 +160,7 @@ export default function LoginPage() {
                   disabled={loading}
                   required
                   autoComplete="new-password"
-                  className="w-full"
+                  className="w-full bg-slate-50 border-slate-100 focus:bg-white transition-all"
                 />
               </div>
 
@@ -172,7 +168,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 variant="primary"
-                className="w-full mt-6"
+                className="w-full mt-6 py-6 text-lg font-black rounded-2xl shadow-lg shadow-amber-500/20"
                 disabled={loading}
               >
                 {loading ? 'Signing in...' : 'Sign In'}
@@ -180,10 +176,10 @@ export default function LoginPage() {
             </form>
 
             {/* Register Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="mt-8 text-center">
+              <p className="text-sm text-slate-500 font-bold">
                 Don't have an account?{' '}
-                <Link href="/register" className="text-[var(--brand-primary)] hover:underline font-medium">
+                <Link href="/register" className="text-[var(--brand-primary)] hover:underline font-black">
                   Register here
                 </Link>
               </p>
@@ -193,7 +189,7 @@ export default function LoginPage() {
 
         {/* Footer Link */}
         <div className="mt-8 text-center">
-          <Link href="/jobs" className="text-[var(--brand-primary)] hover:underline text-sm">
+          <Link href="/jobs" className="text-slate-400 hover:text-slate-600 font-bold text-sm transition-colors">
             Browse jobs as guest
           </Link>
         </div>
