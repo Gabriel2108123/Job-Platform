@@ -12,10 +12,11 @@ import Footer from './Footer';
 export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname() || '';
 
-    // Determine if this is an app route based on the URL prefix
+    // Determine if this is an app route or an auth route (no top header/footer)
     const isAppRoute = /^\/(candidate|business|admin|support)/.test(pathname);
+    const isAuthRoute = /^\/(login|register)/.test(pathname);
 
-    if (isAppRoute) {
+    if (isAppRoute || isAuthRoute) {
         return <main className="flex-1 flex flex-col">{children}</main>;
     }
 

@@ -11,7 +11,7 @@
   --brand-hover: #B8860B;
 
   /* Background & Foreground */
-  --background: #F8F9FA;
+  --background: #FFFFFF;
   --foreground: #1A1A1A;
 
   /* Secondary Colors */
@@ -37,10 +37,14 @@
   --gray-900: #111827;
 
   /* Type Scale — minimum 12px for ALL visible text */
-  --text-caption: 0.75rem;    /* 12px — absolute minimum, timestamps/badges */
-  --text-label: 0.8125rem;    /* 13px — widget sub-labels, metadata, status */
-  --text-body: 0.9375rem;     /* 15px — paragraph/descriptive text in cards */
-  --text-base: 1rem;          /* 16px — default body text */
+  --text-caption: 0.75rem;
+  /* 12px — absolute minimum, timestamps/badges */
+  --text-label: 0.8125rem;
+  /* 13px — widget sub-labels, metadata, status */
+  --text-body: 0.9375rem;
+  /* 15px — paragraph/descriptive text in cards */
+  --text-base: 1rem;
+  /* 16px — default body text */
 }
 
 /* stylelint-disable-next-line at-rule-no-unknown */

@@ -5,13 +5,22 @@ import { RoleLayout } from '@/components/layout/RoleLayout';
 
 import { User, Bell, Shield, LogOut, ChevronRight } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
+import { authApi } from '@/lib/api/auth';
+import { useRouter } from 'next/navigation';
 
 export default function CandidateSettingsPage() {
+    const router = useRouter();
+
     const sections = [
         { title: 'Personal Info', desc: 'Email, phone, and residency details', icon: User, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
         { title: 'Notifications', desc: 'Manage your job alerts and SMS updates', icon: Bell, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
         { title: 'Privacy & Security', desc: 'Password, visibility, and data control', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
     ];
+
+    const handleLogout = () => {
+        authApi.logout();
+        window.location.href = '/login';
+    };
 
     return (
         <RoleLayout pageTitle="Settings">
@@ -35,7 +44,10 @@ export default function CandidateSettingsPage() {
                     </Card>
                 ))}
 
-                <Card className="rounded-[2rem] border-rose-100 dark:border-rose-900/30 shadow-sm hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all cursor-pointer group mt-12 bg-white dark:bg-slate-900">
+                <Card
+                    onClick={handleLogout}
+                    className="rounded-[2rem] border-rose-100 dark:border-rose-900/30 shadow-sm hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all cursor-pointer group mt-12 bg-white dark:bg-slate-900"
+                >
                     <CardBody className="p-6">
                         <div className="flex items-center justify-between text-rose-600">
                             <div className="flex items-center gap-5">

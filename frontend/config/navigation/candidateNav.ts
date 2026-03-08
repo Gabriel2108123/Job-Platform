@@ -7,5 +7,4 @@ export const candidateNav = [
     { label: 'CV & Documents', icon: 'file-text', href: ROUTES.CANDIDATE.DOCUMENTS },
     { label: 'Messages', icon: 'message-square', href: ROUTES.CANDIDATE.MESSAGES },
     { label: 'Network', icon: 'network', href: ROUTES.CANDIDATE.NETWORK },
-    { label: 'Profile', icon: 'user', href: ROUTES.CANDIDATE.PROFILE },
 ];

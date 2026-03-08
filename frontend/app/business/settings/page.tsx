@@ -5,9 +5,11 @@ import { RoleLayout } from '@/components/layout/RoleLayout';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
 import { ROUTES } from '@/config/routes';
-import { Building2, Shield, CreditCard, Bell, Globe, ChevronRight } from 'lucide-react';
+import { Building2, Shield, CreditCard, Bell, Globe, ChevronRight, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth-helpers';
+import { authApi } from '@/lib/api/auth';
+import { useRouter } from 'next/navigation';
 
 const sections = [
     { title: 'Business Profile', desc: 'Company details, logo, and location', icon: Building2, color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20', href: '/business/settings/profile' },
@@ -18,9 +20,15 @@ const sections = [
 ];
 
 export default function BusinessSettingsPage() {
+    const router = useRouter();
     const user = getCurrentUser();
     const orgName = user?.name || 'Your Organisation';
     const workspaceId = user?.organizationId?.slice(0, 8).toUpperCase() || '—';
+
+    const handleLogout = () => {
+        authApi.logout();
+        window.location.href = '/login';
+    };
 
     return (
         <RoleLayout pageTitle="Business Settings">
@@ -57,6 +65,25 @@ export default function BusinessSettingsPage() {
                         </Link>
                     ))}
                 </div>
+
+                <Card
+                    onClick={handleLogout}
+                    className="rounded-[2rem] border-rose-100 dark:border-rose-900/30 shadow-sm hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all cursor-pointer group mt-12 bg-white dark:bg-slate-900"
+                >
+                    <CardBody className="p-6">
+                        <div className="flex items-center justify-between text-rose-600">
+                            <div className="flex items-center gap-5">
+                                <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/30">
+                                    <LogOut className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="font-black">Sign Out</h3>
+                                    <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest">End Current Session</p>
+                                </div>
+                            </div>
+                        </div>
+                    </CardBody>
+                </Card>
             </div>
         </RoleLayout>
     );

@@ -23,6 +23,7 @@ import {
 import { Role } from '@/lib/roles';
 import { BrandLogo } from '../ui/BrandLogo';
 import { authApi } from '@/lib/api/auth';
+import { ROUTES } from '@/config/routes';
 
 interface NavItem {
     label: string;
@@ -157,7 +158,15 @@ export function Sidebar({
             <div className="p-3 border-t border-slate-100 dark:border-slate-800 shrink-0 space-y-1">
                 {[
                     { label: 'Profile', icon: User, onClick: () => router.push(role === 'Candidate' ? '/candidate/profile' : '/business/settings/profile') },
-                    { label: 'Settings', icon: Settings, onClick: () => router.push(role === 'Candidate' ? '/candidate/settings' : '/business/settings') },
+                    {
+                        label: 'Settings',
+                        icon: Settings,
+                        onClick: () => {
+                            if (role === 'Candidate') router.push(ROUTES.CANDIDATE.SETTINGS);
+                            else if (role === 'Admin') router.push(ROUTES.ADMIN.SETTINGS);
+                            else router.push(ROUTES.BUSINESS.SETTINGS);
+                        }
+                    },
                     { label: 'Support', icon: HelpCircle, onClick: () => router.push(['Admin', 'Support'].includes(role as string) ? '/support' : (role === 'Candidate' ? '/candidate/support' : '/business/support')) },
                 ].map((item, idx) => (
                     <div key={idx} className="relative group/nav z-10">

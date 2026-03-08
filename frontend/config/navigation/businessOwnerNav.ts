@@ -7,5 +7,4 @@ export const businessOwnerNav = [
     { label: 'Messages', icon: 'message-square', href: ROUTES.BUSINESS.MESSAGES },
     { label: 'Team', icon: 'shield', href: ROUTES.BUSINESS.TEAM },
     { label: 'Billing', icon: 'credit-card', href: ROUTES.BUSINESS.BILLING },
-    { label: 'Settings', icon: 'settings', href: ROUTES.BUSINESS.SETTINGS },
 ];
