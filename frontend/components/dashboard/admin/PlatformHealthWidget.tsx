@@ -15,7 +15,7 @@ export function PlatformHealthWidget() {
     return (
         <Card className="rounded-[2.5rem] border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden bg-slate-900 text-white border-none">
             <CardBody className="p-8">
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Platform Health</h3>
+                <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-8">Platform Health</h3>
                 <div className="space-y-6">
                     {metrics.map(metric => (
                         <div key={metric.label} className="flex items-center justify-between group">
@@ -29,7 +29,7 @@ export function PlatformHealthWidget() {
                                 <p className="text-sm font-black text-white">{metric.value}</p>
                                 <div className="flex items-center gap-1 justify-end">
                                     <div className={`w-1.5 h-1.5 rounded-full ${metric.status === 'optimal' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                                    <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">{metric.status}</span>
+                                    <span className="text-xs font-black uppercase tracking-widest text-slate-500">{metric.status}</span>
                                 </div>
                             </div>
                         </div>

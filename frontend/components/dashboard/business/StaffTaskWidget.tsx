@@ -20,12 +20,12 @@ export function StaffTaskWidget() {
                         <div key={task.id} className="flex items-center justify-between group cursor-pointer">
                             <div className="flex items-center gap-4">
                                 <div className={`w-1.5 h-6 rounded-full ${task.priority === 'High' ? 'bg-rose-500' :
-                                        task.priority === 'Medium' ? 'bg-amber-500' :
-                                            'bg-indigo-500'
+                                    task.priority === 'Medium' ? 'bg-amber-500' :
+                                        'bg-indigo-500'
                                     }`} />
                                 <div>
                                     <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{task.task}</p>
-                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1">
                                         <Clock className="w-3 h-3" /> Due {task.due}
                                     </p>
                                 </div>

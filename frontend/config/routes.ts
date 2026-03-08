@@ -43,6 +43,9 @@ export const ROUTES = {
         SUBSCRIPTIONS: '/admin/subscriptions',
         AUDIT: '/admin/audit',
         SETTINGS: '/admin/settings',
+        VERIFICATION: '/admin/verification',
+        REPORTS: '/admin/reports',
+        CONFIG: '/admin/config',
     },
 
     // Support

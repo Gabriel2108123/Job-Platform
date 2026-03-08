@@ -24,7 +24,7 @@ export function HiringFunnelWidget() {
                             </div>
                             <div>
                                 <p className="text-3xl font-black text-slate-900 dark:text-white">{item.value}</p>
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.label}</p>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{item.label}</p>
                             </div>
                         </div>
                     ))}

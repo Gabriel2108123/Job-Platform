@@ -1,367 +1,242 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 import { Button } from '@/components/ui/Button';
 import { Card, CardBody } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
-import { createJob, CreateJobDto, EmploymentType } from '@/lib/api/client';
-import JobRoleSelector from '@/components/JobRoleSelector';
+import { ROUTES } from '@/config/routes';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ChevronRight, Briefcase, MapPin, Clock, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { getOrganizationId } from '@/lib/auth-helpers';
+import { getAuthHeaders } from '@/lib/auth';
 
-interface FormData {
-  title: string;
-  description: string;
-  location: string;
-  postalCode?: string;
-  employmentType: 'FullTime' | 'PartTime' | 'Temporary';
-  shiftPattern?: string;
-  salary?: string;
-  locationVisibility: 'PublicExact' | 'PrivateApprox';
-  jobRoleId?: string;
-}
+const STEPS = ['Job Details', 'Requirements', 'Visibility', 'Review'];
 
-export default function CreateJobPage() {
+const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Casual', 'Zero Hours'];
+const DEPARTMENTS = ['Front of House', 'Kitchen', 'Bar', 'Events', 'Management', 'Housekeeping', 'Reception', 'Other'];
+
+export default function NewJobPage() {
   const router = useRouter();
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({
+  const [form, setForm] = useState({
     title: '',
-    description: '',
+    department: '',
+    type: '',
     location: '',
     postalCode: '',
-    employmentType: 'FullTime',
-    shiftPattern: '',
-    salary: '',
-    locationVisibility: 'PrivateApprox', // Default to privacy
-    jobRoleId: undefined,
+    salaryMin: '',
+    salaryMax: '',
+    salaryCurrency: 'GBP',
+    description: '',
+    requiredQualifications: '',
+    benefits: '',
+    status: 'Draft' as 'Draft' | 'Active',
   });
 
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      errors.title = 'Job title is required';
-    }
-    if (!formData.jobRoleId) {
-      errors.jobRoleId = 'Please select a job role';
-    }
-    if (!formData.description.trim()) {
-      errors.description = 'Job description is required';
-    }
-    if (!formData.location.trim()) {
-      errors.location = 'Location is required';
-    }
-    if (formData.description.trim().length < 50) {
-      errors.description = 'Description must be at least 50 characters';
-    }
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Clear field error when user starts typing
-    if (fieldErrors[name]) {
-      setFieldErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[name];
-        return updated;
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const handleSubmit = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      // Map form data to CreateJobDto
-      const employmentTypeMap: Record<string, EmploymentType> = {
-        'FullTime': EmploymentType.FullTime,
-        'PartTime': EmploymentType.PartTime,
-        'Temporary': EmploymentType.Temporary
-      };
-
-      const createDto: CreateJobDto = {
-        title: formData.title,
-        description: formData.description,
-        location: formData.location,
-        postalCode: formData.postalCode,
-        locationVisibility: formData.locationVisibility,
-        jobRoleId: formData.jobRoleId,
-        employmentType: employmentTypeMap[formData.employmentType] || EmploymentType.FullTime,
-        shiftPattern: 1, // Default to Day (1) - should be selectable in future
-        salaryMin: formData.salary ? parseFloat(formData.salary) : undefined,
-        salaryCurrency: 'GBP',
-        salaryPeriod: 3, // Default to Year
-      };
-
-      const response = await createJob(createDto);
-      if (response.success && response.data) {
-        // Redirect to jobs list
-        router.push('/business/jobs');
-      } else {
-        setError(response.error || 'Failed to create job');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const orgId = getOrganizationId();
+      const res = await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({
+          ...form,
+          organizationId: orgId,
+          salaryMin: form.salaryMin ? parseInt(form.salaryMin) : null,
+          salaryMax: form.salaryMax ? parseInt(form.salaryMax) : null,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to create job.');
+      const data = await res.json();
+      router.push(ROUTES.BUSINESS.JOB_DETAIL(data.id));
+    } catch (e: any) {
+      setError(e.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }
   };
 
+  const inputCls = 'w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all placeholder:text-slate-400';
+  const labelCls = 'block text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest mb-2';
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <Link href="/business/jobs" className="text-[var(--brand-primary)] hover:underline mb-6 inline-block">
-          ← Back to Jobs
+    <RoleLayout
+      pageTitle="Create New Role"
+      pageActions={
+        <Link href={ROUTES.BUSINESS.JOBS}>
+          <Button variant="outline" className="flex items-center gap-2 rounded-xl font-black text-xs uppercase tracking-widest">
+            <ArrowLeft className="w-4 h-4" /> Back to Jobs
+          </Button>
         </Link>
-
-        <h1 className="text-4xl font-bold text-[var(--brand-navy)] mb-2">Create New Job</h1>
-        <p className="text-gray-600 mb-8">Post a new job opening for your organization</p>
-
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800">{error}</p>
-          </div>
-        )}
-
-        {/* Form */}
-        <Card variant="default">
-          <CardBody>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Job Title */}
-              <div>
-                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Title <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="title"
-                  name="title"
-                  type="text"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="e.g., Chef, Waiter, Bartender"
-                  className={fieldErrors.title ? 'border-red-500' : ''}
-                />
-                {fieldErrors.title && (
-                  <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
-                )}
+      }
+    >
+      <div className="max-w-3xl">
+        {/* Step Indicator */}
+        <div className="flex items-center gap-0 mb-12">
+          {STEPS.map((s, i) => (
+            <React.Fragment key={s}>
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black transition-all ${i < step ? 'bg-emerald-500 text-white' :
+                    i === step ? 'bg-indigo-600 text-white' :
+                      'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                  }`}>
+                  {i < step ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+                </div>
+                <span className={`text-xs font-black uppercase tracking-widest hidden sm:block ${i === step ? 'text-indigo-600' : i < step ? 'text-emerald-500' : 'text-slate-400'}`}>{s}</span>
               </div>
+              {i < STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-3 ${i < step ? 'bg-emerald-300' : 'bg-slate-200 dark:bg-slate-700'}`} />}
+            </React.Fragment>
+          ))}
+        </div>
 
-              {/* Job Role Selector */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Role <span className="text-red-500">*</span>
-                </label>
-                <JobRoleSelector
-                  selectedRoleIds={formData.jobRoleId ? [formData.jobRoleId] : []}
-                  onChange={(roleIds) => setFormData(prev => ({ ...prev, jobRoleId: roleIds[0] }))}
-                  maxSelections={1}
-                  placeholder="Select a job role..."
-                />
-                {fieldErrors.jobRoleId && (
-                  <p className="text-red-600 text-sm mt-1">{fieldErrors.jobRoleId}</p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Choose from our standardized hospitality roles
-                </p>
-              </div>
-
-              {/* Location */}
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location <span className="text-red-500">*</span>
-                </label>
-                <Input
-                  id="location"
-                  name="location"
-                  type="text"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="e.g., London, Manchester, Birmingham"
-                  className={fieldErrors.location ? 'border-red-500' : ''}
-                />
-                {fieldErrors.location && (
-                  <p className="text-red-600 text-sm mt-1">{fieldErrors.location}</p>
-                )}
-              </div>
-
-              {/* Postal Code */}
-              <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Postal Code (optional)
-                </label>
-                <Input
-                  id="postalCode"
-                  name="postalCode"
-                  type="text"
-                  value={formData.postalCode || ''}
-                  onChange={handleChange}
-                  placeholder="e.g., SW1A 1AA, M1 1AE"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Helps improve location accuracy on the map
-                </p>
-              </div>
-
-              {/* Location Privacy */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location Privacy <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-start cursor-pointer">
-                    <input
-                      type="radio"
-                      name="locationVisibility"
-                      value="PrivateApprox"
-                      checked={formData.locationVisibility === 'PrivateApprox'}
-                      onChange={handleChange}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <span className="font-medium text-gray-900">Private (Recommended)</span>
-                      <p className="text-sm text-gray-600">
-                        Show approximate area (~1km radius). Exact address hidden from public.
-                      </p>
-                    </div>
-                  </label>
-                  <label className="flex items-start cursor-pointer">
-                    <input
-                      type="radio"
-                      name="locationVisibility"
-                      value="PublicExact"
-                      checked={formData.locationVisibility === 'PublicExact'}
-                      onChange={handleChange}
-                      className="mt-1 mr-3"
-                    />
-                    <div>
-                      <span className="font-medium text-gray-900">Public (Exact location)</span>
-                      <p className="text-sm text-gray-600">
-                        Show exact address to all viewers on the map.
-                      </p>
-                    </div>
-                  </label>
+        <Card className="rounded-[2.5rem] border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardBody className="p-8 md:p-10">
+            {/* Step 0: Job Details */}
+            {step === 0 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Tell us about the role</h2>
+                <div>
+                  <label className={labelCls}>Job Title *</label>
+                  <input className={inputCls} placeholder="e.g. Senior Bartender" value={form.title} onChange={e => update('title', e.target.value)} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className={labelCls}>Department</label>
+                    <select className={inputCls} value={form.department} onChange={e => update('department', e.target.value)}>
+                      <option value="">Select department</option>
+                      {DEPARTMENTS.map(d => <option key={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Employment Type</label>
+                    <select className={inputCls} value={form.type} onChange={e => update('type', e.target.value)}>
+                      <option value="">Select type</option>
+                      {JOB_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className={labelCls}><MapPin className="w-3 h-3 inline mr-1" />Location</label>
+                    <input className={inputCls} placeholder="e.g. Soho, London" value={form.location} onChange={e => update('location', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Postcode</label>
+                    <input className={inputCls} placeholder="e.g. W1D 3JH" value={form.postalCode} onChange={e => update('postalCode', e.target.value)} />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-1">
+                    <label className={labelCls}>Currency</label>
+                    <select className={inputCls} value={form.salaryCurrency} onChange={e => update('salaryCurrency', e.target.value)}>
+                      <option>GBP</option><option>EUR</option><option>USD</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelCls}>Min Salary (£/yr)</label>
+                    <input className={inputCls} type="number" placeholder="e.g. 28000" value={form.salaryMin} onChange={e => update('salaryMin', e.target.value)} />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Max Salary (£/yr)</label>
+                    <input className={inputCls} type="number" placeholder="e.g. 35000" value={form.salaryMax} onChange={e => update('salaryMax', e.target.value)} />
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Employment Type */}
-              <div>
-                <label htmlFor="employmentType" className="block text-sm font-medium text-gray-700 mb-1">
-                  Employment Type <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="employmentType"
-                  name="employmentType"
-                  value={formData.employmentType}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 bg-white text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]"
-                >
-                  <option value="FullTime">Full-time</option>
-                  <option value="PartTime">Part-time</option>
-                  <option value="Temporary">Temporary</option>
-                </select>
+            {/* Step 1: Requirements */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Define the requirements</h2>
+                <div>
+                  <label className={labelCls}>Job Description *</label>
+                  <textarea rows={6} className={inputCls} placeholder="Describe the role, responsibilities, and what a great day looks like..." value={form.description} onChange={e => update('description', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelCls}>Required Qualifications & Experience</label>
+                  <textarea rows={4} className={inputCls} placeholder="List must-have skills, certifications, and experience levels..." value={form.requiredQualifications} onChange={e => update('requiredQualifications', e.target.value)} />
+                </div>
+                <div>
+                  <label className={labelCls}>Benefits & Perks</label>
+                  <textarea rows={3} className={inputCls} placeholder="e.g. Staff meals, tips, pension, 28 days holiday..." value={form.benefits} onChange={e => update('benefits', e.target.value)} />
+                </div>
               </div>
+            )}
 
-              {/* Shift Pattern */}
-              <div>
-                <label htmlFor="shiftPattern" className="block text-sm font-medium text-gray-700 mb-1">
-                  Shift Pattern
-                </label>
-                <Input
-                  id="shiftPattern"
-                  name="shiftPattern"
-                  type="text"
-                  value={formData.shiftPattern || ''}
-                  onChange={handleChange}
-                  placeholder="e.g., Days, Nights, Rotating shifts"
-                />
+            {/* Step 2: Visibility */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">When should this go live?</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card
+                    className={`rounded-[2rem] cursor-pointer border-2 transition-all ${form.status === 'Draft' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10' : 'border-slate-200 dark:border-slate-700'}`}
+                    onClick={() => update('status', 'Draft')}
+                  >
+                    <CardBody className="p-8">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+                        <Clock className="w-5 h-5 text-slate-500" />
+                      </div>
+                      <h3 className="font-black text-slate-900 dark:text-white mb-1">Save as Draft</h3>
+                      <p className="text-sm text-slate-500">Not visible to candidates. You can publish any time.</p>
+                    </CardBody>
+                  </Card>
+                  <Card
+                    className={`rounded-[2rem] cursor-pointer border-2 transition-all ${form.status === 'Active' ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10' : 'border-slate-200 dark:border-slate-700'}`}
+                    onClick={() => update('status', 'Active')}
+                  >
+                    <CardBody className="p-8">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-4">
+                        <Briefcase className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <h3 className="font-black text-slate-900 dark:text-white mb-1">Publish Now</h3>
+                      <p className="text-sm text-slate-500">Immediately visible to matching candidates.</p>
+                    </CardBody>
+                  </Card>
+                </div>
               </div>
+            )}
 
-              {/* Salary */}
-              <div>
-                <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-1">
-                  Salary
-                </label>
-                <Input
-                  id="salary"
-                  name="salary"
-                  type="text"
-                  value={formData.salary || ''}
-                  onChange={handleChange}
-                  placeholder="e.g., £25,000 - £30,000 per year or hourly rate"
-                />
+            {/* Step 3: Review */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">Review & Confirm</h2>
+                <p className="text-sm text-slate-500 mb-8">Check everything looks right before creating the role.</p>
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-[2rem] p-8 space-y-4 border border-slate-200 dark:border-slate-700">
+                  <div className="flex justify-between items-start"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Title</span><span className="font-black text-slate-900 dark:text-white">{form.title || '—'}</span></div>
+                  <div className="flex justify-between items-start"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Type</span><span className="font-black text-slate-900 dark:text-white">{form.type || '—'}</span></div>
+                  <div className="flex justify-between items-start"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Location</span><span className="font-black text-slate-900 dark:text-white">{form.location || '—'}</span></div>
+                  <div className="flex justify-between items-start"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Salary</span><span className="font-black text-slate-900 dark:text-white">{form.salaryMin && form.salaryMax ? `${form.salaryCurrency} ${form.salaryMin}–${form.salaryMax}` : 'Not specified'}</span></div>
+                  <div className="flex justify-between items-start"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Status</span><span className={`text-xs font-black px-2 py-0.5 rounded-md ${form.status === 'Active' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{form.status}</span></div>
+                </div>
+                {error && <p className="text-sm text-rose-600 font-bold bg-rose-50 rounded-2xl p-4">{error}</p>}
               </div>
+            )}
 
-              {/* Description */}
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Job Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Describe the job responsibilities, requirements, and benefits..."
-                  rows={8}
-                  className={`w-full px-3 py-2 bg-white text-gray-900 border ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]`}
-                />
-                {fieldErrors.description && (
-                  <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>
-                )}
-                <p className="text-xs text-gray-500 mt-1">
-                  {formData.description.length} / 50 characters minimum
-                </p>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex gap-3 pt-6 border-t">
-                <Link href="/business/jobs" className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    Cancel
-                  </Button>
-                </Link>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="flex-1 bg-[var(--brand-primary)]"
-                  disabled={loading}
-                >
-                  {loading ? 'Creating...' : 'Create Job'}
+            {/* Navigation */}
+            <div className="flex justify-between mt-10 pt-8 border-t border-slate-100 dark:border-slate-800">
+              <Button variant="outline" className="rounded-xl font-black text-xs uppercase tracking-widest" onClick={() => setStep(s => Math.max(0, s - 1))} disabled={step === 0}>
+                Back
+              </Button>
+              {step < STEPS.length - 1 ? (
+                <Button variant="primary" className="rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2" onClick={() => setStep(s => s + 1)} disabled={step === 0 && !form.title}>
+                  Continue <ChevronRight className="w-4 h-4" />
                 </Button>
-              </div>
-            </form>
+              ) : (
+                <Button variant="primary" className="rounded-xl font-black text-xs uppercase tracking-widest px-8" onClick={handleSubmit} disabled={loading}>
+                  {loading ? 'Creating...' : form.status === 'Active' ? 'Publish Role' : 'Save Draft'}
+                </Button>
+              )}
+            </div>
           </CardBody>
         </Card>
-
-        {/* Help Text */}
-        <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Tip:</strong> Your job will be saved as a draft. You can preview it and publish when ready.
-          </p>
-        </div>
       </div>
-    </div>
+    </RoleLayout>
   );
 }

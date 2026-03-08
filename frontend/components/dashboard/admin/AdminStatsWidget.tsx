@@ -21,12 +21,12 @@ export function AdminStatsWidget() {
                             <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color}`}>
                                 <stat.icon className="w-6 h-6" />
                             </div>
-                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
+                            <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
                                 {stat.change}
                             </span>
                         </div>
                         <p className="text-3xl font-black text-slate-900 dark:text-white mb-1">{stat.value}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{stat.label}</p>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{stat.label}</p>
                     </CardBody>
                 </Card>
             ))}

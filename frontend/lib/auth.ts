@@ -65,3 +65,11 @@ export function clearAuth(): void {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 }
+
+/**
+ * Returns Authorization headers for API calls
+ */
+export function getAuthHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}

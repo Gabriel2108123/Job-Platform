@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardBody } from '@/components/ui/Card';
-import { User, Shield, MoreVertical, Mail } from 'lucide-react';
+import { User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 interface TeamMemberCardProps {
@@ -13,10 +13,13 @@ interface TeamMemberCardProps {
         role: string;
         access: 'Admin' | 'Staff';
         status: 'Active' | 'Invited';
+        permissions?: string[];
     };
+    onRemove?: () => void;
+    onEditPermissions?: (memberId: string) => void;
 }
 
-export function TeamMemberCard({ member }: TeamMemberCardProps) {
+export function TeamMemberCard({ member, onRemove, onEditPermissions }: TeamMemberCardProps) {
     return (
         <Card className="rounded-[2rem] border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white dark:bg-slate-900">
             <CardBody className="p-6">
@@ -28,7 +31,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-black text-slate-900 dark:text-white">{member.name}</h3>
-                                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${member.status === 'Active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                                <span className={`px-2 py-0.5 rounded-md text-xs font-black uppercase tracking-widest ${member.status === 'Active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
                                     }`}>
                                     {member.status}
                                 </span>
@@ -36,18 +39,28 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
                             <p className="text-xs font-bold text-slate-500 mb-1">{member.email}</p>
                             <div className="flex items-center gap-2">
                                 <Shield className="w-3.5 h-3.5 text-indigo-600" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{member.role} • {member.access} Access</span>
+                                <span className="text-xs font-black uppercase tracking-widest text-slate-500">{member.role} • {member.access} Access</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button variant="outline" size="sm" className="rounded-xl border-slate-200 dark:border-slate-700 font-black text-[10px] uppercase tracking-widest px-4">
+                        <Button
+                            variant="outline" size="sm"
+                            className="rounded-xl border-slate-200 dark:border-slate-700 font-black text-xs uppercase tracking-widest px-4"
+                            onClick={() => onEditPermissions?.(member.id)}
+                        >
                             Edit Permissions
                         </Button>
-                        <Button variant="outline" size="sm" className="rounded-xl border-slate-200 dark:border-slate-700 p-2.5">
-                            <MoreVertical className="w-4 h-4" />
-                        </Button>
+                        {onRemove && (
+                            <Button
+                                variant="outline" size="sm"
+                                className="rounded-xl border-rose-200 text-rose-600 font-black text-xs uppercase tracking-widest px-3"
+                                onClick={onRemove}
+                            >
+                                Remove
+                            </Button>
+                        )}
                     </div>
                 </div>
             </CardBody>

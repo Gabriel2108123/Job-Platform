@@ -32,12 +32,12 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
                                 <h3 className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
                                     {candidate.name}
                                 </h3>
-                                <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-md text-[10px] font-black italic">
+                                <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-md text-xs font-black italic">
                                     <Star className="w-3 h-3 fill-amber-600" /> {candidate.score} MATCH
                                 </div>
                             </div>
                             <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-tight">{candidate.role} • {candidate.experience}</p>
-                            <div className="flex items-center gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                            <div className="flex items-center gap-4 text-xs text-slate-500 font-bold uppercase tracking-widest">
                                 <div className="flex items-center gap-1">
                                     <MapPin className="w-3 h-3" /> {candidate.location}
                                 </div>
