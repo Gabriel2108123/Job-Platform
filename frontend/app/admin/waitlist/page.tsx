@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 import { Button } from '@/components/ui';
 import { Card, CardBody } from '@/components/ui';
 import { apiRequest } from '@/lib/api/client';
@@ -124,13 +125,9 @@ export default function AdminWaitlist() {
   const totalPages = Math.ceil(totalCount / pageSize);
 
   return (
-    <div className="min-h-screen bg-[var(--brand-off-white)] p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-[var(--brand-navy)] font-montserrat mb-2">Waitlist Management</h1>
-          <p className="text-[var(--brand-charcoal)]/70 font-inter">Total entries: {totalCount}</p>
-        </div>
+    <RoleLayout pageTitle="Waitlist Management">
+      <div className="max-w-7xl mx-auto pb-12">
+        <p className="text-[var(--brand-charcoal)]/70 font-inter font-medium mb-6">Total entries: {totalCount}</p>
 
         {/* Error Message */}
         {error && (
@@ -383,6 +380,6 @@ export default function AdminWaitlist() {
           </div>
         )}
       </div>
-    </div>
+    </RoleLayout>
   );
 }

@@ -9,11 +9,11 @@ export function EnvironmentBanner() {
     // In dev/staging, verification might be turned off based on backend config
     fetch('/api/system/config')
       .then(async (res) => {
-        if (!res.ok) throw new Error('System config route unavailable');
+        if (!res.ok) return null;
         return res.json();
       })
       .then((data) => {
-        if (data?.featureFlags?.RequireEmailVerification === false) {
+        if (data && data?.featureFlags?.RequireEmailVerification === false) {
           setShowBanner(true);
         }
       })

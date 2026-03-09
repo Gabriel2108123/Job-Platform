@@ -1,17 +1,12 @@
 'use client';
 
-import { PageHeader } from '@/components/layout/PageHeader';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 import { Card, CardBody } from '@/components/ui/Card';
 
 export default function AdminSubscriptionsPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Subscription Management"
-          description="View and manage subscriptions"
-          backLink={{ href: '/admin', label: 'Back to Admin Dashboard' }}
-        />
+    <RoleLayout pageTitle="Subscription Management">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <Card variant="default">
           <CardBody>
             <div className="text-center py-12">
@@ -20,6 +15,6 @@ export default function AdminSubscriptionsPage() {
           </CardBody>
         </Card>
       </div>
-    </div>
+    </RoleLayout>
   );
 }

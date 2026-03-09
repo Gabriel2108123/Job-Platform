@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { RequireRole } from '@/components/auth/RoleBasedAccess';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -83,12 +83,8 @@ function ModerationQueueContent() {
     const filteredReports = reports.filter(r => filter === 'All' || r.targetType === filter);
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <PageHeader
-                    title="Moderation Queue"
-                    description="Review and resolve user reports"
-                />
+        <RoleLayout pageTitle="Moderation Queue">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
 
                 <div className="mb-8 flex gap-2">
                     {['All', 'Job', 'User'].map((f) => (
@@ -96,8 +92,8 @@ function ModerationQueueContent() {
                             key={f}
                             onClick={() => setFilter(f as any)}
                             className={`px-6 py-2 rounded-xl font-bold transition-all ${filter === f
-                                    ? 'bg-[var(--brand-primary)] text-white shadow-lg'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                                ? 'bg-[var(--brand-primary)] text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
                             {f}s
@@ -175,6 +171,6 @@ function ModerationQueueContent() {
                     </div>
                 )}
             </div>
-        </div>
+        </RoleLayout>
     );
 }

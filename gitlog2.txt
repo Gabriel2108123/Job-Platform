@@ -1,0 +1,10 @@
+﻿eda2c64 feat: implement unified job search layout with sidebar filters and horizontal cards
+bcf225d Restored dashboard content, fixed double sidebar, and implemented Sign Out in Settings for all roles
+24be689 Refactor landing page navigation, add AI CV Builder UI, and fix routing bugs
+fb5fa9b Implement all functional requirements + typography polish (Phases 0-11)
+f92b2e7 feat: Implement job seeker profile features and gating
+2d65a04 Implement Role-Based UI Architecture and fix backend compilation issues
+ab49da9 Fix API integration tests, implement security gates, and refactor test infrastructure
+d56f7ca style: Apply Yoke Yellow marketing color palette; fix: Resolve git merge conflicts in auth pages; fix: Resolve React fragment rendering issues in legal pages
+f63769a Refactor: User flow improvements, connectivity fixes, and Worker Map verification
+206e6c6 feat: integrate YokeConnect logo and enhance map displays

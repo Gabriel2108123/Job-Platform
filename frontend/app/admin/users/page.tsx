@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { RequireRole } from '@/components/auth/RoleBasedAccess';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -97,14 +97,8 @@ function AdminUsersContent() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageHeader
-          title="User Management"
-          description="View and manage platform users"
-          backLink={{ href: '/admin', label: 'Back to Admin Dashboard' }}
-        />
-
+    <RoleLayout pageTitle="User Management">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="mb-6">
           <Input
             placeholder="Search by name or email..."
@@ -205,6 +199,6 @@ function AdminUsersContent() {
           </CardBody>
         </Card>
       </div>
-    </div>
+    </RoleLayout>
   );
 }

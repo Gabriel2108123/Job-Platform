@@ -157,7 +157,9 @@ export function Sidebar({
             {/* Bottom Utilities */}
             <div className="p-3 border-t border-slate-100 dark:border-slate-800 shrink-0 space-y-1">
                 {[
-                    { label: 'Profile', icon: User, onClick: () => router.push(role === 'Candidate' ? '/candidate/profile' : '/business/settings/profile') },
+                    ...(['Candidate', 'BusinessOwner', 'Staff'].includes(role as string)
+                        ? [{ label: 'Profile', icon: User, onClick: () => router.push(role === 'Candidate' ? '/candidate/profile' : '/business/settings/profile') }]
+                        : []),
                     {
                         label: 'Settings',
                         icon: Settings,
