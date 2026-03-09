@@ -178,8 +178,8 @@ export function Sidebar({
                             else router.push(ROUTES.BUSINESS.SETTINGS);
                         }
                     },
-                    { label: 'Support', icon: HelpCircle, onClick: () => router.push(['Admin', 'Support'].includes(role as string) ? '/support' : (role === 'Candidate' ? '/candidate/support' : '/business/support')) },
-                ].map((item, idx) => (
+                    ...(role !== 'Admin' ? [{ label: 'Support', icon: HelpCircle, onClick: () => router.push(['Admin', 'Support'].includes(role as string) ? '/support' : (role === 'Candidate' ? '/candidate/support' : '/business/support')) }] : []),
+                ].map((item: any, idx) => (
                     <div key={idx} className="relative group/nav z-10">
                         <button
                             onClick={item.onClick}

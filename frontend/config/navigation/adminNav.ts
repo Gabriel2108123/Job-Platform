@@ -7,4 +7,5 @@ export const adminNav = [
     { label: 'Moderation', icon: 'shield', href: ROUTES.ADMIN.MODERATION },
     { label: 'Subscriptions', icon: 'credit-card', href: ROUTES.ADMIN.SUBSCRIPTIONS },
     { label: 'Audit Logs', icon: 'file-text', href: ROUTES.ADMIN.AUDIT },
+    { label: 'Support', icon: 'life-buoy', href: ROUTES.SUPPORT.HOME },
 ];
