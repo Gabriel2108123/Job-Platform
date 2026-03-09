@@ -106,7 +106,7 @@ export default function JobDetailsPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12">
           <div className="inline-block">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-primary)]"></div>
@@ -119,7 +119,7 @@ export default function JobDetailsPage({ params }: PageProps) {
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <p className="text-red-800 mb-4">{error || 'Job not found'}</p>
@@ -133,7 +133,7 @@ export default function JobDetailsPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Success Message */}
         {applySuccess && (

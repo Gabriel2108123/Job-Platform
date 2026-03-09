@@ -142,7 +142,7 @@ function DocumentsContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-white py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--brand-primary)]"></div>
@@ -153,7 +153,7 @@ function DocumentsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <PageHeader
           title="Documents"

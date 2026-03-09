@@ -160,7 +160,7 @@ export default function PipelinePage() {
 
   if (!jobId) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-6xl mx-auto px-4">
           <p className="text-red-600">Job ID not found</p>
         </div>
@@ -169,7 +169,7 @@ export default function PipelinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-full mx-auto px-4">
         {/* Header */}
         <div className="mb-8">

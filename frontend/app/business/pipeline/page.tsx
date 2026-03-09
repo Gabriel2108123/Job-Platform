@@ -32,13 +32,13 @@ interface Job {
   title: string;
 }
 
+import { RoleLayout } from '@/components/layout/RoleLayout';
+
 export default function PipelinePage() {
   return (
-    <RequireAuth>
-      <RequireRole allowedRoles={['BusinessOwner', 'Staff']}>
-        <PipelineContent />
-      </RequireRole>
-    </RequireAuth>
+    <RoleLayout pageTitle="Recruitment Pipeline">
+      <PipelineContent />
+    </RoleLayout>
   );
 }
 
@@ -290,7 +290,7 @@ function PipelineContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-center text-gray-600">Loading pipeline...</p>
         </div>
@@ -300,7 +300,7 @@ function PipelineContent() {
 
   if (jobs.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-7xl mx-auto px-4">
           <PageHeader title="Recruitment Pipeline" description="No jobs found" />
           <EmptyState
@@ -315,7 +315,7 @@ function PipelineContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <PageHeader
           title="Recruitment Pipeline"

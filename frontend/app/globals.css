@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Force light mode by requiring an explicit .dark class */
+/* stylelint-disable at-rule-no-unknown */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Brand Colors - Primary */
   --brand-navy: #1a3a52;
@@ -47,7 +51,6 @@
   /* 16px — default body text */
 }
 
-/* stylelint-disable-next-line at-rule-no-unknown */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -59,6 +62,11 @@
   --font-poppins: var(--font-poppins), "Poppins", sans-serif;
   --font-montserrat: var(--font-montserrat), "Montserrat", sans-serif;
   --font-inter: var(--font-inter), "Inter", sans-serif;
+}
+/* stylelint-enable at-rule-no-unknown */
+
+html {
+  font-size: 112.5% !important; /* 18px base */
 }
 
 html,

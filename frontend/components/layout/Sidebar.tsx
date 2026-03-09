@@ -18,7 +18,12 @@ import {
     Network,
     User,
     LogOut,
-    HelpCircle
+    HelpCircle,
+    Building2,
+    FileSearch,
+    Inbox,
+    BarChart2,
+    LogOut as LogIcon
 } from 'lucide-react';
 import { Role } from '@/lib/roles';
 import { BrandLogo } from '../ui/BrandLogo';
@@ -41,7 +46,6 @@ interface SidebarProps {
     onToggleCollapse?: () => void;
 }
 
-// Map string icons to components
 const IconMap: Record<string, any> = {
     grid: Grid,
     briefcase: Briefcase,
@@ -53,7 +57,12 @@ const IconMap: Record<string, any> = {
     'life-buoy': LifeBuoy,
     'file-text': FileText,
     network: Network,
-    shuffle: Users, // Fallback
+    'building-2': Building2,
+    log: FileSearch,
+    inbox: Inbox,
+    'bar-chart-2': BarChart2,
+    user: User,
+    shuffle: Network,
 };
 
 export function Sidebar({

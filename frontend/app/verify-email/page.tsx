@@ -75,7 +75,7 @@ function VerifyEmailContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <Card variant="default">
           <CardBody>
@@ -159,7 +159,7 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center">Loading...</div>}>
       <VerifyEmailContent />
     </Suspense>
   );

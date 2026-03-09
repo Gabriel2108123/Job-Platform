@@ -7,7 +7,7 @@ import Link from 'next/link';
 export default function CVBuilderPage() {
     return (
         <RequireAuth>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-white">
                 <div className="bg-white border-b py-4">
                     <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
                         <Link href="/dashboard" className="text-gray-500 hover:text-gray-900 flex items-center gap-2">

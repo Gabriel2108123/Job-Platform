@@ -5,8 +5,8 @@ import { apiRequest } from '@/lib/api/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card, CardBody } from '@/components/ui/Card';
-import { PageHeader } from '@/components/layout/PageHeader';
 import { Plus, Trash2, Edit2, Save, X, FileText } from 'lucide-react';
+import { RoleLayout } from '@/components/layout/RoleLayout';
 
 interface MessageTemplate {
     id: string;
@@ -96,13 +96,11 @@ export default function MessageTemplateManager() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12">
-            <div className="max-w-4xl mx-auto px-4">
-                <PageHeader
-                    title="Message Templates"
-                    description="Create and manage reusable messages for recruitment"
-                    backLink={{ href: '/business', label: 'Back to Dashboard' }}
-                />
+        <RoleLayout pageTitle="Message Templates">
+            <div className="max-w-4xl mx-auto">
+                <p className="text-slate-500 mb-8 -mt-4 text-lg">
+                    Create and manage reusable messages for recruitment
+                </p>
 
                 <div className="mb-8">
                     {!isCreating && !editingId ? (
@@ -189,6 +187,6 @@ export default function MessageTemplateManager() {
                     )}
                 </div>
             </div>
-        </div>
+        </RoleLayout>
     );
 }

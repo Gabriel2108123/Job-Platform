@@ -6,7 +6,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 
 export default function InDevelopmentPage() {
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
             <Card variant="default" className="max-w-md w-full text-center">
                 <CardBody className="p-8">
                     <div className="text-6xl mb-6">🚧</div>

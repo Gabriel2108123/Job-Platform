@@ -108,7 +108,7 @@ export default function CandidateProfilePage() {
 
   return (
     <RequireRole allowedRoles={['Candidate', 'BusinessOwner', 'Staff', 'Admin', 'Support']}>
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           {/* Profile Header */}
           <Card className="overflow-hidden mb-8 shadow-xl border-none">
